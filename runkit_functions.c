@@ -133,7 +133,7 @@ static inline void php_runkit_add_to_misplaced_internal_functions(zend_function 
 /* {{{ php_runkit_destroy_misplaced_internal_function */
 static inline void php_runkit_destroy_misplaced_internal_function(zend_function *fe, zend_string *fname_lower TSRMLS_DC) {
 	if (fe->type == ZEND_INTERNAL_FUNCTION && RUNKIT_G(misplaced_internal_functions) &&
-	    zend_hash_exists(RUNKIT_G(misplaced_internal_functions), (char *) fname_lower)) {
+	    zend_hash_exists(RUNKIT_G(misplaced_internal_functions), fname_lower)) {
 		PHP_RUNKIT_FREE_INTERNAL_FUNCTION_NAME(fe);
 		zend_hash_del(RUNKIT_G(misplaced_internal_functions), fname_lower);
 	}
@@ -380,7 +380,6 @@ static void php_runkit_clear_function_runtime_cache_for_function_table(HashTable
 	} ZEND_HASH_FOREACH_END();
 }
 /* }}} */
-
 
 /* {{{ php_runkit_clear_all_functions_runtime_cache */
 void php_runkit_clear_all_functions_runtime_cache(TSRMLS_D)
@@ -862,7 +861,7 @@ PHP_FUNCTION(runkit_function_rename)
 	if (deleted) {
 		zend_string_release(dfunc_lower);
 		zend_string_release(sfunc_lower);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error removing reference to old function name %s()", sfunc);
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error removing reference to old function name %s()", ZSTR_VAL(sfunc));
 		PHP_RUNKIT_FREE_INTERNAL_FUNCTION_NAME(func);
 		/* TODO: is this needed?
 		ZVAL_FUNC(&tmpVal, &func);
