@@ -131,10 +131,8 @@ PHP_FUNCTION(runkit_method_copy);
 PHP_FUNCTION(runkit_constant_redefine);
 PHP_FUNCTION(runkit_constant_remove);
 PHP_FUNCTION(runkit_constant_add);
-#ifdef PHP_RUNKIT_MANIPULATION_PROPERTIES
 PHP_FUNCTION(runkit_default_property_add);
 PHP_FUNCTION(runkit_default_property_remove);
-#endif
 #ifdef PHP_RUNKIT_MANIPULATION_CLASSES
 PHP_FUNCTION(runkit_class_emancipate);
 PHP_FUNCTION(runkit_class_adopt);

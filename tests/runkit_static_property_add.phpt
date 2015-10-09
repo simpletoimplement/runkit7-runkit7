@@ -56,4 +56,7 @@ string(14) "publicProperty"
 
 Warning: runkit_default_property_add(): Adding properties to internal classes is not allowed in %s on line %d
 
-Fatal error: Access to undeclared static property: stdClass::$str in %s on line %d
+Fatal error: Uncaught Error: Access to undeclared static property: stdClass::$str in %s:%d
+Stack trace:
+#0 {main}
+  thrown in %s on line %d

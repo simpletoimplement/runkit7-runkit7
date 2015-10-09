@@ -22,7 +22,7 @@
 #include "php_runkit.h"
 #include "php_runkit_zval.h"
 
-#ifdef PHP_RUNKIT_MANIPULATION_PROPERTIES
+#ifdef PHP_RUNKIT_MANIPULATION
 
 /* {{{ php_runkit_make_object_property_public */
 static inline void php_runkit_make_object_property_public(zend_string *propname, zend_object *object, int offset, zend_property_info *property_info_ptr TSRMLS_DC) {
@@ -175,22 +175,20 @@ int php_runkit_def_prop_add_int(zend_class_entry *ce, zend_string* propname, zva
 	Z_TRY_ADDREF_P(pcopyval);
 
 	// FIXME: Figure out what to do if references must be used.
-	/*
 	if (visibility & ZEND_ACC_STATIC) {
 		if (definer_class == NULL || ce == definer_class) {
 			Z_TRY_DELREF_P(pcopyval);
 			SEPARATE_ARG_IF_REF(pcopyval);
 		} else {
-			// TODO: Equivalent of below
-			Z_SET_ISREF_P(pcopyval);
+			// TODO: Equivalent of below FIXME
+			// Z_SET_ISREF_P(pcopyval);
 		}
 	}
-	*/
 
 	// TODO: Extract from zval instead.
 	if ((prop_info_ptr = zend_hash_find_ptr(&ce->properties_info, propname)) != NULL) {
 		if (!override) {
-			zval_ptr_dtor(pcopyval);
+			Z_TRY_DELREF_P(pcopyval);
 			php_error_docref(NULL TSRMLS_CC, E_NOTICE, "%s%s%s already exists, not adding",
 			                 ZSTR_VAL(ce->name), (prop_info_ptr->flags & ZEND_ACC_STATIC) ? "::$" : "->", ZSTR_VAL(propname));
 			return FAILURE;
@@ -200,7 +198,6 @@ int php_runkit_def_prop_add_int(zend_class_entry *ce, zend_string* propname, zva
 		}
 	}
 	prop_info_ptr = NULL;
-	zend_string_addref(propname);
 
 	if (zend_declare_property_ex(ce, propname, pcopyval, visibility, doc_comment TSRMLS_CC) == FAILURE) {
 		zval_ptr_dtor(pcopyval);
@@ -595,7 +592,7 @@ PHP_FUNCTION(runkit_default_property_remove)
 	RETURN_BOOL(php_runkit_def_prop_remove(classname, propname, remove_from_objects TSRMLS_CC) == SUCCESS);
 }
 /* }}} */
-#endif /* PHP_RUNKIT_MANIPULATION_PROPERTIES */
+#endif /* PHP_RUNKIT_MANIPULATION */
 
 /*
  * Local variables:
