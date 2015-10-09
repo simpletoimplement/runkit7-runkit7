@@ -29,19 +29,14 @@ ZEND_DECLARE_MODULE_GLOBALS(runkit)
 	Return numericly indexed array of registered superglobals */
 PHP_FUNCTION(runkit_superglobals)
 {
-	HashPosition pos;
-	zend_string* sg;
-	int type;
-	ulong idx;
+	zend_string* key;
 
 	array_init(return_value);
-	for(zend_hash_internal_pointer_reset_ex(CG(auto_globals), &pos);
-		(type = zend_hash_get_current_key_ex(CG(auto_globals), &sg, &idx, &pos)) != HASH_KEY_NON_EXISTENT;
-		zend_hash_move_forward_ex(CG(auto_globals), &pos)) {
-		if (type == HASH_KEY_IS_STRING) {
-			add_next_index_stringl(return_value, ZSTR_VAL(sg), ZSTR_LEN(sg) - 1);
+	ZEND_HASH_FOREACH_STR_KEY(CG(auto_globals), key) {
+		if (key != NULL) {
+			add_next_index_str(return_value, key);
 		}
-	}
+	} ZEND_HASH_FOREACH_END();
 }
 /* }}} */
 #endif /* PHP_RUNKIT_SUPERGLOBALS */

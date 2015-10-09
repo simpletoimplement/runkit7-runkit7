@@ -143,11 +143,11 @@ static inline void php_runkit_destroy_misplaced_internal_function(zend_function 
 /** {{{ php_runkit_set_opcode_constant
 		for absolute constant addresses, creates a local copy of that literal.
 		Modifies op's contents. */
-static void php_runkit_set_opcode_constant(const zval* literals, znode_op* op, const zval* literalI) {
+static void php_runkit_set_opcode_constant(const zval* literals, znode_op* op, zval* literalI) {
 	debug_printf("php_runkit_set_opcode_constant(%llx, %llx, %d)", (long long)literals, (long long)literalI, (int)sizeof(zval));
 	// TODO: ZEND_PASS_TWO_UPDATE_CONSTANT???
 #if ZEND_USE_ABS_CONST_ADDR
-	RT_CONSTANT_EX(literals, op) = literalI;
+	RT_CONSTANT_EX(literals, *op) = literalI;
 #else
 	// TODO: Assert that this is in a meaningful range.
 	// TODO: is this ever necessary for relative constant addresses?
@@ -290,11 +290,9 @@ void php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname TSRML
 					debug_printf("old constant = %d\n", opcode_copy[k].op1.constant);
 					// TODO: This may be completely unnecessary on 64-bit systems. This may be broken on 32-bit systems.
 					if (opcode_copy[k].op1_type == IS_CONST && RT_CONSTANT_EX(literals, opcode_copy[k].op1) == &fe->op_array.literals[i]) {
-						printf("Setting opcode constant?\n");
 						php_runkit_set_opcode_constant(literals, &(opcode_copy[k].op1), &literals[i]);
 					}
 					if (opcode_copy[k].op2_type == IS_CONST && RT_CONSTANT_EX(literals, opcode_copy[k].op2) == &fe->op_array.literals[i]) {
-						printf("Setting opcode constant?\n");
 						php_runkit_set_opcode_constant(literals, &(opcode_copy[k].op2), &literals[i]);
 					}
 				}
