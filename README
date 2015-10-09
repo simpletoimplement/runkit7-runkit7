@@ -4,7 +4,7 @@ Runkit7: Runkit extension fork for PHP 7
 For all those things you.... probably shouldn't have been doing anyway....
 __Now with partial support for PHP7!__ (This extension isn't production ready yet).
 
-[Building and installing runkit in unix (64-bit PHP7 only)](#building-and-installing-runkit7-in-unix-php7)
+[Building and installing runkit in unix](#building-and-installing-runkit7-in-unix-php7)
 
 The following contributions are welcome:
 
@@ -234,10 +234,6 @@ Then just rebuild using the --enable-maintainer-zts option specified above.
 
 
 runkit_lint() and runkit_lint_file() also exist as a simpler approach to verifying the syntactic legality of passed code within an isolated environment.
-
-## BUILDING AND INSTALLING RUNKIT(7) IN 32-bit systems (not yet supported)
-__NOTE__: This probably won't work properly with 32-bit builds of PHP.
-The Zend VM's implementation for 32-bit PHP is different from the 64-bit VMs.
 
 TODO: 
 
