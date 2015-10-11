@@ -77,7 +77,7 @@ static int php_runkit_fetch_const(zend_string *cname_zs, zend_constant **constan
 
 /* {{{ php_runkit_update_children_consts_foreach
 	Scans each element of the hash table */
-static void php_runkit_update_children_consts_foreach(HashTable *ht, zend_class_entry *parent_class, zval *c, zend_string *cname)
+void php_runkit_update_children_consts_foreach(HashTable *ht, zend_class_entry *parent_class, zval *c, zend_string *cname)
 {
 	zend_class_entry *ce;
 	ZEND_HASH_FOREACH_PTR(ht, ce) {

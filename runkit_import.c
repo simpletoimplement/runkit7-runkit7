@@ -104,6 +104,7 @@ static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_ent
 		fe_scope = php_runkit_locate_scope(ce, fe, fn);
 
 		if (fe_scope != ce) {
+			zend_string_release(fn);
 			/* This is an inherited function, let's skip it */
 			continue;
 		}
@@ -113,6 +114,7 @@ static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_ent
 			zend_class_entry *scope;
 			if (!override) {
 				php_error_docref(NULL TSRMLS_CC, E_NOTICE, "%s::%s() already exists, not importing", ZSTR_VAL(dce->name), ZSTR_VAL(fe->common.function_name));
+				zend_string_release(fn);
 				continue;
 			}
 
@@ -120,6 +122,7 @@ static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_ent
 
 			if (php_runkit_check_call_stack(&dfe->op_array TSRMLS_CC) == FAILURE) {
 				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Cannot override active method %s::%s(). Skipping.", ZSTR_VAL(dce->name), ZSTR_VAL(fe->common.function_name));
+				zend_string_release(fn);
 				continue;
 			}
 
@@ -129,6 +132,7 @@ static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_ent
 			php_runkit_remove_function_from_reflection_objects(dfe TSRMLS_CC);
 			if (zend_hash_del(&dce->function_table, fn) == FAILURE) {
 				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error removing old method in destination class %s::%s", ZSTR_VAL(dce->name), ZSTR_VAL(fe->common.function_name));
+				zend_string_release(fn);
 				continue;
 			}
 		}
@@ -136,6 +140,7 @@ static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_ent
 		fe->common.scope = dce;
 		if (zend_hash_add_ptr(&dce->function_table, fn, fe) == NULL) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failure importing %s::%s()", ZSTR_VAL(ce->name), ZSTR_VAL(fe->common.function_name));
+			zend_string_release(fn);
 			continue;
 		} else {
 			PHP_RUNKIT_FUNCTION_ADD_REF(fe);
@@ -143,11 +148,14 @@ static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_ent
 
 		if ((fe = zend_hash_find_ptr(&dce->function_table, fn)) == NULL) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Cannot get newly created method %s::%s()", ZSTR_VAL(ce->name), ZSTR_VAL(fn));
+			zend_string_release(fn);
 			continue;
 		}
 		PHP_RUNKIT_ADD_MAGIC_METHOD(dce, fn, fe, dfe TSRMLS_CC);
 		php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)),
 		                               dce, dce, fe, fn, dfe);
+
+		zend_string_release(fn);
 	} ZEND_HASH_FOREACH_END();
 
 	return SUCCESS;
@@ -405,14 +413,13 @@ static zend_op_array *php_runkit_compile_filename(int type, zval *filename TSRML
 	if (retval && file_handle.handle.stream.handle) {
 		// TODO: Duplicate instead?
 		if (!file_handle.opened_path) {
-			file_handle.opened_path = opened_path = filename->value.str;
-			zend_string_addref(opened_path);
+			file_handle.opened_path = opened_path = zend_string_copy(Z_STR_P(filename));
 		}
 
 		zend_hash_add_empty_element(&EG(included_files), file_handle.opened_path);
 
 		if (opened_path) {
-			efree(opened_path);
+			zend_string_release(opened_path);
 		}
 	}
 	zend_destroy_file_handle(&file_handle TSRMLS_CC);
@@ -503,17 +510,20 @@ PHP_FUNCTION(runkit_import)
 		RETURN_FALSE;
 	}
 
-	if (new_op_array->early_binding != -1) {
+	// This is similar to, but not identical to the function zend_do_delayed_early_binding.
+	// However, the superclasses will be found in the original class table,
+	// but the new classes are found in a separate, temporary class table.
+	if (new_op_array->early_binding != (uint32_t)-1) {
 		zend_bool orig_in_compilation = CG(in_compilation);
 		uint32_t opline_num = new_op_array->early_binding;
 		zend_class_entry *pce;
 
 		CG(in_compilation) = 1;
-		while (opline_num != -1) {
+		while (opline_num != (uint32_t)-1) {
 			// TODO: Check if it's still op2, figure out the set of expected opcodes
 			zval *op2_zv = RT_CONSTANT_EX(new_op_array->literals, new_op_array->opcodes[opline_num - 1].op2);
 
-			if (Z_TYPE_P(op2_zv) == IS_STRING && (pce = php_runkit_fetch_class_int(Z_STR_P(op2_zv))) == NULL) {
+			if (Z_TYPE_P(op2_zv) == IS_STRING && (pce = php_runkit_fetch_class_int(Z_STR_P(op2_zv))) != NULL) {
 				do_bind_inherited_class(new_op_array, &new_op_array->opcodes[opline_num], tmp_class_table, pce, 0 TSRMLS_CC);
 			}
 			opline_num = new_op_array->opcodes[opline_num].result.opline_num;

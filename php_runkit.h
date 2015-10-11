@@ -462,6 +462,15 @@ inline static zend_bool php_runkit_parse_args_to_zvals(int argc, zval **pargs TS
 
 #define PHP_RUNKIT_BODY_ERROR_MSG "%s's body should be either a closure or two strings"
 
+inline static zend_string* zend_string_to_interned(zend_string* original) {
+	zend_string *interned_name = zend_new_interned_string(original);
+	if (interned_name != original) {
+		zend_string_release(original);
+		return interned_name;
+	}
+	return original;
+}
+
 /* {{{ zend_bool php_runkit_parse_function_arg */
 inline static zend_bool php_runkit_parse_function_arg(int argc, zval *args, int arg_pos, zend_function **fe, zend_string** arguments, zend_string** phpcode, long *opt_arg_pos, char *type TSRMLS_DC) {
 	// TODO: Does this do the right thing?

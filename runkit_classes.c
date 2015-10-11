@@ -23,7 +23,6 @@
 #include "php_runkit_zval.h"
 
 #ifdef PHP_RUNKIT_MANIPULATION
-#ifdef PHP_RUNKIT_MANIPULATION_CLASSES
 /* {{{ php_runkit_remove_inherited_methods_foreach */
 // Remove methods that were inherited from class ce from the function_table.
 static int php_runkit_remove_inherited_methods(zval *pDest, void *argument TSRMLS_DC); // forward declare.
@@ -155,7 +154,7 @@ static int php_runkit_inherit_methods(zend_function *fe, zend_class_entry *ce TS
 	zend_class_entry *ancestor_class;
 
 	/* method name keys must be lower case */
-	fname_lower = zend_string_copy(fname);
+	fname_lower = zend_string_tolower(fname);
 
 	if (zend_hash_exists(&ce->function_table, fname_lower)) {
 		zend_string_release(fname_lower);
@@ -193,9 +192,9 @@ int php_runkit_class_copy(zend_class_entry *src, zend_string *classname TSRMLS_D
 	zend_class_entry *new_class_entry, *parent = NULL;
 	zend_string *classname_lower;
 
-	classname_lower = zend_string_tolower(classname);
+	classname_lower = zend_string_to_interned(zend_string_tolower(classname));
 
-	new_class_entry = emalloc(sizeof(zend_class_entry));
+	new_class_entry = pemalloc(sizeof(zend_class_entry), 1);
 	if (src->parent && src->parent->name) {
 		parent = php_runkit_fetch_class_int(src->parent->name);
 	}
@@ -216,7 +215,7 @@ int php_runkit_class_copy(zend_class_entry *src, zend_string *classname TSRMLS_D
 	zend_hash_update_ptr(EG(class_table), classname_lower, new_class_entry);
 
 	new_class_entry->num_interfaces = src->num_interfaces;
-	zend_string_release(classname_lower);
+	// zend_string_release(classname_lower);  // this was interned
 
 	if (new_class_entry->parent) {
 		php_runkit_inherit_methods_foreach(&(new_class_entry->parent->function_table), new_class_entry);
@@ -232,7 +231,6 @@ PHP_FUNCTION(runkit_class_adopt)
 {
 	zend_class_entry *ce, *parent;
 	zend_string *classname, *parentname;
-	HashPosition pos;
 	zend_string *key;
 	zend_property_info *property_info_ptr = NULL;
 
@@ -249,13 +247,12 @@ PHP_FUNCTION(runkit_class_adopt)
 		RETURN_FALSE;
 	}
 
-	if ((parent = php_runkit_fetch_class(parentname, &parent TSRMLS_CC)) == NULL) {
+	if ((parent = php_runkit_fetch_class(parentname TSRMLS_CC)) == NULL) {
 		RETURN_FALSE;
 	}
 
 	ce->parent = parent;
 
-	zend_hash_internal_pointer_reset_ex(&parent->properties_info, &pos);
 	ZEND_HASH_FOREACH_STR_KEY_PTR(&parent->properties_info, key, property_info_ptr) {
 		if (key != NULL) {
 			zval *p;
@@ -295,7 +292,6 @@ PHP_FUNCTION(runkit_class_adopt)
 }
 /* }}} */
 
-#endif /* PHP_RUNKIT_MANIPULATION_CLASSES */
 #endif /* PHP_RUNKIT_MANIPULATION */
 
 /* {{{ proto int runkit_object_id(object instance)
