@@ -94,11 +94,6 @@ static inline void* _debug_emalloc(void* data, int bytes, char* file, int line) 
 
 #ifdef PHP_RUNKIT_FEATURE_MODIFY
 #define PHP_RUNKIT_MANIPULATION
-// TODO: Enable these macros once the corresponding functions/files compile and pass some of the tests.
-// TODO: Clean up these macros once the corresponding functions/files are 100% correct.
-// #define PHP_RUNKIT_MANIPULATION_IMPORT
-// #define PHP_RUNKIT_MANIPULATION_PROPERTIES
-// #define PHP_RUNKIT_MANIPULATION_CLASSES
 #endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
@@ -137,9 +132,7 @@ PHP_FUNCTION(runkit_default_property_remove);
 PHP_FUNCTION(runkit_class_emancipate);
 PHP_FUNCTION(runkit_class_adopt);
 #endif
-#ifdef PHP_RUNKIT_MANIPULATION_IMPORT
 PHP_FUNCTION(runkit_import);
-#endif /* PHP_RUNKIT_MANIPULATION_IMPORT */
 #endif /* PHP_RUNKIT_MANIPULATION */
 
 #ifdef PHP_RUNKIT_SANDBOX
@@ -266,6 +259,7 @@ int php_runkit_fetch_interface(zend_string *classname, zend_class_entry **pce TS
 
 /* runkit_constants.c */
 void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *parent_class, zval *c, zend_string *cname);
+void php_runkit_update_children_consts_foreach(HashTable *ht, zend_class_entry *parent_class, zval *c, zend_string *cname);
 
 /* runkit_classes.c */
 int php_runkit_class_copy(zend_class_entry *src, zend_string *classname TSRMLS_DC);
