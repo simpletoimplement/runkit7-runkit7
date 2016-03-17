@@ -60,5 +60,5 @@ if test "$PHP_RUNKIT" != "no"; then
 runkit_constants.c runkit_import.c runkit_classes.c \
 runkit_sandbox.c runkit_sandbox_parent.c runkit_props.c \
 runkit_common.c \
-, $ext_shared,, -Wdeclaration-after-statement -Werror -Wall -Wno-deprecated-declarations)
+, $ext_shared,, -Wdeclaration-after-statement -Werror -Wall -Wno-deprecated-declarations -Wno-pedantic)
 fi
