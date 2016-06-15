@@ -301,7 +301,7 @@ void php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname TSRML
 		}
 
 		fe->op_array.opcodes = opcode_copy;
-		fe->op_array.refcount = emalloc(sizeof(uint32_t));
+		fe->op_array.refcount = (uint32_t*) emalloc(sizeof(uint32_t));
 		*fe->op_array.refcount = 1;
 		// TODO: Check if this is an interned string...
 		if (fe->op_array.doc_comment) {
@@ -310,19 +310,36 @@ void php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname TSRML
 		fe->op_array.try_catch_array = (zend_try_catch_element*)estrndup((char*)fe->op_array.try_catch_array, sizeof(zend_try_catch_element) * fe->op_array.last_try_catch);
 		fe->op_array.brk_cont_array = (zend_brk_cont_element*)estrndup((char*)fe->op_array.brk_cont_array, sizeof(zend_brk_cont_element) * fe->op_array.last_brk_cont);
 
-	if (fe->common.arg_info) {
+		if (fe->op_array.arg_info) {
 			zend_arg_info *tmpArginfo;
+			zend_arg_info *originalArginfo;
+			// num_args calculation taken from zend_opcode.c destroy_op_array
+			// TODO: Add tests that functions with return types are properly created and destroyed.
+			// TODO: Specify what runkit should do about return types, what is an error, what is valid.
+			uint32_t num_args = fe->op_array.num_args;
+			int32_t offset = 0;
 
-			tmpArginfo = (zend_arg_info*) safe_emalloc(sizeof(zend_arg_info), fe->common.num_args, 0);
+			if (fe->op_array.fn_flags & ZEND_ACC_HAS_RETURN_TYPE) {
+				offset++;
+				num_args++;
+			}
+			if (fe->op_array.fn_flags & ZEND_ACC_VARIADIC) {
+				num_args++;
+			}
 
-			for(i = 0; i < fe->common.num_args; i++) {
-				tmpArginfo[i] = fe->common.arg_info[i];
-				zend_string_addref((tmpArginfo[i].name));
+			tmpArginfo = (zend_arg_info*) safe_emalloc(sizeof(zend_arg_info), num_args, 0);
+
+			originalArginfo = &((fe->op_array.arg_info)[-offset]);
+			for (i = 0; i < num_args; i++) {
+				tmpArginfo[i] = originalArginfo[i];
+				if (tmpArginfo[i].name) {
+					zend_string_addref((tmpArginfo[i].name));
+				}
 				if (tmpArginfo[i].class_name) {
 					zend_string_addref(tmpArginfo[i].class_name);
 				}
 			}
-			fe->common.arg_info = tmpArginfo;
+			fe->op_array.arg_info = &tmpArginfo[offset];
 		}
 	}
 
