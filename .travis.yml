@@ -1,0 +1,13 @@
+language: php
+
+sudo: false
+
+php:
+  - '7.0'
+  - nightly
+
+before_script:
+ - (phpize && ./configure --disable-runkit-sandbox && make)
+
+script:
+ - make test
