@@ -75,20 +75,69 @@ static int php_runkit_fetch_const(zend_string *cname_zs, zend_constant **constan
 }
 /* }}} */
 
+#if PHP_VERSION_ID >= 70100
+/* {{{ php_runkit_class_constant_ctor
+Creates a class constant for a given class entry */
+static zend_class_constant *php_runkit_class_constant_ctor(zval *value, zend_class_entry *ce, int access_type, zend_string *doc_comment) {
+	zend_class_constant *c;
+	// TODO add tests of modifying internal classes
+	if (ce->type == ZEND_INTERNAL_CLASS) {
+		// TODO: Internal classes can't have non-scalars(arrays, ASTs, etc). as constants.
+		c = pemalloc(sizeof(zend_class_constant), 1);
+	} else {
+		c = zend_arena_alloc(&CG(arena), sizeof(zend_class_constant));
+	}
+
+	ZVAL_COPY_VALUE(&c->value, value);
+	Z_ACCESS_FLAGS(c->value) = access_type;
+	c->doc_comment = NULL;
+	c->ce = ce;
+	return c;
+}
+/* }}} */
+#endif
+
+static int php_runkit_class_constant_add_raw(zval *value, zend_class_entry *ce, zend_string *constname, int access_type, zend_string *doc_comment) {
+#if PHP_VERSION_ID >= 70100
+	zend_class_constant *c;
+#else
+	(void)access_type;  // suppress unused warning
+#endif
+	if (zend_hash_exists(&ce->constants_table, constname)) {
+		return FAILURE;
+	}
+
+#if PHP_VERSION_ID >= 70100
+	c = php_runkit_class_constant_ctor(value, ce, access_type, doc_comment);
+	Z_TRY_ADDREF_P(value);
+	if (!zend_hash_add_ptr(&ce->constants_table, constname, c)) {
+		Z_TRY_DELREF_P(value);
+		// TODO: delete
+		return FAILURE;
+	}
+#else
+	Z_TRY_ADDREF_P(value);
+	if (!zend_hash_add(&ce->constants_table, constname, value)) {
+		Z_TRY_DELREF_P(value);
+		return FAILURE;
+	}
+#endif
+	return SUCCESS;
+}
 /* {{{ php_runkit_update_children_consts_foreach
 	Scans each element of the hash table */
-void php_runkit_update_children_consts_foreach(HashTable *ht, zend_class_entry *parent_class, zval *c, zend_string *cname)
+void php_runkit_update_children_consts_foreach(HashTable *ht, zend_class_entry *parent_class, zval *c, zend_string *cname, int access_type)
 {
 	zend_class_entry *ce;
 	ZEND_HASH_FOREACH_PTR(ht, ce) {
-		php_runkit_update_children_consts(ce, parent_class, c, cname);
+		php_runkit_update_children_consts(ce, parent_class, c, cname, access_type);
 	} ZEND_HASH_FOREACH_END();
 }
 /* }}} */
 
 /* {{{ php_runkit_update_children_consts
 	Scan the class_table for children of the class just updated */
-void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *parent_class, zval *c, zend_string *cname)
+void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *parent_class, zval *value, zend_string *cname, int access_type)
 {
 	if (ce->parent != parent_class) {
 		/* Not a child, ignore */
@@ -96,12 +145,11 @@ void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *p
 	}
 
 	/* Process children of this child */
-	php_runkit_update_children_consts_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ce, c, cname);
+	php_runkit_update_children_consts_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ce, value, cname, access_type);
 
-	Z_TRY_ADDREF_P(c);
-
+	// TODO: Garbage collecting?
 	zend_hash_del(&ce->constants_table, cname);
-	if (zend_hash_add(&ce->constants_table, cname, c) == NULL) {
+	if (php_runkit_class_constant_add_raw(value, ce, cname, access_type, NULL) == FAILURE) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error updating child class");
 		return;
 	}
@@ -207,22 +255,34 @@ static int php_runkit_global_constant_add(zend_string *constname, zval *value TS
 
 /* {{{ php_runkit_class_constant_add */
 static int php_runkit_class_constant_add(zend_string *classname, zend_string *constname, zval *value TSRMLS_DC) {
+	int access_type = ZEND_ACC_PUBLIC;
 	zend_class_entry *ce;
 	if ((ce = php_runkit_fetch_class(classname)) == NULL) {
 		return FAILURE;
 	}
 
-	// TODO: Is this too many references?
-	Z_TRY_ADDREF_P(value);
-	if (zend_hash_add(&ce->constants_table, constname, value) == NULL) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to add constant to class definition");
-		Z_TRY_DELREF_P(value);
+	// Mirror checks in zend_declare_class_constant_ex
+	if (ce->ce_flags & ZEND_ACC_INTERFACE) {
+		if (access_type != ZEND_ACC_PUBLIC) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Access type for new interface constant %s::%s must be public", ZSTR_VAL(ce->name), ZSTR_VAL(constname));
+			return FAILURE;
+		}
+	}
+
+	if (zend_string_equals_literal_ci(constname, "class")) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "A new class constant must not be called 'class'; it is reserved for class name fetching");
 		return FAILURE;
 	}
 
-	php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+	// TODO: Is this too many references?
+	// TODO: Could something similar to zend_update_class_constants(zend_class_entry *class_type)
+	if (php_runkit_class_constant_add_raw(value, ce, constname, access_type, NULL) == FAILURE) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to add constant %s::%s to class definition", ZSTR_VAL(ce->name), ZSTR_VAL(constname));
+		return FAILURE;
+	}
 
-	php_runkit_update_children_consts_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ce, value, constname);
+	// TODO: Check access_type of private, don't update children if this is private.
+	php_runkit_update_children_consts_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ce, value, constname, access_type);
 
 	return SUCCESS;
 }

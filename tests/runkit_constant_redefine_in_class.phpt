@@ -7,6 +7,8 @@ runkit_constant_redefine() function redefines class constants
 ?>
 --FILE--
 <?php
+// For this test case to actually work (The php compiler, not opcache, does this optimization), the code would need to be compiled with ZEND_COMPILE_NO_CONSTANT_SUBSTITUTION | ZEND_COMPILE_NO_PERSISTENT_CONSTANT_SUBSTITUTION
+// That requires either patching php-src or triggering recompilation of code in affected class and in subclasses.
 class TestClass {
 	const FOO = 'foo';
 }

@@ -263,8 +263,8 @@ int php_runkit_fetch_interface(zend_string *classname, zend_class_entry **pce TS
 #define PHP_RUNKIT_NOT_ENOUGH_MEMORY_ERROR php_error_docref(NULL TSRMLS_CC, E_ERROR, "Not enough memory")
 
 /* runkit_constants.c */
-void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *parent_class, zval *c, zend_string *cname);
-void php_runkit_update_children_consts_foreach(HashTable *ht, zend_class_entry *parent_class, zval *c, zend_string *cname);
+void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *parent_class, zval *c, zend_string *cname, int access_type);
+void php_runkit_update_children_consts_foreach(HashTable *ht, zend_class_entry *parent_class, zval *c, zend_string *cname, int access_type);
 
 /* runkit_classes.c */
 int php_runkit_class_copy(zend_class_entry *src, zend_string *classname TSRMLS_DC);
