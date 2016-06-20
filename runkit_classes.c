@@ -293,21 +293,6 @@ PHP_FUNCTION(runkit_class_adopt)
 /* }}} */
 
 #endif /* PHP_RUNKIT_MANIPULATION */
-
-/* {{{ proto int runkit_object_id(object instance)
-Fetch the Object Handle ID from an instance */
-PHP_FUNCTION(runkit_object_id)
-{
-	zval *obj;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "o", &obj) == FAILURE) {
-		RETURN_NULL();
-	}
-
-	RETURN_LONG(Z_OBJ_HANDLE_P(obj));
-}
-/* }}} */
-
 /*
  * Local variables:
  * tab-width: 4
