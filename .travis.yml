@@ -1,5 +1,12 @@
 language: php
 
+addons:
+ apt:
+   sources:
+   - ubuntu-toolchain-r-test
+   packages:
+   - gcc-4.8
+
 sudo: false
 
 php:
@@ -7,7 +14,8 @@ php:
   - nightly
 
 before_script:
- - (phpize && ./configure --disable-runkit-sandbox && make)
+ - cc --version
+ - (export CC=gcc-4.8; phpize && ./configure --disable-runkit-sandbox && make)
 
 script:
- - make test
+ - ci/run_tests.sh

@@ -28,6 +28,7 @@ $t = new test();
 $t->run();
 ?>
 --EXPECTF--
-$undefined is
+undefined is
 Notice: Undefined variable: undefined in %s on line %d
 NULL
+Done
