@@ -267,9 +267,9 @@ int php_runkit_def_prop_add_int(zend_class_entry *ce, zend_string* propname, zva
 				// (includes an additional terminating undefined property)
 				// TODO: This seems like it depends on ZEND_ACC_USE_GUARDS, from looking at the function zend_object_properties_size
 				object = perealloc(object, sizeof(zend_object) + sizeof(zval) * (new_size - 1), 0);
-				ZVAL_UNDEF(&object->properties_table[new_size - 1]);
+				ZVAL_UNDEF(&object->properties_table[OBJ_PROP_TO_NUM(new_size - 1)]);
 			}
-			if (!Z_ISUNDEF(ce->default_properties_table[offset])) {
+			if (!Z_ISUNDEF(ce->default_properties_table[OBJ_PROP_TO_NUM(offset)])) {
 				if (!object->properties) {
 					if (override_in_objects) {
 						Z_ADDREF(ce->default_properties_table[offset]);
