@@ -1,7 +1,7 @@
 --TEST--
 Bug #4519 Unable to override class definitions of a derived class
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip"; ?>
 --FILE--
 <?php
 class Foo extends Bar {

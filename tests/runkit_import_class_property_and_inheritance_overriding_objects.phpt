@@ -2,7 +2,7 @@
 runkit_import() Importing and overriding class properties with inheritance with overriding objects
 --SKIPIF--
 <?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
-      if(array_shift(explode(".", PHP_VERSION)) < 5) print "skip";
+      if(!function_exists('runkit_import')) print "skip";
 ?>
 --FILE--
 <?php

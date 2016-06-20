@@ -1,7 +1,7 @@
 --TEST--
 runkit_import() Importing and overriding class methods
 --SKIPIF--
-<?php if(!extension_loaded("runkit")) print "skip"; ?>
+<?php if(!extension_loaded("runkit") || !function_exists('runkit_import')) print "skip"; ?>
 --FILE--
 <?php
 

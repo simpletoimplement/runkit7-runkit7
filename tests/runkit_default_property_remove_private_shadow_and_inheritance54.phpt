@@ -5,6 +5,7 @@ runkit_default_property_remove() remove private properties with inheritance
       $version = explode(".", PHP_VERSION);
       if($version[0] < 5) print "skip";
       if($version[0] == 5 && $version[1] < 4) print "skip";
+      if(!function_exists('runkit_default_property_remove')) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL

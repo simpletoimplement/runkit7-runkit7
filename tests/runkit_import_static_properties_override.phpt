@@ -5,7 +5,7 @@ runkit_import() Importing and overriding non-static and static properties with s
 	if (!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) {
 		echo "skip";
 	}
-	if (array_shift(explode(".", PHP_VERSION)) < 5) {
+	if (!function_exists('runkit_import')) {
 		echo "skip";
 	}
 ?>

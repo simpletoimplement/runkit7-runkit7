@@ -1,7 +1,7 @@
 --TEST--
 runkit_import() imports function with reflection
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip"; ?>
 --FILE--
 <?php
 function runkitFunction($param) {

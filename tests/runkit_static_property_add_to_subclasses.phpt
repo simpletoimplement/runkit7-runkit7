@@ -3,6 +3,7 @@ runkit_static_property_add() add properties to subclasses
 --SKIPIF--
 <?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
       if(array_shift(explode('.', PHP_VERSION)) < 5) print "skip";
+      if(!function_exists('runkit_default_property_add')) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL
