@@ -1,6 +1,6 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 5                                                        |
+  | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
   +----------------------------------------------------------------------+
@@ -15,6 +15,7 @@
   | Author: Sara Golemon <pollita@php.net>                               |
   | Modified by Dmitry Zenovich <dzenovich@gmail.com>                    |
   +----------------------------------------------------------------------+
+Note: This file is no longer compiled because of bugs for adding new properties. See the README.
 */
 
 /* $Id$ */

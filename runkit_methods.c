@@ -14,6 +14,7 @@
   +----------------------------------------------------------------------+
   | Author: Sara Golemon <pollita@php.net>                               |
   | Modified by Dmitry Zenovich <dzenovich@gmail.com>                    |
+  | Modified for php7 by Tyson Andre <tysonandre775@hotmail.com>         |
   +----------------------------------------------------------------------+
 */
 
@@ -144,8 +145,6 @@ void php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_ARG(HashTable *
 
 /* {{{ php_runkit_inherit_magic */
 inline static void php_runkit_inherit_magic(zend_class_entry *ce, const zend_function *fe, const zend_function *orig_fe TSRMLS_DC) {
-	if (ce->parent->ce_flags & ZEND_ACC_USE_GUARDS) {
-	}
 	if ((ce)->__get == (orig_fe) && (ce)->parent->__get == (fe)) {
 		(ce)->__get        = (ce)->parent->__get;
 	} else if ((ce)->__set        == (orig_fe) && (ce)->parent->__set == (fe)) {

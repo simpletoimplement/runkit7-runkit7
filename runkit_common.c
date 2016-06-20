@@ -14,6 +14,7 @@
   +----------------------------------------------------------------------+
   | Author: Sara Golemon <pollita@php.net>                               |
   | Modified by Dmitry Zenovich <dzenovich@gmail.com>                    |
+  | Modified for php7 by Tyson Andre<tysonandre775@hotmail.com>          |
   +----------------------------------------------------------------------+
 */
 
