@@ -1,7 +1,7 @@
 #!/bin/sh
 # This script is used to run tests and detect memory leaks using valgrind.
 # Running with valgrind is really slow.
-export NO_INTERACTION=1
+unset TRAVIS
 export REPORT_EXIT_STATUS=1
 export TESTS='--show-diff -m'
 

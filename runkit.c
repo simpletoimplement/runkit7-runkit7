@@ -84,10 +84,10 @@ zend_function_entry runkit_functions[] = {
 
 #ifdef PHP_RUNKIT_MANIPULATION
 #ifdef PHP_RUNKIT_MANIPULATION_CLASSES
-	PHP_FE(runkit_class_emancipate,									NULL)
-	PHP_FE(runkit_class_adopt,										NULL)
+	// PHP_FE(runkit_class_emancipate,									NULL)
+	// PHP_FE(runkit_class_adopt,										NULL)
 #endif
-	PHP_FE(runkit_import,											NULL)
+	// PHP_FE(runkit_import,											NULL)
 
 	PHP_FE(runkit_function_add,										NULL)
 	PHP_FE(runkit_function_remove,									NULL)
@@ -107,15 +107,14 @@ zend_function_entry runkit_functions[] = {
 	PHP_FALIAS(classkit_method_remove,		runkit_method_remove,	NULL)
 	PHP_FALIAS(classkit_method_rename,		runkit_method_rename,	NULL)
 	PHP_FALIAS(classkit_method_copy,		runkit_method_copy,		NULL)
-	PHP_FALIAS(classkit_import,				runkit_import,			NULL)
 #endif
 
 	PHP_FE(runkit_constant_redefine,								NULL)
 	PHP_FE(runkit_constant_remove,									NULL)
 	PHP_FE(runkit_constant_add,										NULL)
 
-	PHP_FE(runkit_default_property_add,								NULL)
-	PHP_FE(runkit_default_property_remove,							NULL)
+	// PHP_FE(runkit_default_property_add,								NULL)
+	// PHP_FE(runkit_default_property_remove,							NULL)
 #endif /* PHP_RUNKIT_MANIPULATION */
 
 #ifdef PHP_RUNKIT_SANDBOX
@@ -195,12 +194,11 @@ static void php_runkit_globals_ctor(void *pDest TSRMLS_DC)
 #ifdef PHP_RUNKIT_MANIPULATION
 	runkit_global->replaced_internal_functions = NULL;
 	runkit_global->misplaced_internal_functions = NULL;
-	runkit_global->removed_default_class_members = NULL;
+	// runkit_global->removed_default_class_members = NULL;
 	runkit_global->name_str = "name";
 	runkit_global->removed_method_str = "__method_removed_by_runkit__";
 	runkit_global->removed_function_str = "__function_removed_by_runkit__";
 	runkit_global->removed_parameter_str = "__parameter_removed_by_runkit__";
-	runkit_global->removed_property_str = "__property_removed_by_runkit__";
 
 	_php_runkit_init_stub_function("__function_removed_by_runkit__", ZEND_FN(_php_runkit_removed_function), &runkit_global->removed_function);
 	_php_runkit_init_stub_function("__method_removed_by_runkit__", ZEND_FN(_php_runkit_removed_method), &runkit_global->removed_method);
@@ -398,7 +396,7 @@ PHP_RINIT_FUNCTION(runkit)
 #ifdef PHP_RUNKIT_MANIPULATION
 	RUNKIT_G(replaced_internal_functions) = NULL;
 	RUNKIT_G(misplaced_internal_functions) = NULL;
-	RUNKIT_G(removed_default_class_members) = NULL;
+	// RUNKIT_G(removed_default_class_members) = NULL;
 #endif
 
 	return SUCCESS;
@@ -422,7 +420,7 @@ static int php_runkit_superglobal_dtor(zval *zv TSRMLS_DC)
 PHP_RSHUTDOWN_FUNCTION(runkit)
 {
 #ifdef PHP_RUNKIT_MANIPULATION
-	php_runkit_default_class_members_list_element *el;
+	// php_runkit_default_class_members_list_element *el;
 #endif
 
 #ifdef PHP_RUNKIT_SUPERGLOBALS
@@ -451,11 +449,13 @@ PHP_RSHUTDOWN_FUNCTION(runkit)
 		RUNKIT_G(replaced_internal_functions) = NULL;
 	}
 
+	// This would restore default properties that were removed by runkit_default_property_remove(...)
+
+	/*
 	el = RUNKIT_G(removed_default_class_members);
 	// TODO: I have no idea what this is trying to do.
 	while (el) {
 		php_runkit_default_class_members_list_element *tmp;
-		/*
 		// TODO: Some sort of cleanup?
 		zval **table = el->is_static ? el->ce->default_static_members_table : el->ce->default_properties_table;
 		zval **table_el = &table[el->offset];
@@ -464,11 +464,11 @@ PHP_RSHUTDOWN_FUNCTION(runkit)
 			Z_TYPE_PP(table_el) = IS_NULL;
 			Z_SET_REFCOUNT_PP(table_el, 1);
 		}
-		*/
 		tmp = el;
 		el = el->next;
 		efree(tmp);
 	}
+	*/
 #endif /* PHP_RUNKIT_MANIPULATION */
 
 	return SUCCESS;

@@ -122,13 +122,25 @@ PHP_FUNCTION(runkit_method_copy);
 PHP_FUNCTION(runkit_constant_redefine);
 PHP_FUNCTION(runkit_constant_remove);
 PHP_FUNCTION(runkit_constant_add);
-PHP_FUNCTION(runkit_default_property_add);
-PHP_FUNCTION(runkit_default_property_remove);
+// 1. The property manipulation code still has bugs, and the "offset" used is in bytes as of php7, but still treated as an index in this code.
+// 2. As of php7's new zval layout, The only way to "add" a default property would be to realloc() every single one
+//    of the zend_objects that are instances of that class (to make room for another property).
+//    This would break php internals and possibly extensions.
+//    A possible other way way would be to change the API to "runkit_default_property_modify($className, $propertyName, $value, $flags = TODO)"
+//    (with a precondition $propertyName already existed)
+// 3. It should be possible to meet many uses by modifying constructors with runkit_method_move and runkit_method_add,
+//    or using ReflectionProperty for fetching.
+//    https://secure.php.net/manual/en/reflectionproperty.setaccessible.php (sets accessibility only for ReflectionProperty)
+//    https://secure.php.net/manual/en/reflectionproperty.setvalue.php
+//    https://secure.php.net/manual/en/reflectionproperty.getvalue.php
+//
+// PHP_FUNCTION(runkit_default_property_add);
+// PHP_FUNCTION(runkit_default_property_remove);
 #ifdef PHP_RUNKIT_MANIPULATION_CLASSES
-PHP_FUNCTION(runkit_class_emancipate);
-PHP_FUNCTION(runkit_class_adopt);
+// PHP_FUNCTION(runkit_class_emancipate);
+// PHP_FUNCTION(runkit_class_adopt);
 #endif
-PHP_FUNCTION(runkit_import);
+// PHP_FUNCTION(runkit_import);
 #endif /* PHP_RUNKIT_MANIPULATION */
 
 #ifdef PHP_RUNKIT_SANDBOX
@@ -140,7 +152,7 @@ typedef struct _php_runkit_sandbox_object php_runkit_sandbox_object;
 #endif /* PHP_RUNKIT_SANDBOX */
 
 #ifdef PHP_RUNKIT_MANIPULATION
-typedef struct _php_runkit_default_class_members_list_element php_runkit_default_class_members_list_element;
+// typedef struct _php_runkit_default_class_members_list_element php_runkit_default_class_members_list_element;
 #endif
 
 #if defined(PHP_RUNKIT_SUPERGLOBALS) || defined(PHP_RUNKIT_SANDBOX) || defined(PHP_RUNKIT_MANIPULATION)
@@ -154,9 +166,9 @@ ZEND_BEGIN_MODULE_GLOBALS(runkit)
 #ifdef PHP_RUNKIT_MANIPULATION
 	HashTable *misplaced_internal_functions;
 	HashTable *replaced_internal_functions;
-	php_runkit_default_class_members_list_element *removed_default_class_members;
+	// php_runkit_default_class_members_list_element *removed_default_class_members;
 	zend_bool internal_override;
-	const char *name_str, *removed_method_str, *removed_function_str, *removed_parameter_str, *removed_property_str;
+	const char *name_str, *removed_method_str, *removed_function_str, *removed_parameter_str;
 	zend_function *removed_function, *removed_method;
 #endif
 ZEND_END_MODULE_GLOBALS(runkit)
@@ -272,14 +284,17 @@ typedef struct _zend_closure {
     HashTable     *debug_info;
 } zend_closure;
 
+/*
 struct _php_runkit_default_class_members_list_element {
     zend_class_entry* ce;
     zend_bool is_static;
     int offset;
     php_runkit_default_class_members_list_element *next;
 };
+*/
 
 /* {{{ php_runkit_default_class_members_list_add */
+/*
 static inline void php_runkit_default_class_members_list_add(php_runkit_default_class_members_list_element **head,
                                                              zend_class_entry* ce, zend_bool is_static,
                                                              int offset) {
@@ -292,6 +307,7 @@ static inline void php_runkit_default_class_members_list_add(php_runkit_default_
 		*head = new_el;
 	}
 }
+*/
 /* }}} */
 
 /* {{{ php_runkit_modify_function_doc_comment */

@@ -1,7 +1,7 @@
 --TEST--
 Bug#57658 - runkit_class_adopt fails on method names with capitals
 --SKIPIF--
-<?php if(!extension_loaded("runkit")) print "skip"; ?>
+<?php if (!extension_loaded("runkit") || !function_exists('runkit_class_adopt')) print "skip"; ?>
 --FILE--
 <?php
 error_reporting(E_ALL & ~E_STRICT);

@@ -1,7 +1,7 @@
 --TEST--
 runkit_class_emancipate() function with reflection and inheritance
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_class_emancipate')) print "skip"; ?>
 --FILE--
 <?php
 class RunkitClass {

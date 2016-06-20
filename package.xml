@@ -315,12 +315,13 @@ Execute code in restricted environment (sandboxing).
    <file name="README.md" role="doc" />
    <file name="runkit.c" role="src" />
    <file name="runkit.dsp" role="src" />
-   <file name="runkit_classes.c" role="src" />
+   <!-- <file name="runkit_classes.c" role="src" /> -->
    <file name="runkit_constants.c" role="src" />
    <file name="runkit_functions.c" role="src" />
-   <file name="runkit_import.c" role="src" />
+   <!-- <file name="runkit_import.c" role="src" /> -->
    <file name="runkit_methods.c" role="src" />
-   <file name="runkit_props.c" role="src" />
+   <file name="runkit_object_id.c" role="src" />
+   <!-- <file name="runkit_props.c" role="src" /> -->
    <file name="runkit_sandbox.c" role="src" />
    <file name="runkit_sandbox_parent.c" role="src" />
    <file name="tsrm_5.0.diff" role="src" />

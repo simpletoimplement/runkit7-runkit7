@@ -1,7 +1,7 @@
 --TEST--
 Bug#57649 - runkit_import() - methods not added - multiple classes in one file
 --SKIPIF--
-<?php if(!extension_loaded("runkit")) print "skip";
+<?php if(!extension_loaded("runkit") || !function_exists('runkit_import')) print "skip";
 ?>
 --FILE--
 <?php
