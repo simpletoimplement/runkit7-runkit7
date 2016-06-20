@@ -15,7 +15,8 @@ The following contributions are welcome:
 
 Pull requests with fixes, documentation, and additional tests for PHP7 are welcome.
 
-Around half of the runkit tests are passing. Others are missing methods.
+Most of the runkit tests for method manipulation and function manipulation are passing.
+Others are missing methods.
 
 ---------------------
 ## PHP7 SPECIFIC DETAILS
@@ -272,39 +273,9 @@ make test
 # sudo make install
 ```
 
+Current Build Status
+--------------------
 
-## BUILDING THE RUNKIT MODULE FOR WINDOWS
-First, place source code of runkit into a temporary directory, for example "C:\runkit-source".
-Open your Windows SDK command prompt or Visual Studio Command prompt.
-Then change into the runkit's source code directory:
+Roughly 16 failing tests, 93 skipped tests, 79 passing tests.
 
-```cmd
-C:
-cd C:\runkit-source
-```
-
-After that, run phpize from your PHP SDK. This may be something like
-
-```cmd
-C:\php\SDK\phpize.bat
-```
-
-Then configure your runkit module by executing "configure". You can view the full list of options by the command
-
-```cmd
-configure --help
-```
-
-but in most cases, you probably will choose a simple command
-
-```cmd
-configure --enable-runkit
-```
-
-After all run
-
-```cmd
-nmake
-```
-
-Now you should have the "php_runkit.dll" file.
+[![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
