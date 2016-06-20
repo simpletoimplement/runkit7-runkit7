@@ -15,7 +15,8 @@ The following contributions are welcome:
 
 Pull requests with fixes, documentation, and additional tests for PHP7 are welcome.
 
-Around half of the runkit tests are passing. Others are missing methods.
+Most of the runkit tests for method manipulation and function manipulation are passing.
+Other methods and corresponding tests are disabled/skipped because changes to php internals in php7 made them impractical.
 
 ---------------------
 ## PHP7 SPECIFIC DETAILS
@@ -35,7 +36,7 @@ Around half of the runkit tests are passing. Others are missing methods.
 ### Implemented APIs for PHP7
 #### Implemented APIs for PHP7 (buggy):
 
--	`runkit_function_*`: Most tests are passing. There are some bugs related to renaming internal functions, as well as 
+-	`runkit_function_*`: Most tests are passing. There are some bugs related to renaming internal functions.
 -	`runkit_method_*`: Most tests are passing. Same comment as `runkit_function_*`
 -	`runkit_zval_inspect`: Partly passing, and needs to be rewritten because of PHP7's zval changes.
 -	`runkit_constant_add` works. Other constant manipulation functions don't work yet for constants within the same file.
@@ -45,15 +46,34 @@ Around half of the runkit tests are passing. Others are missing methods.
 (These functions will be missing)
 
 -	`runkit_import`
-	Compiles, but has bugs related to properties
+	Disabled because of bugs related to properties
 -	`runkit_class_adopt` and `runkit_class_emancipate`
-	Compiles; depends on property manipulation suport
+	Disabled because of bugs related to properties
 -	`runkit_lint*`
 	Not yet compilable.
 -	`runkit_constant_*` : `runkit_constant_add` works reliably, other methods don't.
 	This works better when the constants are declared in a different file.
 -	`runkit_default_property_*`
-	Need to fix bugs.
+	Disabled because of bugs related to properties
+
+	`runkit_default_property_add` has been removed in php7 - it requires `realloc`ing a different zval to add a property to the property table
+	That would break a lot of things
+
+#### Reasons for disabling property manipulation
+
+1. The property manipulation code still has bugs, and the "offset" used is in bytes as of php7, but still treated as an index in this code.
+2. As of php7's new zval layout, The only way to "add" a default property would be to realloc() every single one
+   of the zend_objects that are instances of that class (to make room for another property).
+   This would break php internals and possibly extensions.
+   A possible other way way would be to change the API to "runkit_default_property_modify($className, $propertyName, $value, $flags = TODO)"
+   (with a precondition $propertyName already existed)
+   The old way properties of objects was stored was as a pointer to an array.
+   In php7, it's part of zend_object itself, similar to what is described in https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html (1-length, with an UNDEF value at the end)
+3. It should be possible to meet many uses by modifying constructors with runkit_method_move and runkit_method_add,
+   or using ReflectionProperty for fetching.
+   https://secure.php.net/manual/en/reflectionproperty.setaccessible.php (sets accessibility only for ReflectionProperty)
+   https://secure.php.net/manual/en/reflectionproperty.setvalue.php
+   https://secure.php.net/manual/en/reflectionproperty.getvalue.php
 	
 
 ### USEFUL LINKS
@@ -72,7 +92,7 @@ This now uses `zend_string`.
 I changed the code to use `zend_string` wherever possible to be consistent.
 This is not strictly necessary.
 
-Notes on `HashTable`es
+Notes on `HashTable`s
 
 -	https://nikic.github.io/2014/12/22/PHPs-new-hashtable-implementation.html
 -	HashTables no longer use linked lists. They use an array of `Bucket`s instead, and use collision chaining.
@@ -82,7 +102,6 @@ Notes on `HashTable`es
 	(If I remember correctly, `zend_hash_str_*` methods now taken `strlen` as the length instead of `strlen+1`)
 -	To add/retrieve pointers from a `zend_hash`, there are now `zend_hash_*_ptr` methods.
 	Depending on the table being used, these may call destructor functions when pointers are removed.
-		
 
 Changes to the internal representation of `HashTable`s require a lot of code changes.
 
@@ -99,15 +118,15 @@ Miscellaneous notes on differences betwen PHP5 and PHP7
 
 Things to do in the near future:
 
--	Fix bugs related to function and method manipulation
--	Fix property manipulation support
--	See if constant manipulation in the same file can be fixed
+-   Fix bugs related to edge cases of function and method manipulation
+-   See if constant manipulation in the same file can be fixed, e.g. by recompiling functions using those constants.
+    It was broken because php7 compiler inlines the constants automatically in the generated opcodes.
 
 Things to do after that:
 
--	Work on `runkit_lint`
--	Work on `class_adopt` and `class_emancipate`
--	See if `runkit_import`/`runkit_lint` can be implemented
+-   Replace property manipulation with runkit_default_property_modify
+-   Support and test php 7.1 constant visibility
+-   See if `runkit\_lint` can be implemented
 
 UPSTREAM DOCUMENTATION
 ======================
@@ -253,39 +272,9 @@ make test
 # sudo make install
 ```
 
+Current Build Status
+--------------------
 
-## BUILDING THE RUNKIT MODULE FOR WINDOWS
-First, place source code of runkit into a temporary directory, for example "C:\runkit-source".
-Open your Windows SDK command prompt or Visual Studio Command prompt.
-Then change into the runkit's source code directory:
+Roughly 16 failing tests, 93 skipped tests, 79 passing tests.
 
-```cmd
-C:
-cd C:\runkit-source
-```
-
-After that, run phpize from your PHP SDK. This may be something like
-
-```cmd
-C:\php\SDK\phpize.bat
-```
-
-Then configure your runkit module by executing "configure". You can view the full list of options by the command
-
-```cmd
-configure --help
-```
-
-but in most cases, you probably will choose a simple command
-
-```cmd
-configure --enable-runkit
-```
-
-After all run
-
-```cmd
-nmake
-```
-
-Now you should have the "php_runkit.dll" file.
+[![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
