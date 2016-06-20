@@ -315,6 +315,10 @@ void php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname TSRML
 		fe->op_array.try_catch_array = (zend_try_catch_element*)estrndup((char*)fe->op_array.try_catch_array, sizeof(zend_try_catch_element) * fe->op_array.last_try_catch);
 #if PHP_MAJOR_VERSION == 7 && PHP_MINOR_VERSION == 0
 	fe->op_array.brk_cont_array = (zend_brk_cont_element*)estrndup((char*)fe->op_array.brk_cont_array, sizeof(zend_brk_cont_element) * fe->op_array.last_brk_cont);
+#elif PHP_VERSION_ID >= 70100
+	if (fe->op_array.live_range) {
+		fe->op_array.live_range = (zend_live_range*)estrndup((char*)fe->op_array.live_range, sizeof(zend_live_range) * fe->op_array.last_live_range);
+	}
 #endif
 
 		if (fe->op_array.arg_info) {
