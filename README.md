@@ -16,7 +16,7 @@ The following contributions are welcome:
 Pull requests with fixes, documentation, and additional tests for PHP7 are welcome.
 
 Most of the runkit tests for method manipulation and function manipulation are passing.
-Others are missing methods.
+Other methods and corresponding tests are disabled/skipped because changes to php internals in php7 made them impractical.
 
 ---------------------
 ## PHP7 SPECIFIC DETAILS
@@ -92,7 +92,7 @@ This now uses `zend_string`.
 I changed the code to use `zend_string` wherever possible to be consistent.
 This is not strictly necessary.
 
-Notes on `HashTable`es
+Notes on `HashTable`s
 
 -	https://nikic.github.io/2014/12/22/PHPs-new-hashtable-implementation.html
 -	HashTables no longer use linked lists. They use an array of `Bucket`s instead, and use collision chaining.
@@ -102,7 +102,6 @@ Notes on `HashTable`es
 	(If I remember correctly, `zend_hash_str_*` methods now taken `strlen` as the length instead of `strlen+1`)
 -	To add/retrieve pointers from a `zend_hash`, there are now `zend_hash_*_ptr` methods.
 	Depending on the table being used, these may call destructor functions when pointers are removed.
-		
 
 Changes to the internal representation of `HashTable`s require a lot of code changes.
 
@@ -119,15 +118,15 @@ Miscellaneous notes on differences betwen PHP5 and PHP7
 
 Things to do in the near future:
 
--	Fix bugs related to function and method manipulation
--	Fix property manipulation support
--	See if constant manipulation in the same file can be fixed
+-   Fix bugs related to edge cases of function and method manipulation
+-   See if constant manipulation in the same file can be fixed, e.g. by recompiling functions using those constants.
+    It was broken because php7 compiler inlines the constants automatically in the generated opcodes.
 
 Things to do after that:
 
--	Work on `runkit_lint`
--	Work on `class_adopt` and `class_emancipate`
--	See if `runkit_import`/`runkit_lint` can be implemented
+-   Replace property manipulation with runkit_default_property_modify
+-   Support and test php 7.1 constant visibility
+-   See if `runkit\_lint` can be implemented
 
 UPSTREAM DOCUMENTATION
 ======================
