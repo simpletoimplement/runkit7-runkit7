@@ -440,6 +440,8 @@ void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string* lcmname, zen
 
 void PHP_RUNKIT_DEL_MAGIC_METHOD(zend_class_entry *ce, const zend_function *fe TSRMLS_DC);
 
+void ensure_all_objects_of_class_have_magic_methods(zend_class_entry *ce);
+
 /* {{{ php_runkit_parse_doc_comment_arg */
 inline static zend_string* php_runkit_parse_doc_comment_arg(int argc, zval *args, int arg_pos) {
 	if (argc > arg_pos) {

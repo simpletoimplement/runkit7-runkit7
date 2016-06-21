@@ -147,12 +147,16 @@ void php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_ARG(HashTable *
 inline static void php_runkit_inherit_magic(zend_class_entry *ce, const zend_function *fe, const zend_function *orig_fe TSRMLS_DC) {
 	if ((ce)->__get == (orig_fe) && (ce)->parent->__get == (fe)) {
 		(ce)->__get        = (ce)->parent->__get;
+		ensure_all_objects_of_class_have_magic_methods(ce);
 	} else if ((ce)->__set        == (orig_fe) && (ce)->parent->__set == (fe)) {
 		(ce)->__set        = (ce)->parent->__set;
+		ensure_all_objects_of_class_have_magic_methods(ce);
 	} else if ((ce)->__unset      == (orig_fe) && (ce)->parent->__unset == (fe)) {
 		(ce)->__unset      = (ce)->parent->__unset;
+		ensure_all_objects_of_class_have_magic_methods(ce);
 	} else if ((ce)->__isset      == (orig_fe) && (ce)->parent->__isset == (fe)) {
 		(ce)->__isset      = (ce)->parent->__isset;
+		ensure_all_objects_of_class_have_magic_methods(ce);
 	} else if ((ce)->__call       == (orig_fe) && (ce)->parent->__call == (fe)) {
 		(ce)->__call       = (ce)->parent->__call;
 	} else if ((ce)->__callstatic == (orig_fe) && (ce)->parent->__callstatic == (fe)) {
