@@ -18,7 +18,14 @@ Pull requests with fixes, documentation, and additional tests for PHP7 are welco
 Most of the runkit tests for method manipulation and function manipulation are passing.
 Other methods and corresponding tests are disabled/skipped because changes to php internals in php7 made them impractical.
 
----------------------
+Current Build Status
+--------------------
+
+Roughly 16 failing tests, 93 skipped tests, 79 passing tests. Most test failures relate to manipulating built in functions.
+
+[![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
+
+
 ## PHP7 SPECIFIC DETAILS
 
 ### Bugs in PHP7 runkit
@@ -264,17 +271,11 @@ TODO:
 git clone https://github.com/TysonAndre/runkit7.git
 cd runkit
 phpize
-# Need to disable sandboxing and superglobals for PHP7 until they are implemented.
-./configure --disable-runkit-sandbox --disable-runkit-super
+# Need to disable sandboxing for PHP7 until they are implemented.
+./configure --disable-runkit-sandbox
 make
 make test
 # If you know how to uninstall this:
 # sudo make install
 ```
 
-Current Build Status
---------------------
-
-Roughly 16 failing tests, 93 skipped tests, 79 passing tests.
-
-[![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
