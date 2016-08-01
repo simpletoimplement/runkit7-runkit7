@@ -23,7 +23,22 @@ class test {
 				echo "g $is $g\n";
 				$d .= ' modified';
 				echo '$this is';
-				var_dump($this);
+				try {
+					var_dump($this);
+				} catch (Error $e) {
+					echo "\n";
+					// In PHP 7.1, they treated $this more consistently. It was also possible to declare variables called $this in php <= 7.0
+					// Since this is a function created by runkit_function_add, not a method,
+					// it is guaranteed that it is not an object context (A function written normally would also throw an Error, so this is expected)
+					if (PHP_VERSION_ID < 70100) {
+						throw $e;
+					}
+					if ($e->getMessage() !== 'Using $this when not in object context') {
+						throw $e;
+					}
+					printf("(In php7, this is a thrown Error, not a )Notice: Undefined variable: this in %s on line %d\n", $e->getFile(), $e->getLine());
+					var_dump(NULL);  // Dump null to match --EXPECT--
+				}
 			}
 		);
 		runkit_function('foo', 'bar');
@@ -42,7 +57,7 @@ c is use
 d is ref_use
 g is global
 $this is
-Notice: Undefined variable: this in %s on line %d
+%sNotice: Undefined variable: this in %s on line %d
 NULL
 d after call is ref_use modified
 a is foo
@@ -51,5 +66,5 @@ c is use
 d is ref_use modified
 g is global
 $this is
-Notice: Undefined variable: this in %s on line %d
+%sNotice: Undefined variable: this in %s on line %d
 NULL
