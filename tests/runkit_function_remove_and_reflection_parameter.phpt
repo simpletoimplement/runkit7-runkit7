@@ -28,4 +28,4 @@ object(ReflectionParameter)#%d (1) {
   string(31) "__parameter_removed_by_runkit__"
 }
 
-Fatal error:%sInternal error: Failed to retrieve the reflection object in %s on line %d
+%sFatal error:%sInternal error: Failed to retrieve the reflection object in %s on line %d
