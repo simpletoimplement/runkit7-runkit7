@@ -10,18 +10,12 @@ PHP_ARG_ENABLE(runkit-modify, whether to enable runtime manipulation of function
 PHP_ARG_ENABLE(runkit-super, whether to enable registration of user-defined autoglobals,
 [  --enable-runkit-super     Enable registration of user-defined autoglobals], inherit, no)
 
-PHP_ARG_ENABLE(runkit-sandbox, whether to enable Sandbox support,
-[  --enable-runkit-sandbox   Enable Runkit_Sandbox (Requires ZTS)], inherit, no)
-
 if test "$PHP_RUNKIT" != "no"; then
   if test "$PHP_RUNKIT_MODIFY" = "inherit"; then
     PHP_RUNKIT_MODIFY=yes
   fi
   if test "$PHP_RUNKIT_SUPER" = "inherit"; then
     PHP_RUNKIT_SUPER=yes
-  fi
-  if test "$PHP_RUNKIT_SANDBOX" = "inherit"; then
-    PHP_RUNKIT_SANDBOX=yes
   fi
 else
   if test "$PHP_RUNKIT_MODIFY" = "inherit"; then
@@ -30,14 +24,10 @@ else
   if test "$PHP_RUNKIT_SUPER" = "inherit"; then
     PHP_RUNKIT_SUPER=no
   fi
-  if test "$PHP_RUNKIT_SANDBOX" = "inherit"; then
-    PHP_RUNKIT_SANDBOX=no
-  fi
 fi
 
 if test "$PHP_RUNKIT_MODIFY" = "yes" ||
-   test "$PHP_RUNKIT_SUPER" = "yes" ||
-   test "$PHP_RUNKIT_SANDBOX" = "yes"; then
+   test "$PHP_RUNKIT_SUPER" = "yes"; then
   if test "$PHP_RUNKIT" != "classkit"; then
     PHP_RUNKIT=yes
   fi
@@ -53,12 +43,8 @@ if test "$PHP_RUNKIT" != "no"; then
   if test "$PHP_RUNKIT_SUPER" != "no"; then
     AC_DEFINE(PHP_RUNKIT_FEATURE_SUPER, 1, [Whether to export custom autoglobal registration feature])
   fi
-  if test "$PHP_RUNKIT_SANDBOX" != "no"; then
-    AC_DEFINE(PHP_RUNKIT_FEATURE_SANDBOX, 1, [Whether to export Sandbox feature])
-  fi
   PHP_NEW_EXTENSION(runkit, runkit.c runkit_functions.c runkit_methods.c \
 runkit_constants.c \
-runkit_sandbox.c runkit_sandbox_parent.c \
 runkit_object_id.c \
 runkit_common.c \
 , $ext_shared,, -Wdeclaration-after-statement -Werror -Wall -Wno-deprecated-declarations -Wno-pedantic)
