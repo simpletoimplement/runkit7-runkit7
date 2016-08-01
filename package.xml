@@ -3,12 +3,12 @@
 http://pear.php.net/dtd/tasks-1.0.xsd
 http://pear.php.net/dtd/package-2.0
 http://pear.php.net/dtd/package-2.0.xsd">
- <name>runkit</name>
- <channel>zenovich.github.io/pear</channel>
- <summary>For all those things you.... probably shouldn&apos;t have been doing anyway....</summary>
- <description>Replace, rename, and remove user defined functions and classes.
+ <!-- not an actual pecl extension name -->
+ <name>runkit7</name>
+ <channel>pecl.php.net</channel>
+ <summary>Runkit7 : For all those things you.... probably shouldn&apos;t have been doing anyway....</summary>
+ <description>Replace, rename, and remove user defined functions, methods, properties, and constants (Unstable).
 Define customized superglobal variables for general purpose use.
-Execute code in restricted environment (sandboxing).
  </description>
  <lead>
   <name>Dmitry Zenovich</name>
@@ -19,12 +19,12 @@ Execute code in restricted environment (sandboxing).
 
    <date>2015-09-25</date>
    <version>
-    <release>1.0.4</release>
-    <api>1.0.4</api>
+    <release>1.0.5a1</release>
+    <api>1.0.5a1</api>
    </version>
    <stability>
-    <release>stable</release>
-    <api>stable</api>
+    <release>alpha</release>
+    <api>alpha</api>
    </stability>
    <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
    <notes>
@@ -177,7 +177,6 @@ Execute code in restricted environment (sandboxing).
     <file name="runkit_import_method_with_static_var.phpt" role="test" />
     <file name="runkit_import_properies_modified_via_reflection.inc" role="test" />
     <file name="runkit_import_properies_modified_via_reflection.phpt" role="test" />
-    <file name="runkit_lint.phpt" role="test" />
     <file name="runkit_method_add.phpt" role="test" />
     <file name="runkit_method_add_and_doc_comment.phpt" role="test" />
     <file name="runkit_method_add_closure.phpt" role="test" />
@@ -220,36 +219,6 @@ Execute code in restricted environment (sandboxing).
     <file name="runkit_return_value_used.phpt" role="test" />
     <file name="runkit_zval_inspect.phpt" role="test" />
     <file name="runkit_static_vars.phpt" role="test" />
-    <file name="Runkit_Sandbox.allow_url_include.phpt" role="test" />
-    <file name="Runkit_Sandbox.open_basedir.phpt" role="test" />
-    <file name="Runkit_Sandbox_.active.phpt" role="test" />
-    <file name="Runkit_Sandbox_.output_handler.phpt" role="test" />
-    <file name="runkit_sandbox_output_handler.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent1.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent2.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.call.access.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.call.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.die.access.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.die.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.echo.access.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.echo.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.eval.access.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.eval.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.read.access.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.read.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.scope.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.write.access.phpt" role="test" />
-    <file name="Runkit_Sandbox_Parent__.write.phpt" role="test" />
-    <file name="Runkit_Sandbox__call.phpt" role="test" />
-    <file name="Runkit_Sandbox__call_user_func_closure.phpt" role="test" />
-    <file name="Runkit_Sandbox__die.phpt" role="test" />
-    <file name="Runkit_Sandbox__disable_classes.phpt" role="test" />
-    <file name="Runkit_Sandbox__disable_functions.phpt" role="test" />
-    <file name="Runkit_Sandbox__echo.phpt" role="test" />
-    <file name="Runkit_Sandbox__eval.phpt" role="test" />
-    <file name="Runkit_Sandbox__get.phpt" role="test" />
-    <file name="Runkit_Sandbox__grandchild.phpt" role="test" rolw="test" />
-    <file name="Runkit_Sandbox__set.phpt" role="test" />
     <file name="bug10053.phpt" role="test" />
     <file name="bug10300.phpt" role="test" />
     <file name="bug4519.inc" role="test" />
@@ -272,7 +241,6 @@ Execute code in restricted environment (sandboxing).
     <file name="runkit_import_static_properties_override.phpt" role="test" />
     <file name="runkit_import_with_syntax_error.inc" role="test" />
     <file name="runkit_import_with_syntax_error.phpt" role="test" />
-    <file name="runkit_sandbox_with_register_globals.phpt" role="test" />
     <file name="runkit_static_property_add.phpt" role="test" />
     <file name="runkit_static_property_add_existing.phpt" role="test" />
     <file name="runkit_static_property_add_to_subclasses.phpt" role="test" />
@@ -301,17 +269,14 @@ Execute code in restricted environment (sandboxing).
     <file name="runkit_import_methods2.inc" role="test" />
     <file name="runkit_import_methods.phpt" role="test" />
     <file name="runkit_method_rename_002.phpt" role="test" />
-    <file name="bug64496.phpt" role="test" />
     <file name="runkit_user_functions_on_shutdown.phpt" role="test" />
    </dir> <!-- //tests -->
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
    <file name="php_runkit.h" role="src" />
    <file name="php_runkit_hash.h" role="src" />
-   <file name="php_runkit_sandbox.h" role="src" />
    <file name="php_runkit_zval.h" role="src" />
    <file name="LICENSE" role="doc" />
-   <file name="README" role="doc" />
    <file name="README.md" role="doc" />
    <file name="runkit.c" role="src" />
    <file name="runkit.dsp" role="src" />
@@ -322,9 +287,6 @@ Execute code in restricted environment (sandboxing).
    <file name="runkit_methods.c" role="src" />
    <file name="runkit_object_id.c" role="src" />
    <!-- <file name="runkit_props.c" role="src" /> -->
-   <file name="runkit_sandbox.c" role="src" />
-   <file name="runkit_sandbox_parent.c" role="src" />
-   <file name="tsrm_5.0.diff" role="src" />
   </dir> <!-- / -->
  </contents>
  <dependencies>
@@ -337,7 +299,7 @@ Execute code in restricted environment (sandboxing).
    </pearinstaller>
   </required>
  </dependencies>
- <providesextension>runkit</providesextension>
+ <providesextension>runkit7</providesextension>
  <extsrcrelease />
 
  <changelog>
