@@ -1,16 +1,52 @@
-Runkit7: Runkit extension fork for PHP 7
-========================================
+Runkit7: Unofficial runkit extension fork for PHP 7
+===================================================
 
 For all those things you.... probably shouldn't have been doing anyway....
-__Now with partial support for PHP7!__ (This extension isn't production ready yet).
+__Now with partial support for PHP7.0!__ (This extension isn't production ready yet).
+
+[![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 
 [Building and installing runkit in unix (64-bit PHP7 only)](#building-and-installing-runkit7-in-unix-php7)
+
+Current Build Status
+--------------------
+
+In 7.0.x: Roughly 16 failing tests, 93 skipped tests, 79 passing tests.
+
+In 7.1.0beta1: More segmentation faults and test failures than 7.0.x
+
+Compatability: PHP7.0 (Partial, buggy)
+--------------------------------------
+
+Superglobals work reliably when tested on web servers and tests.
+Class and function manipulation is recommended only for unit tests.
+TODO: Support php 7.1
+
+- `runkit-superglobal` works reliably in 7.0.x. It may be unavailable during request shutdown.
+- Manipulating user-defined (i.e. not builtin or part of extensions) functions and methods via `runkit_method_*` and `runkit_function_*` generally works in 7.0.x, **but is recommended only in unit tests**
+- Manipulating built in functions may cause segmentation faults.
+  (Manipulating built in class methods is impossible/not supported)
+- Adding default properties to classes doesn't work in php7, because of a change
+  in the way PHP stores objects.
+  Eventually, I plan to add `runkit_default_property_modify`, which will replace one default value with a different default property, keeping the number of properties the same.
+  See the section [Reasons for disabling property manipulation](#reasons-for-disabling-property-manipulation)
+  As a substitute, user code can do the following things:
+
+  - rename (or add) `__construct` with `runkit_method_rename`/`runkit_method_add`,
+    and create a new version of `__construct` that sets the properties, then calls the original constructor.
+  - For getting/setting properties of **individual objects**, see [ReflectionProperty](https://secure.php.net/manual/en/class.reflectionproperty.php)
+    `ReflectionProperty->setAccessible(true)` and `ReflectionProperty->setValue()`, etc.
+- Modifying constants works for constants declared in different files, but does not work for constants within the same file.
+  PHP7.0+ inlines constants within the same file if they are guaranteed to have only one definition.
+  Patching php-src and/or opcache to not inline constants (e.g. based on a php.ini setting) is possible, but hasn't been tried yet.
+- Sandboxing (and `runkit_lint`) were removed.
+- TODO: Fix segmentation faults in the PHP 7.1 beta
 
 The following contributions are welcome:
 
 -	Pull requests with  PHP5 -> PHP7 code migration of functions
--	New test cases for features that no longer work in PHP7, or code crashing runkit.
--	Issues for PHP language features that worked in PHP5, but no longer work in PHP7, 
+-	New test cases for features that no longer work in PHP7, or code crashing runkit7.
+-	Issues for PHP language features that worked in PHP5, but no longer work in PHP7,
 	for the implemented methods (`runkit_function_*` and `runkit_method_*`)
 
 Pull requests with fixes, documentation, and additional tests for PHP7 are welcome.
@@ -32,15 +68,15 @@ Roughly 16 failing tests, 93 skipped tests, 79 passing tests. Most test failures
 
 -	There are still segmentation faults when manipulating internal functions
 	(when you renaming/redefining/(copying?) them, under certain conditions).
--	There are reference counting bugs. 
+-	There are reference counting bugs.
 	2 calls to `emalloc` have been temporarily replaced with calls to `pemalloc`
 	so that I could execute tests.
 -	There may be a few remaining logic errors after migrating the code to PHP7.
-	The PHP7 Zend API code
+-	The zend VM bytecode may change in 7.0 and 7.1, so some opcodes may not work.
 -	I still need to fix bugs in the way runkit's extension shutdown is done.
 	Importantly, runkit still needs to be cleaned up first (i.e. before every other extension) (To do this, I need to implement the PHP7 version of `php_runkit_hash_move_to_front`)
 
-### Implemented APIs for PHP7
+### APIs for PHP7
 #### Implemented APIs for PHP7 (buggy):
 
 -	`runkit_function_*`: Most tests are passing. There are some bugs related to renaming internal functions.
@@ -57,7 +93,6 @@ Roughly 16 failing tests, 93 skipped tests, 79 passing tests. Most test failures
 -	`runkit_class_adopt` and `runkit_class_emancipate`
 	Disabled because of bugs related to properties
 -	`runkit_lint*`
-	Not yet compilable.
 -	`runkit_constant_*` : `runkit_constant_add` works reliably, other methods don't.
 	This works better when the constants are declared in a different file.
 -	`runkit_default_property_*`
@@ -81,7 +116,7 @@ Roughly 16 failing tests, 93 skipped tests, 79 passing tests. Most test failures
    https://secure.php.net/manual/en/reflectionproperty.setaccessible.php (sets accessibility only for ReflectionProperty)
    https://secure.php.net/manual/en/reflectionproperty.setvalue.php
    https://secure.php.net/manual/en/reflectionproperty.getvalue.php
-	
+
 
 ### USEFUL LINKS
 For those unfamiliar with PHP5 extension writing:
@@ -104,7 +139,7 @@ Notes on `HashTable`s
 -	https://nikic.github.io/2014/12/22/PHPs-new-hashtable-implementation.html
 -	HashTables no longer use linked lists. They use an array of `Bucket`s instead, and use collision chaining.
 	(TODO: implement php_runkit_hash_move_to_front)
--	The new versions of `zend_hash_*` take `zend_string` pointers instead of pairs of `char* 
+-	The new versions of `zend_hash_*` take `zend_string` pointers instead of pairs of `char*
 -	Most `zend_hash_*` now have equivalent `zend_hash_str_*` methods.
 	(If I remember correctly, `zend_hash_str_*` methods now taken `strlen` as the length instead of `strlen+1`)
 -	To add/retrieve pointers from a `zend_hash`, there are now `zend_hash_*_ptr` methods.
@@ -112,22 +147,22 @@ Notes on `HashTable`s
 
 Changes to the internal representation of `HashTable`s require a lot of code changes.
 
-Notes on the new implementation of `HashTable`s:
-
 Miscellaneous notes on differences betwen PHP5 and PHP7
 -	zend opcode, opline, and zend_functions have changed in PHP7.
 -	Stack frame layout has changed.
 -	Reflection data structures changed.
 -	And so on: https://wiki.php.net/phpng-upgrading (Upgrading extensions from PHP5 to PHP7)
--	https://github.com/php/php-src/blob/PHP-7.0.0/UPGRADING - Describes changes to PHP that can be seen by PHP programmers. (E.g. backwards incompatible changes, deprecated functionality, new language features, etc.)
+-	https://github.com/php/php-src/blob/PHP-7.0/UPGRADING - Describes changes to PHP that can be seen by PHP programmers. (E.g. backwards incompatible changes, deprecated functionality, new language features, etc.)
 
 ### FURTHER WORK
 
 Things to do in the near future:
 
 -   Fix bugs related to edge cases of function and method manipulation
--   See if constant manipulation in the same file can be fixed, e.g. by recompiling functions using those constants.
+-   See if constant manipulation in the same file can be fixed, e.g. by recompiling functions using those constants, or by patching php-src.
     It was broken because php7 compiler inlines the constants automatically in the generated opcodes.
+-	PHP 7.1 testing
+-	Windows testing
 
 Things to do after that:
 
@@ -138,7 +173,7 @@ Things to do after that:
 UPSTREAM DOCUMENTATION
 ======================
 
-(runkit7 is forked from https://github.com/zenovich/runkit)
+**(runkit7 is an unofficial fork of https://github.com/zenovich/runkit, adding php7 support)**
 
 ---------------------
 Feel free to support Dmitry Zenovich via PayPal (dzenovich@gmail.com) if Runkit serves you.
@@ -149,10 +184,12 @@ and to have less bugs and more features.
 
 ---------------------
 
-Runkit has three groups of features outlined below:
+Features
+========
 
+Runkit has two groups of features outlined below (Sandboxing was removed in runkit7):
 
-## CUSTOM SUPERGLOBALS
+### CUSTOM SUPERGLOBALS
 A new .ini entry `runkit.superglobal` is defined which may be specified as a simple variable, or list of simple variables to be registered as
 superglobals.  runkit.superglobal is defined as PHP_INI_SYSTEM and must be set in the system-wide php.ini.
 
@@ -184,98 +221,41 @@ Bar is 2
 Baz is
 ```
 
-Compatability: PHP 7.0 or greater
 
-
-## USER DEFINED FUNCTION AND CLASS MANIPULATION
+### USER DEFINED FUNCTION AND CLASS MANIPULATION
 __NOTE: Only a subset of the APIs have been ported to PHP7. Some of these APIs have segmentation faults in corner cases__
 
 Userdefined functions and userdefined methods may now be renamed, delete, and redefined using the API described at http://www.php.net/runkit
 
 Examples for these functions may also be found in the tests folder.
 
-Compatability: PHP7 (Partial, buggy)
+As a replacement for `runkit_lint`/`runkit_lint_file` try any of the following:
 
+- `php -l --no-php-ini $filename` will quickly check if a file is syntactically valid, but will not show you any php notices about deprecated code, etc.
+- [`opcache_compile_file`](https://secure.php.net/manual/en/function.opcache-compile-file.php) may help, but will not show you any notices.
+- Projects such as https://github.com/nikic/PHP-Parser , which produce an Abstract Syntax Tree from php code.
 
-## SANDBOXING (Not yet supported)
-With the introduction of TSRM based subinterpreter support a running PHP script may now generate a new thread and interactively switch contexts back and
-forth between it.  THIS FEATURE DOES NOT PROVIDE FULL SCRIPT THREADING.  This feature only allows you to run processes in a subinterpreter optionally
-with additional security.
+Installation
+============
 
-First, create an instance of the Runkit_Sandbox object:
-
-```php
-$php = new Runkit_Sandbox();
-```
-
-To read and write variables in this subinterpreter, just access the properties of the object:
-
-```php
-$php->foo = 'bar';
-$php->baz = 'boom';
-```
-
-Individual functions may also be called (executed within the newly created scope):
-
-```php
-$php->session_start();
-```
-
-Or you can execute a block of arbitrary code:
-
-```php
-$php->eval('echo "The value of foo is $foo\n";');
-```
-
-In this example, $foo will be interpolated as 'bar' since that's what you set it to earlier.
-
-Certain INI Options which are ordinarily only modifiable in the system php.ini may be passed during instantiation and changed for your subinterpreter as
-well, these options are passed as an associative array to the Runkit_Sandbox constructor and include the following:
-
-safe_mode			safe_mode may only be turned on for a Runkit_Sandbox interpreter using this option.  It cannot be turned off, doing so would
-					circumvent the setting specified by your system administrator in the system php.ini.
-
-open_basedir		Like safe_mode, you can only use this setting to make things more restrictive.
-
-allow_url_fopen		In keeping with safe_mode, this can only be turned off (more restrictive than global environment)
-
-disable_functions	Any function names specified in this coma-delimited list will be disabled IN ADDITION TO already disabled functions.
-
-disable_classes		Like disable_functions, this list is in addition to already disabled classes.
-
-Sandboxing is ONLY AVAILABLE in PHP 5.1 (release version, or snapshot dated after April 28th, 2005) when thread safety has been enabled.  To enable
-thread safety, just make sure that --enable-maintainer-zts is specified on your ./configure line.  This doesn't necessarily mean that your SAPI will use
-PHP in a threaded manner, just that PHP is prepared to behave that way.  If you're building for Apache2-Worker then you're already built for thread
-safety.
-
-If you wish/need to use PHP 5.0.x, or a cvs snapshot of 5.1 which predates April 28th, you can apply the tsrm_5.0.diff patch included in this package:
-
-```sh
-cd /path/to/php-5.0.x/
-cat /path/to/runkit/tsrm_5.0.diff | patch -p0
-```
-
-Then just rebuild using the --enable-maintainer-zts option specified above.
-
-
-runkit_lint() and runkit_lint_file() also exist as a simpler approach to verifying the syntactic legality of passed code within an isolated environment.
-
-## BUILDING AND INSTALLING RUNKIT(7) IN 32-bit systems (not yet supported)
+### BUILDING AND INSTALLING RUNKIT(7) IN 32-bit systems (not yet supported)
 __NOTE__: This probably won't work properly with 32-bit builds of PHP.
 The Zend VM's implementation for 32-bit PHP is different from the 64-bit VMs.
 
-TODO: 
+TODO:
 
-## BUILDING AND INSTALLING RUNKIT(7) IN UNIX (PHP7)
+### BUILDING AND INSTALLING RUNKIT(7) IN UNIX (PHP7)
+
 ```
-git clone https://github.com/TysonAndre/runkit7.git
-cd runkit
+git clone https://github.com/runkit7/runkit7.git
+cd runkit7
 phpize
-# Need to disable sandboxing for PHP7 until they are implemented.
-./configure --disable-runkit-sandbox
+# The sandbox related code and flags have been removed, no need to disable them.
+# (--enable-runkit-modify (on by default) controls function, method, class, manipulation, and will control property manipulation)
+# (--enable-runkit-super (on by default) allows you to add custom superglobals)
+./configure
 make
 make test
 # If you know how to uninstall this:
 # sudo make install
 ```
-
