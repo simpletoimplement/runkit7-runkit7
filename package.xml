@@ -4,7 +4,7 @@ http://pear.php.net/dtd/tasks-1.0.xsd
 http://pear.php.net/dtd/package-2.0
 http://pear.php.net/dtd/package-2.0.xsd">
  <!-- not an actual pecl extension name -->
- <name>runkit7</name>
+ <name>runkit</name>
  <channel>pecl.php.net</channel>
  <summary>Runkit7 : For all those things you.... probably shouldn&apos;t have been doing anyway....</summary>
  <description>Replace, rename, and remove user defined functions, methods, properties, and constants (Unstable).
@@ -242,7 +242,7 @@ Define customized superglobal variables for general purpose use.
    </pearinstaller>
   </required>
  </dependencies>
- <providesextension>runkit7</providesextension>
+ <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
   <release>
