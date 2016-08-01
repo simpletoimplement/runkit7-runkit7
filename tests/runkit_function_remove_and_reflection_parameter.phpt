@@ -15,7 +15,12 @@ $reflParam = $reflParam[0];
 runkit_function_remove('runkitFunction');
 
 var_dump($reflParam);
-var_dump($reflParam->getDeclaringFunction());
+try {
+	var_dump($reflParam->getDeclaringFunction());
+} catch (Error $e) {
+	echo "\n";
+	printf("(No longer a )Fatal error: %s in %s on line %d", $e->getMessage(), $e->getFile(), $e->getLine());
+}
 ?>
 --EXPECTF--
 object(ReflectionParameter)#%d (1) {

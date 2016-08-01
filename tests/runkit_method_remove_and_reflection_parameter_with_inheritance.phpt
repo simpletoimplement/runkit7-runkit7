@@ -20,7 +20,12 @@ $reflParam = $reflParam[0];
 runkit_method_remove('RunkitClass','runkitMethod');
 
 var_dump($reflParam);
-var_dump($reflParam->getDeclaringFunction());
+try {
+	var_dump($reflParam->getDeclaringFunction());
+} catch (Error $e) {
+	echo "\n";
+	printf("(No longer a )Fatal error: %s in %s on line %d", $e->getMessage(), $e->getFile(), $e->getLine());
+}
 ?>
 --EXPECTF--
 object(ReflectionParameter)#%d (1) {
@@ -28,4 +33,4 @@ object(ReflectionParameter)#%d (1) {
   string(31) "__parameter_removed_by_runkit__"
 }
 
-Fatal error:%sInternal error: Failed to retrieve the reflection object in %s on line %d
+%sFatal error:%sInternal error: Failed to retrieve the reflection object in %s on line %d
