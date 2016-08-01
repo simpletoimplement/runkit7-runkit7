@@ -118,12 +118,6 @@ zend_function_entry runkit_functions[] = {
 	// PHP_FE(runkit_default_property_remove,							NULL)
 #endif /* PHP_RUNKIT_MANIPULATION */
 
-#ifdef PHP_RUNKIT_SANDBOX
-	PHP_FE(runkit_sandbox_output_handler,							NULL)
-	PHP_FE(runkit_lint,												NULL)
-	PHP_FE(runkit_lint_file,										NULL)
-#endif
-
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -185,13 +179,10 @@ static inline void _php_runkit_init_stub_function(const char *name, void (*handl
 }
 #endif
 
-#if defined(PHP_RUNKIT_SANDBOX) || defined(PHP_RUNKIT_MANIPULATION)
+#if defined(PHP_RUNKIT_MANIPULATION)
 static void php_runkit_globals_ctor(void *pDest TSRMLS_DC)
 {
 	zend_runkit_globals *runkit_global = (zend_runkit_globals *) pDest;
-#ifdef PHP_RUNKIT_SANDBOX
-	runkit_global->current_sandbox = NULL;
-#endif
 #ifdef PHP_RUNKIT_MANIPULATION
 	runkit_global->replaced_internal_functions = NULL;
 	runkit_global->misplaced_internal_functions = NULL;
@@ -228,7 +219,7 @@ static void _php_runkit_feature_constant(const char *name, size_t name_len, zend
 PHP_MINIT_FUNCTION(runkit)
 {
 #ifdef ZTS
-#if defined(PHP_RUNKIT_SANDBOX) || defined(PHP_RUNKIT_MANIPULATION)
+#if defined(PHP_RUNKIT_MANIPULATION)
 	ts_allocate_id(&runkit_globals_id, sizeof(zend_runkit_globals), php_runkit_globals_ctor, NULL);
 #endif
 #else
@@ -275,18 +266,8 @@ PHP_MINIT_FUNCTION(runkit)
 #else
 	php_runkit_feature_constant(SUPERGLOBALS, 0);
 #endif
-#ifdef PHP_RUNKIT_SANDBOX
-	php_runkit_feature_constant(SANDBOX, 1);
-#else
-	php_runkit_feature_constant(SANDBOX, 0);
-#endif
 
-	return (1)
-#ifdef PHP_RUNKIT_SANDBOX
-		&& (php_runkit_init_sandbox(INIT_FUNC_ARGS_PASSTHRU) == SUCCESS)
-		&& (php_runkit_init_sandbox_parent(INIT_FUNC_ARGS_PASSTHRU) == SUCCESS)
-#endif
-				? SUCCESS : FAILURE;
+	return SUCCESS;
 }
 /* }}} */
 
@@ -302,12 +283,7 @@ PHP_MSHUTDOWN_FUNCTION(runkit)
 	UNREGISTER_INI_ENTRIES();
 #endif
 
-	return (1)
-#ifdef PHP_RUNKIT_SANDBOX
-		&& (php_runkit_shutdown_sandbox(SHUTDOWN_FUNC_ARGS_PASSTHRU) == SUCCESS)
-		&& (php_runkit_shutdown_sandbox_parent(SHUTDOWN_FUNC_ARGS_PASSTHRU) == SUCCESS)
-#endif
-				? SUCCESS : FAILURE;
+	return SUCCESS;
 }
 /* }}} */
 
@@ -389,10 +365,6 @@ PHP_RINIT_FUNCTION(runkit)
 #ifdef PHP_RUNKIT_SUPERGLOBALS
 	php_runkit_rinit_register_superglobals(INI_STR("runkit.superglobal"));
 #endif /* PHP_RUNKIT_SUPERGLOBALS */
-
-#ifdef PHP_RUNKIT_SANDBOX
-	RUNKIT_G(current_sandbox) = NULL;
-#endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
 	RUNKIT_G(replaced_internal_functions) = NULL;
@@ -507,11 +479,7 @@ PHP_MINFO_FUNCTION(runkit)
 	php_info_print_table_header(2, "Custom Superglobal support", "disabled or unavailable");
 #endif /* PHP_RUNKIT_SUPERGLOBALS */
 
-#ifdef PHP_RUNKIT_SANDBOX
-	php_info_print_table_header(2, "Sandbox Support", "enabled");
-#else
-	php_info_print_table_header(2, "Sandbox Support", "disable or unavailable");
-#endif /* PHP_RUNKIT_SANDBOX */
+	php_info_print_table_header(2, "Sandbox Support", "disabled for php7");
 
 #ifdef PHP_RUNKIT_MANIPULATION
 	php_info_print_table_header(2, "Runtime Manipulation", "enabled");
