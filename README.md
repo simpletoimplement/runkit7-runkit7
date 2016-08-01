@@ -6,7 +6,9 @@ __Now with partial support for PHP7.0!__ (This extension isn't production ready 
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 
-[Building and installing runkit in unix (64-bit PHP7 only)](#building-and-installing-runkit7-in-unix-php7)
+[Building and installing runkit in unix](#building-and-installing-runkit7-in-unix)
+
+[Building and installing runkit in Windows](#building-and-installing-runkit7-in-windows)
 
 Current Build Status
 --------------------
@@ -238,13 +240,11 @@ As a replacement for `runkit_lint`/`runkit_lint_file` try any of the following:
 Installation
 ============
 
-### BUILDING AND INSTALLING RUNKIT(7) IN 32-bit systems (not yet supported)
-__NOTE__: This probably won't work properly with 32-bit builds of PHP.
 The Zend VM's implementation for 32-bit PHP is different from the 64-bit VMs.
 
-TODO:
+Some issues have been fixed, new issues may crop up in the future.
 
-### BUILDING AND INSTALLING RUNKIT(7) IN UNIX (PHP7)
+### BUILDING AND INSTALLING RUNKIT(7) IN UNIX
 
 ```
 git clone https://github.com/runkit7/runkit7.git
@@ -258,4 +258,45 @@ make
 make test
 # If you know how to uninstall this:
 # sudo make install
+```
+
+### BUILDING AND INSTALLING RUNKIT7 IN WINDOWS
+
+#### Setting up php build environment
+
+Read https://wiki.php.net/internals/windows/stepbystepbuild first. This is just a special case of these instructions.
+
+For PHP7, you need to install "Visual Studio 2015 Community Edition" (or other 2015 edition).
+Make sure that C++ is installed with Visual Studio.
+The command prompt to use is "VS2015 x86 Native Tools Command Prompt" on 32-bit, "VS2015 x64 Native Tools Command Prompt" on 64-bit.
+
+For 64-bit installations of php7, use "x64" instead of "x86" for the below commands/folders.
+
+After completing setup steps mentioned, including for `C:\php-sdk\phpdev\vc14`
+
+extract download of php-7.0.9-src (or any version of php 7) to C:\php-sdk\phpdev\vc14\x86\php-7.0.9-src
+
+#### Installing runkit7 on windows
+
+There are currently no sources providing DLLs of this fork. Runkit7 and other extensions used must be built from source.
+
+Create subdirectory C:\php-sdk\phpdev\vc14\x86\pecl, adjacent to php source directory)
+
+extract download of runkit7 to C:\php-sdk\phpdev\vc14\x86\pecl\runkit7 (all of the c files and h files should be within runkit7, pecl is 
+
+Then, execute the following (Add `--enable-runkit` to the configure flags you were already using)
+
+```
+cd C:\php-sdk
+C:\php-sdk\bin\phpsdk_setvars.bat
+cd phpdev\vc14\x86\php-7.0.9\src
+buildconf
+configure --enable-runkit
+nmake
+```
+
+Then, optionally test it (Most of the tests should pass, around 16 are still failing):
+
+```
+nmake test TESTS="C:\php-sdk\vc14\x86\pecl\igbinary7\tests
 ```
