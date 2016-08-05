@@ -1,5 +1,9 @@
 language: php
 
+cache:
+  directories:
+    - $HOME/travis_cache
+
 addons:
  apt:
    sources:
@@ -11,11 +15,16 @@ env:
   - CC=clang
   - CC=gcc-4.8
   - CC=gcc-4.8 VALGRIND=1
+  # Some bugs in runkit only show up without zts enabled. (aka NTS)
+  # Specifying PHP_VERSION is done to keep up to date versions in 7.0 and 7.1 (Does it work?)
+  - CC=gcc-4.8 VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug'
 
 install:
-  - if [ "$VALGRIND" -eq 1 ]; then sudo apt-get install -qq valgrind; export TEST_PHP_ARGS="-m"; fi
+  # For NTS builds: Install NTS and set the php.ini to a different blank file.
+  - if [ "x$PHP_NTS_USE" != "x" ]; then export PHP_NTS_VERSION=$(./ci/get_global_php_version.sh); echo "Version is $PHP_NTS_VERSION"; ./ci/install_php_nts.sh || exit 1; export PATH="$HOME/travis_cache/php-$PHP_NTS_VERSION/bin:$PATH"; export PHPRC=$PWD/ci/; else ./ci/wipe_travis_cache.sh; fi
+  # Test some builds with valgrind to check for memory leaks and invalid memory accesses
+  - if [ "$VALGRIND" -eq 1 ]; then sudo apt-get install -qq valgrind; export TEST_PHP_ARGS="-m"; valgrind --version; fi
   - sudo apt-get install -qq $CC
-  - if [ "$VALGRIND" -eq 1 ]; then valgrind --version; export TEST_PHP_ARGS="-m"; fi
   - $CC --version
 
 php:
