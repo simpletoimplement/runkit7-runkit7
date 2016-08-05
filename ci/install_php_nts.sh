@@ -6,14 +6,16 @@ if [ "x$PHP_NTS_VERSION" = "x" -o "x$PHP_CONFIGURE_ARGS" = "x" ] ; then
 	exit 1;
 fi
 PHP_FOLDER="php-$PHP_NTS_VERSION"
-PHP_INSTALL_DIR="$HOME/travis_cache/$PHP_FOLDER"
+PHP_INSTALL_DIR="$(./ci/generate_php_install_dir.sh)"
 echo "Downloading $PHP_INSTALL_DIR\n"
 if [ -x $PHP_INSTALL_DIR/bin/php ] ; then 
-	echo "PHP $PHP_NTS_VERSION already installed and in cache at $HOME/travis_cache/$PHP_FOLDER";
+	echo "PHP $PHP_NTS_VERSION already installed and in cache at $PHP_INSTALL_DIR";
 	exit 0
 fi
 # Remove cache if it somehow exists
-rm -rf $HOME/travis_cache/
+if [ "x$TRAVIS" != "x" ]; then
+	rm -rf $HOME/travis_cache/
+fi
 # Otherwise, put a minimal installation inside of the cache.
 PHP_TAR_FILE="$PHP_FOLDER.tar.bz2"
 if [ "$PHP_NTS_VERSION" != "7.1.0" ] ; then
@@ -27,7 +29,7 @@ if [ "$PHP_NTS_VERSION" = "7.1.0" ] ; then
 fi
 
 pushd $PHP_FOLDER
-./configure $PHP_CONFIGURE_ARGS --prefix=$HOME/travis_cache/$PHP_FOLDER
+./configure $PHP_CONFIGURE_ARGS --prefix="$PHP_INSTALL_DIR"
 make -j5
 make install
 popd
