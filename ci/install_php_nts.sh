@@ -13,7 +13,7 @@ if [ -x $PHP_INSTALL_DIR/bin/php ] ; then
 	exit 0
 fi
 # Remove cache if it somehow exists
-if [ "x$TRAVIS" != "x" ]; then
+if [ "x${TRAVIS:-0}" != "x" ]; then
 	rm -rf $HOME/travis_cache/
 fi
 # Otherwise, put a minimal installation inside of the cache.

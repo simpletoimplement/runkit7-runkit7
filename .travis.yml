@@ -29,6 +29,7 @@ install:
   - if [ "x$PHP_NTS_USE" != "x" ]; then export PHP_NTS_VERSION=$(./ci/get_global_php_version.sh); echo "Version is $PHP_NTS_VERSION"; ./ci/install_php_nts.sh || exit 1; export PATH="$(./ci/generate_php_install_dir.sh)/bin:$PATH"; export PHPRC=$PWD/ci/; else ./ci/wipe_travis_cache.sh; fi
   # Test some builds with valgrind to check for memory leaks and invalid memory accesses
   - if [ "$VALGRIND" -eq 1 ]; then sudo apt-get install -qq valgrind; export TEST_PHP_ARGS="-m"; valgrind --version; fi
+  - if [ "$VALGRIND" -eq 1 -a "x$USE_32BIT" != "x" ]; then sudo apt-get install -y libc6-dbg:i386; fi
 
 php:
   - '7.0'
