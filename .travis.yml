@@ -37,7 +37,7 @@ php:
 
 before_script:
  - $CC --version && ci/print_php_int_max.php
- - (export CC; phpize && ./configure --disable-runkit-sandbox && make)
+ - (export CC; phpize && ./configure && make)
 
 script:
  - ci/run_tests.sh
