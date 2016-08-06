@@ -242,7 +242,7 @@ Installation
 
 The Zend VM's implementation for 32-bit PHP is different from the 64-bit VMs.
 
-Some issues have been fixed, new issues may crop up in the future.
+Some issues have been fixed, new issues may crop up in the future. (See travis builds for USE_32BIT)
 
 ### BUILDING AND INSTALLING RUNKIT(7) IN UNIX
 
