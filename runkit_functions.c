@@ -23,11 +23,27 @@
 
 #include "php_runkit.h"
 #include "php_runkit_hash.h"
+#include "php_runkit_zend_execute_API.h"
+#include "Zend/zend.h"
+
+/* Used both by runkit_return_value_used and function manipulation */
+#if PHP_VERSION_ID >= 70100
+# define RETURN_VALUE_USED(opline) ((opline)->result_type != IS_UNUSED)
+#else
+# define RETURN_VALUE_USED(opline) !((opline)->result_type & EXT_TYPE_UNUSED)
+#endif
+
+// Get lvalue of the aliased user function for a fake internal function.
+#define RUNKIT_ALIASED_USER_FUNCTION(fe) ((fe)->internal_function.reserved[0])
+#define RUNKIT_IS_ALIAS_FOR_USER_FUNCTION(fe) ((fe)->type == ZEND_INTERNAL_FUNCTION && (fe)->internal_function.handler == php_runkit_function_alias_handler)
 
 extern ZEND_API void zend_vm_set_opcode_handler(zend_op* op);
 
-
 #ifdef PHP_RUNKIT_MANIPULATION
+
+/* {{{ Top level declarations */
+static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_string* newname);
+/* }}} */
 
 /* {{{ php_runkit_check_call_stack
  */
@@ -89,13 +105,17 @@ static zend_function* php_runkit_fetch_function(zend_string* fname, int flag TSR
 	if (fe->type == ZEND_INTERNAL_FUNCTION &&
 		flag >= PHP_RUNKIT_FETCH_FUNCTION_REMOVE) {
 		zend_string* runkit_key;
+		//void* result;
 
 		if (!RUNKIT_G(replaced_internal_functions)) {
 			ALLOC_HASHTABLE(RUNKIT_G(replaced_internal_functions));
 			zend_hash_init(RUNKIT_G(replaced_internal_functions), 4, NULL, NULL, 0);
 		}
 		// FIXME figure out what this is intended to do (Restoring internal functions?)
-		zend_hash_add_ptr(RUNKIT_G(replaced_internal_functions), fname, fe);
+		// Cloning this - It would otherwise be deleted with runkit_function_redefine called later... (TODO: Add 1 to the refcount?)
+		// TODO: Properly specify the behavior to avoid memory leaks
+		// result = zend_hash_add_ptr(RUNKIT_G(replaced_internal_functions), fname_lower, fe);
+		// printf("Adding fe %llx to replaced_internal_functions key=%s result=%llx\n", (long long)fe, ZSTR_VAL(fname_lower), (long long)result);
 		/*
 		 * If internal functions have been modified then runkit's request shutdown handler
 		 * should be called after all other modules' ones.
@@ -138,32 +158,105 @@ static inline void php_runkit_add_to_misplaced_internal_functions(zend_function 
 static inline void php_runkit_destroy_misplaced_internal_function(zend_function *fe, zend_string *fname_lower TSRMLS_DC) {
 	if (fe->type == ZEND_INTERNAL_FUNCTION && RUNKIT_G(misplaced_internal_functions) &&
 	    zend_hash_exists(RUNKIT_G(misplaced_internal_functions), fname_lower)) {
-		PHP_RUNKIT_FREE_INTERNAL_FUNCTION_NAME(fe);
+		// PHP_RUNKIT_FREE_INTERNAL_FUNCTION_NAME would have been called, but function destructor already deletes those?
 		zend_hash_del(RUNKIT_G(misplaced_internal_functions), fname_lower);
 	}
 }
 /* }}} */
 
-/** {{{ php_runkit_set_opcode_constant
+/* {{{ php_runkit_set_opcode_constant
 		for absolute constant addresses, creates a local copy of that literal.
 		Modifies op's contents. */
 static void php_runkit_set_opcode_constant(const zval* literals, znode_op* op, zval* literalI) {
-	debug_printf("php_runkit_set_opcode_constant(%llx, %llx, %d)", (long long)literals, (long long)literalI, (int)sizeof(zval));
+	debug_printf("php_runkit_set_opcode_constant(%llx, %llx, %d), USE_ABS=%d", (long long)literals, (long long)literalI, (int)sizeof(zval), ZEND_USE_ABS_CONST_ADDR);
 	// TODO: ZEND_PASS_TWO_UPDATE_CONSTANT???
 #if ZEND_USE_ABS_CONST_ADDR
 	RT_CONSTANT_EX(literals, *op) = literalI;
 #else
 	// TODO: Assert that this is in a meaningful range.
 	// TODO: is this ever necessary for relative constant addresses?
-	op->constant = literalI - literals;
+	op->constant = ((char*)literalI) - ((char*)literals);
 #endif
 }
 /* }}} */
 
-/* {{{ php_runkit_function_copy_ctor
-	Duplicate structures in an op_array where necessary to make an outright duplicate */
-void php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname TSRMLS_DC)
+/* {{{ php_runkit_function_alias_handler
+    Used when an internal function is replaced by a user-defined/runkit function. Converts the ICALL to a UCALL.
+    Params: zend_execute_data *execute_data, zval *return_value */
+static void php_runkit_function_alias_handler(INTERNAL_FUNCTION_PARAMETERS)
 {
+	zend_function *fbc_inner;
+	zend_function *fbc = execute_data->func;
+	int result;
+#if ZEND_DEBUG
+	ZEND_ASSERT(fbc->type == ZEND_INTERNAL_FUNCTION);
+#endif
+	fbc_inner = (zend_function*)RUNKIT_ALIASED_USER_FUNCTION(fbc);
+#if ZEND_DEBUG
+	ZEND_ASSERT(fbc_inner->type == ZEND_USER_FUNCTION);
+#endif
+
+	// printf("In php_runkit_function_alias_handler! fbc=%llx fbc_inner=%llx execute_data=%llx return_value=%llx\n", (long long) fbc, (long long) fbc_inner, (long long)execute_data, (long long)return_value);
+	// TODO: Pass a context?
+	// TODO: Copy the implementation of zend_call_function, use it to set up an additional stack entry....
+	// FIXME modify current_execute_data for stack traces.
+	// FIXME : 4th param check_this should be 1 if this is a method.
+
+	// Fake the stack and call the inner function.
+	// Set up the execution of the new command.
+	result = runkit_forward_call_user_function(fbc, fbc_inner, INTERNAL_FUNCTION_PARAM_PASSTHRU);
+	(void) result;
+	// printf("In php_runkit_function_alias_handler! execute_data=%llx return_value=%llx, return code = %d\n", (long long)execute_data, (long long)return_value, (int)result);
+	// TODO: Throw an exception
+	return;
+	// FIXME: This is wrong, it did not start executing the command, it only set it up for execution. Try doing something similar to call_user_func_array?
+}
+/* }}} */
+
+/* {{{ php_runkit_function_create_alias_internal_function */
+/** Create a fake internal function which will call the duplicated user function instead. */
+static void php_runkit_function_create_alias_internal_function(zend_function *fe, zend_function *fe_inner) {
+	// Zero out the parts that will be an internal function.
+	memset((((uint8_t*) fe) + sizeof(fe->common)), 0, sizeof(zend_function) - sizeof(fe->common));
+#if ZEND_DEBUG
+	ZEND_ASSERT(fe_inner->type == ZEND_USER_FUNCTION);
+#endif
+	// TODO: Figure out refcount tracking of function names when aliases are used.
+	fe->type = ZEND_INTERNAL_FUNCTION;
+	fe->common.function_name = fe_inner->common.function_name;
+	zend_string_addref(fe->common.function_name);
+	//printf("Copying handler to %llx\n", (long long)php_runkit_function_alias_handler);
+	fe->internal_function.handler = php_runkit_function_alias_handler;
+	RUNKIT_ALIASED_USER_FUNCTION(fe) = fe_inner;
+}
+/* }}} */
+
+/* {{{ php_runkit_function_copy_ctor
+	Duplicate structures in a zend_function where necessary to make an outright duplicate.
+	Does additional work to ensure that the type of the final function is orig_fe_type. */
+int php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname, char orig_fe_type TSRMLS_DC)
+{
+	if (fe->type == orig_fe_type) {
+		php_runkit_function_copy_ctor_same_type(fe, newname);
+		return SUCCESS;
+	} else if (orig_fe_type == ZEND_INTERNAL_FUNCTION) { /* We replaced an internal function with a user function. */
+		zend_function* fe_inner = pemalloc(sizeof(zend_op_array), 1);
+		memcpy(fe_inner, fe, sizeof(zend_op_array));
+		php_runkit_function_copy_ctor_same_type(fe_inner, newname);
+		php_runkit_function_create_alias_internal_function(fe, fe_inner);
+		// printf("Allocated fe_inner=%llx type=%d\n", (long long)fe_inner, (int)fe_inner->type);
+		return SUCCESS;
+	}
+	php_runkit_function_copy_ctor_same_type(fe, newname);
+	return SUCCESS;
+}
+/* }}} */
+
+/* {{{ php_runkit_function_copy_ctor_same_type
+    Duplicates structures in an zend_function, creating a function of the same type (user/internal) as the original function */
+static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_string* newname)
+{
+
 	zval *literals;
 	void *run_time_cache;
 	zend_string **dupvars;  // Array of zend_string*s
@@ -207,7 +300,7 @@ void php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname TSRML
 		if (fe->op_array.run_time_cache) {
 			// TODO: Garbage collect these, somehow?
 			run_time_cache = pemalloc(fe->op_array.cache_size, 1);
-			memcpy(run_time_cache, fe->op_array.run_time_cache, fe->op_array.cache_size);
+			memset(run_time_cache, 0, fe->op_array.cache_size);
 			fe->op_array.run_time_cache = run_time_cache;
 		}
 
@@ -217,8 +310,7 @@ void php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname TSRML
 		for(i = 0; i < fe->op_array.last; i++) {
 			opcode_copy[i] = fe->op_array.opcodes[i];
 			debug_printf("opcode = %s, is_const=%d, constant=%d\n", zend_get_opcode_name((int)opcode_copy[i].opcode), (int) (opcode_copy[i].op1_type == IS_CONST), fe->op_array.opcodes[i].op1.constant);
-			if (opcode_copy[i].op1_type == IS_CONST) {
-			} else {
+			if (opcode_copy[i].op1_type != IS_CONST) {
 				zend_op *opline;
 				zend_op *jmp_addr_op1;
 				switch (opcode_copy[i].opcode) {
@@ -242,8 +334,7 @@ void php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname TSRML
 						}
 				}
 			}
-			if (opcode_copy[i].op2_type == IS_CONST) {
-			} else {
+			if (opcode_copy[i].op2_type != IS_CONST) {
 				zend_op *opline;
 				zend_op *jmp_addr_op2;
 				switch (opcode_copy[i].opcode) {
@@ -271,6 +362,7 @@ void php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname TSRML
 				}
 			}
 		}
+
 
 		debug_printf("op_array.literals = %llx, last_literal = %d\n", (long long)fe->op_array.literals, fe->op_array.last_literal);
 		if (fe->op_array.literals) {
@@ -366,26 +458,131 @@ void php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname TSRML
 /* {{{ php_runkit_function_clone
    Makes a duplicate of fe that doesn't share any static variables, zvals, etc.
    TODO: Is there anything I can use from zend_duplicate_function? */
-zend_function* php_runkit_function_clone(zend_function *fe, zend_string *newname TSRMLS_DC) {
+zend_function* php_runkit_function_clone(zend_function *fe, zend_string *newname, char orig_fe_type TSRMLS_DC) {
 	// Make a persistent allocation.
 	// TODO: Clean it up after a request?
 	zend_function *new_function = pemalloc(sizeof(zend_function), 1);
-	memcpy(new_function, fe, sizeof(zend_function));
-	php_runkit_function_copy_ctor(new_function, newname TSRMLS_CC);
+	if (fe->type == ZEND_INTERNAL_FUNCTION) {
+		memset(new_function, 0, sizeof(zend_function));
+		memcpy(new_function, fe, sizeof(zend_internal_function));
+	} else {
+		memcpy(new_function, fe, sizeof(zend_function));
+	}
+	php_runkit_function_copy_ctor(new_function, newname, orig_fe_type TSRMLS_CC);
 	return new_function;
 }
 /* }}} */
 
-/* {{{ php_runkit_function_dtor */
-void php_runkit_function_dtor(zend_function *fe TSRMLS_DC) {
+void php_runkit_free_inner_if_aliased_function(zend_function *fe) {
+	if (RUNKIT_IS_ALIAS_FOR_USER_FUNCTION(fe)) {
+		zval zv_inner;
+		zend_function *fe_inner;
+		fe_inner = (zend_function*) RUNKIT_ALIASED_USER_FUNCTION(fe);
+		printf("Freeing internal function %llx of %llx", (long long)(fe_inner), (long long)fe);
+#if ZEND_DEBUG
+		ZEND_ASSERT(fe_inner->type == ZEND_INTERNAL_FUNCTION);
+#endif
+		ZVAL_FUNC(&zv_inner, fe_inner);
+		zend_function_dtor(&zv_inner);
+		pefree(fe_inner, 1);
+	}
+}
+
+/* {{{ php_runkit_function_dtor_impl - Destroys functions, handles special fields added if they're from runkit. */
+void php_runkit_function_dtor_impl(zend_function *fe, zend_bool is_clone TSRMLS_DC) {
 	zval zv;
+	zend_bool is_user_function;
+	is_user_function = fe->type == ZEND_USER_FUNCTION;
+	php_runkit_free_inner_if_aliased_function(fe);
 	ZVAL_FUNC(&zv, fe);
 	zend_function_dtor(&zv);
 	// Note: This can only be used with zend_functions created by php_runkit_function_clone.
 	// ZEND_INTERNAL_FUNCTIONs are freed.
-	if (fe->type == ZEND_USER_FUNCTION) {
+	if (is_clone && is_user_function) {
 		pefree(fe, 1);
 	}
+}
+/* }}} */
+
+/* {{{ php_runkit_function_dtor - Only to be used if we are sure this was created by runkit with runkit_function_clone. */
+void php_runkit_function_dtor(zend_function *fe TSRMLS_DC) {
+	php_runkit_function_dtor_impl(fe, 1 TSRMLS_CC);
+}
+/* }}} */
+
+// The original destructor of the affected function_table.
+static dtor_func_t __function_table_orig_pDestructor = NULL;
+
+static void php_runkit_function_table_dtor(zval *pDest TSRMLS_DC) {
+	php_runkit_free_inner_if_aliased_function(Z_PTR_P(pDest));
+	if (__function_table_orig_pDestructor != NULL) {
+		__function_table_orig_pDestructor(pDest);
+	}
+}
+
+/* {{{ php_runkit_function_create_clone_alias_user_function - Create a user function aliasing an internal function */
+static zend_function *php_runkit_function_create_clone_alias_user_function(zend_function *sfe) {
+#if ZEND_DEBUG
+	ZEND_ASSERT(sfe->type == ZEND_INTERNAL_FUNCTION);
+#endif
+
+	/*
+	// FIXME support making user functions that are aliases of internal functions and callable.
+	// Currently, we just leave them as the original internal function.
+	if (1) {
+		zend_function *fe;
+		fe = emalloc(sizeof(zend_op_array), 1);
+		memcpy(fe, sfe, sizeof(sfe->common));  // Copy the common parts of internal function to the user function
+		memset((((uint8_t*) fe) + sizeof(fe->common)), 0, sizeof(zend_op) - sizeof(fe->common));
+		fe->op_array.refcount = (uint32_t*)emalloc(sizeof(uint32_t));
+		*(fe->op_array.refcount) = 1;
+		// TODO: initialize op_array.opcodes with the desired operations.
+
+		fe->reserved[0] = sfe;
+		return fe;
+	}
+	*/
+	return sfe;
+}
+/* }}} */
+
+/* {{{ php_runkit_remove_from_function_table - This handles special cases where we associate aliased functions with the original */
+int php_runkit_remove_from_function_table(HashTable *function_table, zend_string *func_lower) {
+	// To be called for internal functions (TODO: internal methods?)
+	// TODO: Have a way to detect function clones.
+	int result;
+	__function_table_orig_pDestructor = function_table->pDestructor;
+	function_table->pDestructor = php_runkit_function_table_dtor;
+	result = zend_hash_del(function_table, func_lower);
+	function_table->pDestructor = __function_table_orig_pDestructor;
+	__function_table_orig_pDestructor = NULL;
+	return result;
+}
+/* }}} */
+
+/* {{{ php_runkit_update_ptr_in_function_table - This handles special cases where we associate aliased functions with the original, and then replace that with zend_hash_update */
+void* php_runkit_update_ptr_in_function_table(HashTable *function_table, zend_string *func_lower, zend_function *f) {
+	// To be called for internal functions (TODO: internal methods?)
+	// TODO: Have a way to detect function clones.
+	void *result;
+	__function_table_orig_pDestructor = function_table->pDestructor;
+	function_table->pDestructor = php_runkit_function_table_dtor;
+	result = zend_hash_update_ptr(function_table, func_lower, f);
+	function_table->pDestructor = __function_table_orig_pDestructor;
+	__function_table_orig_pDestructor = NULL;
+	return result;
+}
+/* }}} */
+
+/* {{{ runkit_zend_hash_add_or_update_function_table_ptr */
+static inline void *runkit_zend_hash_add_or_update_function_table_ptr(HashTable *function_table, zend_string *key, void *pData, uint32_t flag) {
+	void *result;
+	__function_table_orig_pDestructor = function_table->pDestructor;
+	function_table->pDestructor = php_runkit_function_table_dtor;
+	result = runkit_zend_hash_add_or_update_ptr(function_table, key, pData, flag);
+	function_table->pDestructor = __function_table_orig_pDestructor;
+	__function_table_orig_pDestructor = NULL;
+	return result;
 }
 /* }}} */
 
@@ -450,7 +647,7 @@ static inline void php_runkit_fix_hardcoded_stack_sizes(zend_function *f, zend_s
 	// TODO: Make this work with namespaced function names
 	// TODO: Do method names also need to be fixed?
 	// TODO: Do I only need to worry about user function calls within the same file?
-	
+
 	// FIXME work on namespaced functions
 	zend_op_array *op_array;
 	zend_op *it;
@@ -680,19 +877,20 @@ int php_runkit_cleanup_lambda_method() {
 	They'll get replaced soon enough */
 int php_runkit_destroy_misplaced_functions(zval *zv TSRMLS_DC)
 {
-	zend_function *fe;
+	// zend_function *fe;
 	if (Z_TYPE_P(zv) != IS_STRING || Z_STRLEN_P(zv) == 0) {
 		/* Nonsense, skip it */
 		return ZEND_HASH_APPLY_REMOVE;
 	}
 
-	if ((fe = zend_hash_find_ptr(EG(function_table), Z_STR_P(zv))) != NULL) {
+	// TODO: Free string if it **isn't** found?
+	/*if ((fe = zend_hash_find_ptr(EG(function_table), Z_STR_P(zv))) != NULL) {
 		PHP_RUNKIT_FREE_INTERNAL_FUNCTION_NAME(fe);
-	}
+	}*/
 
 	// TODO: Valgrind complained about invalid reads if this is called for an internal function such as val_dump
 	// Try to figure out how/when to properly delete functions, especially if references are shared.
-	zend_hash_del(EG(function_table), Z_STR_P(zv));
+	php_runkit_remove_from_function_table(EG(function_table), Z_STR_P(zv));
 
 	return ZEND_HASH_APPLY_REMOVE;
 }
@@ -700,25 +898,16 @@ int php_runkit_destroy_misplaced_functions(zval *zv TSRMLS_DC)
 
 /* {{{ php_runkit_restore_internal_functions
 	Cleanup after modifications to internal functions */
-int php_runkit_restore_internal_functions(RUNKIT_53_TSRMLS_ARG(zval *pDest), int num_args, va_list args, zend_hash_key *hash_key)
+int php_runkit_restore_internal_function(zend_string *fname_lower, zend_function *f)
 {
-	// TODO: Expect IS_PTR
-	zend_function* fe_raw = Z_FUNC_P(pDest);
-	// TODO: Expect IS_INTERNAL_FUNCTION
-
-	if (!ZSTR_LEN(hash_key->key)) {
-		/* Nonsense, skip it */
-		return ZEND_HASH_APPLY_REMOVE;
-	}
-
-	zend_hash_update_ptr(EG(function_table), hash_key->key, fe_raw);
+	php_runkit_update_function_table(EG(function_table), fname_lower, f);
 
 	/* It's possible for restored internal functions to now be blocking a ZEND_USER_FUNCTION
 	 * which will screw up post-request cleanup.
 	 * Avoid this by restoring internal functions to the front of the list where they won't be in the way
 	 */
-	// TODO: Need to fix move_to_front
-	php_runkit_hash_move_to_front(EG(function_table), php_runkit_hash_get_bucket(EG(function_table), hash_key->key));
+	// FIXME: Need to fix move_to_front
+	php_runkit_hash_move_to_front(EG(function_table), php_runkit_hash_get_bucket(EG(function_table), fname_lower));
 
 	return ZEND_HASH_APPLY_REMOVE;
 }
@@ -799,7 +988,9 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 		remove_temp = 1;
 	}
 
-	func = php_runkit_function_clone(source_fe, funcname TSRMLS_CC);
+	// FIXME actually store the original type in a hash map.
+	func = php_runkit_function_clone(source_fe, funcname, (orig_fe ? orig_fe->type : ZEND_USER_FUNCTION) TSRMLS_CC);
+	//printf("Func function->handler = %llx, op=%s\n", source_fe->type == ZEND_USER_FUNCTION ? (long long)source_fe->internal_function.handler : 0, add_or_update == HASH_ADD ? "add" : "update");
 	func->common.scope = NULL;
 	func->common.fn_flags &= ~ZEND_ACC_CLOSURE;
 
@@ -819,7 +1010,7 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 		php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
 	}
 
-	if (runkit_zend_hash_add_or_update_ptr(EG(function_table), funcname_lower, func, add_or_update) == NULL) {
+	if (runkit_zend_hash_add_or_update_function_table_ptr(EG(function_table), funcname_lower, func, add_or_update) == NULL) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to add new function");
 		zend_string_release(funcname_lower);
 		if (remove_temp && zend_hash_str_del(EG(function_table), RUNKIT_TEMP_FUNCNAME, sizeof(RUNKIT_TEMP_FUNCNAME) - 1) == FAILURE) {
@@ -932,6 +1123,8 @@ static void record_misplaced_internal_function(zend_string* fname_lower) {
 	ZVAL_STR(&tmp, fname_lower);
 	ensure_misplaced_internal_functions_table_exists();
 	zend_hash_next_index_insert(RUNKIT_G(misplaced_internal_functions), &tmp);
+	// FIXME properly track string reference count.
+	zend_string_addref(fname_lower);
 }
 /* }}} */
 
@@ -940,7 +1133,11 @@ static void record_misplaced_internal_function(zend_string* fname_lower) {
 PHP_FUNCTION(runkit_function_rename)
 {
 	zend_function *func, *sfe;
+	zend_bool was_internal_function;
+	zend_bool should_invoke_dtor_on_original;
+	char orig_dfunc_type;
 	ZEND_RESULT_CODE deleted;
+	// Check if the destination function already exists, and create strings for function names.
 	PHP_RUNKIT_FUNCTION_PARSE_RENAME_COPY_PARAMS;
 
 	if ((sfe = php_runkit_fetch_function(sfunc, PHP_RUNKIT_FETCH_FUNCTION_RENAME TSRMLS_CC)) == NULL) {
@@ -957,19 +1154,45 @@ PHP_FUNCTION(runkit_function_rename)
 	// This may cause errors.
 	// TODO: this was calling the destructor of EG(function_table)
 	// I want to extract the function, and want this to not happen.
+	was_internal_function = RUNKIT_G(misplaced_internal_functions)
+		&& zend_hash_exists(RUNKIT_G(misplaced_internal_functions), dfunc_lower);
+	orig_dfunc_type = was_internal_function ? ZEND_INTERNAL_FUNCTION : ZEND_USER_FUNCTION;
+
 	if (sfe->type == ZEND_INTERNAL_FUNCTION) {
-		func = sfe;
+		if (orig_dfunc_type == ZEND_INTERNAL_FUNCTION) {
+			should_invoke_dtor_on_original = 0;
+			func = sfe;
+		} else {
+			// Copying an alias to a user function, to a real user function.
+			if (RUNKIT_IS_ALIAS_FOR_USER_FUNCTION(sfe)) {
+				should_invoke_dtor_on_original = 1;
+				sfe = RUNKIT_ALIASED_USER_FUNCTION(sfe);
+				func = sfe;
+				// the outer function sfe_orig (and only the outer function) is freed by zend_hash_del.
+			} else {
+				// Copy an internal function, to a real user function.
+				should_invoke_dtor_on_original = 0;
+				// TODO: Make a user function which invokes a "real"(non-runkit-generated) internal function hidden by runkit.
+				// Need to
+				// eval("function bar(args) { return __runkit_invoke_real(); }")
+				// TODO: This is just a stub for now.
+				func = php_runkit_function_create_clone_alias_user_function(sfe);
+			}
+		}
 	} else {
-		func = php_runkit_function_clone(sfe, dfunc TSRMLS_CC);
+		// TODO: Will need to check for user functions that are aliases of internal functions, once that is implemented.
+		should_invoke_dtor_on_original = 1;
+		func = php_runkit_function_clone(sfe, dfunc, orig_dfunc_type TSRMLS_CC);
 	}
 
-	if (sfe == func) {
+	if (should_invoke_dtor_on_original) {
+		// Want to call zend_hash_del instead of php_runkit - for ZEND_INTERNAL_FUNCTION, we copied the inner function RUNKIT_ALIASED_USER_FUNCTION, and want to delete the outer.
+		deleted = zend_hash_del(EG(function_table), sfunc_lower) == FAILURE;
+	} else {
 		dtor_func_t orig = EG(function_table)->pDestructor;
 		EG(function_table)->pDestructor = NULL;
 		deleted = zend_hash_del(EG(function_table), sfunc_lower) == FAILURE;
 		EG(function_table)->pDestructor = orig;
-	} else {
-		deleted = zend_hash_del(EG(function_table), sfunc_lower) == FAILURE;
 	}
 
 	if (deleted) {
@@ -1035,13 +1258,19 @@ PHP_FUNCTION(runkit_function_copy)
 	sfunc_lower = zend_string_tolower(sfunc);
 
 	if (sfe->type == ZEND_USER_FUNCTION) {
-		fe = php_runkit_function_clone(sfe, dfunc TSRMLS_CC);
+		// Copy a user function to a user function
+		fe = php_runkit_function_clone(sfe, dfunc, ZEND_USER_FUNCTION TSRMLS_CC);
 	} else {
 		record_misplaced_internal_function(dfunc_lower);
+		// FIXME copying an internal function to a user function.
 
 		// TODO: Should I copy the new name for backtraces?
-		fe = pemalloc(sizeof(zend_function), 1);
-		memcpy(fe, sfe, sizeof(zend_function));
+		fe = pemalloc(sizeof(zend_internal_function), 1);
+		memcpy(fe, sfe, sizeof(zend_internal_function));
+		// FIXME reference management of function names (need to decrement as well)
+		// fe->common.function_name = dfunc;
+		zend_string_addref(fe->common.function_name);
+		zend_string_addref(fe->common.function_name);
 	}
 	php_runkit_add_to_misplaced_internal_functions(fe, dfunc_lower TSRMLS_CC);
 
@@ -1065,12 +1294,6 @@ PHP_FUNCTION(runkit_function_copy)
 }
 /* }}} */
 #endif /* PHP_RUNKIT_MANIPULATION */
-
-#if PHP_VERSION_ID >= 70100
-# define RETURN_VALUE_USED(opline) ((opline)->result_type != IS_UNUSED)
-#else
-# define RETURN_VALUE_USED(opline) !((opline)->result_type & EXT_TYPE_UNUSED)
-#endif
 
 /* {{{ proto bool runkit_return_value_used(void)
 Does the calling function do anything with our return value? */

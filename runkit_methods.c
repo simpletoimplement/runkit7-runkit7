@@ -370,7 +370,7 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 		remove_temp = 1;
 	}
 
-	func = php_runkit_function_clone(source_fe, methodname TSRMLS_CC);
+	func = php_runkit_function_clone(source_fe, methodname, (orig_fe ? orig_fe->type : ZEND_USER_FUNCTION) TSRMLS_CC);
 
 	if (flags & ZEND_ACC_PRIVATE) {
 		func->common.fn_flags &= ~ZEND_ACC_PPP_MASK;
@@ -465,8 +465,9 @@ static int php_runkit_method_copy(zend_string *dclass, zend_string* dfunc, zend_
 			php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
 		}
 	}
+	/* Postcondition: Method does not already exist in dce's function table (Would return FAILURE if it did) */
 
-	dfe = php_runkit_function_clone(sfe, dfunc TSRMLS_CC);
+	dfe = php_runkit_function_clone(sfe, dfunc, ZEND_USER_FUNCTION TSRMLS_CC);
 
 	// TODO: Check if this is a memory leak.
 	if (zend_hash_add_ptr(&dce->function_table, dfunc_lower, dfe) == NULL) {
@@ -605,7 +606,8 @@ PHP_FUNCTION(runkit_method_rename)
 
 	php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
 
-	func = php_runkit_function_clone(fe, newname TSRMLS_CC);
+	/* TODO: Figure out how to find the original function type. */
+	func = php_runkit_function_clone(fe, newname, fe->type TSRMLS_CC);
 
 	if (zend_hash_add_ptr(&ce->function_table, newname_lower, func) == NULL) {
 		zend_string_release(newname_lower);
