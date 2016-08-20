@@ -26,10 +26,10 @@ try {
 	printf("(No longer a )Fatal error: %s in %s on line %d", $e->getMessage(), $e->getFile(), $e->getLine());
 }
 ?>
---EXPECTF--
-object(ReflectionParameter)#%d (1) {
-  ["name"]=>
-  string(31) "__parameter_removed_by_runkit__"
+--EXPECTREGEX--
+object\(ReflectionParameter\)#\d+ \(1\) {
+  \["name"\]=>
+  string\(31\) "__parameter_removed_by_runkit__"
 }
 
-%sFatal error:%sInternal error: Failed to retrieve the reflection object in %s on line %d
+.*Fatal error:.*Internal error: Failed to retrieve the reflection object in .* on line \d+

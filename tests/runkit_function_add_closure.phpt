@@ -50,14 +50,14 @@ $t = new test();
 $t->run();
 runkit_function('foo','bar');
 ?>
---EXPECTF--
+--EXPECTREGEX--
 a is foo
 b is bar
 c is use
 d is ref_use
 g is global
-$this is
-%sNotice: Undefined variable: this in %s on line %d
+\$this is
+.*Notice: Undefined variable: this in .* on line \d+
 NULL
 d after call is ref_use modified
 a is foo
@@ -65,6 +65,6 @@ b is bar
 c is use
 d is ref_use modified
 g is global
-$this is
-%sNotice: Undefined variable: this in %s on line %d
+\$this is
+.*Notice: Undefined variable: this in .* on line \d+
 NULL
