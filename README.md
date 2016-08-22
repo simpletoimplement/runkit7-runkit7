@@ -24,7 +24,7 @@ Superglobals work reliably when tested on web servers and tests.
 Class and function manipulation is recommended only for unit tests.
 PHP 7.1 support is in progress.
 
-- `runkit-superglobal` works reliably in 7.0.x. Superglobals will be unavailable during request shutdown, e.g. when the session is being saved, when other extensions are shutting down.
+- `runkit-superglobal` works reliably in 7.0.x and 7.1.0 (tested on 7.1.0beta3). Superglobals will be unavailable during request shutdown, e.g. when the session is being saved, when other extensions are shutting down.
 - Manipulating user-defined (i.e. not builtin or part of extensions) functions and methods via `runkit_method_*` and `runkit_function_*` generally works in 7.0.x, **but is recommended only in unit tests**
 - Manipulating built in functions may cause segmentation faults.
   (Manipulating built in class methods is impossible/not supported)
