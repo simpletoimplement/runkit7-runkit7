@@ -3,6 +3,7 @@
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
+  | (c) 2015-2016 Tyson Andre                                            |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,7 +16,8 @@
   | Author: Sara Golemon <pollita@php.net>                               |
   | Modified by Dmitry Zenovich <dzenovich@gmail.com>                    |
   +----------------------------------------------------------------------+
-Note: This file is no longer being compiled due to bugs in property manipulation.
+Note: This file is no longer being compiled due to changes to the internals in property manipulation.
+runkit_property_modify() may be implemented in the future.
 */
 
 /* $Id$ */

@@ -3,6 +3,7 @@
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | (c) 2008-2015 Dmitry Zenovich                                        |
+  | "runkit7" patches (c) 2015-2016 Tyson Andre                          |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -13,7 +14,7 @@
   | dzenovich@gmail.com so we can mail you a copy immediately.           |
   +----------------------------------------------------------------------+
   | Author: Dmitry Zenovich <dzenovich@gmail.com>                        |
-  | Modified for php7 by Tyson Andre <tysonandre775@hotmail.com>         |
+  | Modified for php7 "runkit7" by Tyson Andre<tysonandre775@hotmail.com>|
   +----------------------------------------------------------------------+
 */
 
