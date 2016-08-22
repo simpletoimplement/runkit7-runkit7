@@ -22,9 +22,9 @@ Compatability: PHP7.0 (Partial, buggy)
 
 Superglobals work reliably when tested on web servers and tests.
 Class and function manipulation is recommended only for unit tests.
-TODO: Support php 7.1
+PHP 7.1 support is in progress.
 
-- `runkit-superglobal` works reliably in 7.0.x. It may be unavailable during request shutdown.
+- `runkit-superglobal` works reliably in 7.0.x. Superglobals will be unavailable during request shutdown, e.g. when the session is being saved, when other extensions are shutting down.
 - Manipulating user-defined (i.e. not builtin or part of extensions) functions and methods via `runkit_method_*` and `runkit_function_*` generally works in 7.0.x, **but is recommended only in unit tests**
 - Manipulating built in functions may cause segmentation faults.
   (Manipulating built in class methods is impossible/not supported)
@@ -68,9 +68,14 @@ Roughly 16 failing tests, 93 skipped tests, 79 passing tests. Most test failures
 
 ### Bugs in PHP7 runkit
 
--	There are still segmentation faults when manipulating internal functions
-	(when you renaming/redefining/(copying?) them, under certain conditions).
--	There are reference counting bugs.
+-	There are segmentation faults when manipulating internal functions
+	(a.k.a. "runkit.internal_override=1")
+	(when you rename/redefine/(copy?) internal functions, and call internal functions with user functions' implementation, or vice versa)
+	(and when functions redefinitions aren't cleaned up)
+	Working on it.
+-	There are problems where the VM uses the precomputed stack size if the new implementation uses more temporary variables then the original implementation.
+    See https://github.com/runkit7/runkit7/issues/24
+-	There are reference counting bugs causing memory leaks.
 	2 calls to `emalloc` have been temporarily replaced with calls to `pemalloc`
 	so that I could execute tests.
 -	There may be a few remaining logic errors after migrating the code to PHP7.
