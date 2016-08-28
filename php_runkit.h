@@ -213,6 +213,7 @@ static inline void *runkit_zend_hash_add_or_update_ptr(HashTable *ht, zend_strin
 #define RUNKIT_TEMP_FUNCNAME  "__runkit_temporary_function__"
 int php_runkit_check_call_stack(zend_op_array *op_array TSRMLS_DC);
 void php_runkit_clear_all_functions_runtime_cache(TSRMLS_D);
+void php_runkit_fix_all_hardcoded_stack_sizes(zend_string *called_name_lower, zend_function *called_f TSRMLS_DC);
 
 void php_runkit_remove_function_from_reflection_objects(zend_function *fe TSRMLS_DC);
 // void php_runkit_function_copy_ctor(zend_function *fe, zend_string *newname TSRMLS_DC);

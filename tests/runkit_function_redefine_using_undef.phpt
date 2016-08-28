@@ -15,17 +15,19 @@ runkit_function_redefine('runkit_function',
 );
 echo "call\n";
 runkit_function('foo');
-echo "\nsecond call";
+echo "second call\n";
 runkit_function('foo', 'bar');
-echo "\nDone";
+echo "Done\n";
 ?>
---EXPECT--
+--EXPECTF--
 call
 var_dump
+
 Notice: Undefined variable: missing in %s on line %d
 NULL
 second call
 var_dump
+
 Notice: Undefined variable: missing in %s on line %d
 NULL
 Done
