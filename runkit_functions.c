@@ -24,6 +24,8 @@
 #include "php_runkit.h"
 #include "php_runkit_hash.h"
 
+extern ZEND_API void zend_vm_set_opcode_handler(zend_op* op);
+
 
 #ifdef PHP_RUNKIT_MANIPULATION
 
@@ -440,6 +442,87 @@ void php_runkit_clear_all_functions_runtime_cache(TSRMLS_D)
 }
 /* }}} */
 
+/* {{{ php_runkit_fix_hardcoded_stack_sizes */
+static inline void php_runkit_fix_hardcoded_stack_sizes(zend_function *f, zend_string *called_name_lower, zend_function *called_f)
+{
+	// called_name_lower is the lowercase function name.
+	// f is a function which may or may not call called_name_lower, and may or may not have already been fixed.
+	// TODO: Make this work with namespaced function names
+	// TODO: Do method names also need to be fixed?
+	// TODO: Do I only need to worry about user function calls within the same file?
+	
+	// FIXME work on namespaced functions
+	zend_op_array *op_array;
+	zend_op *it;
+	zend_op *end;
+	if (f == NULL || f->type != ZEND_USER_FUNCTION) {
+		return;
+	}
+
+	op_array = &(f->op_array);
+	it = op_array->opcodes;
+	end = it + op_array->last;
+	//printf("Calling php_runkit_fix_hardcoded_stack_sizes for user func last=%d\n", op_array->last);
+	for (; it < end; it++) {
+		// printf("Calling opcode=%d\n", it->opcode);
+		// PHP uses different constants (More constant space needed for ZEND_INIT_FCALL_BY_NAME),
+		// instead of converting to ZEND_INIT_FCALL_BY_NAME, recalculate the maximum amount of stack space it may need.
+		if (it->opcode == ZEND_INIT_FCALL) {
+			zval *function_name = (zval*)(RT_CONSTANT(op_array, it->op2));
+			//printf("Checking init_fcall, function name = %s\n", ZSTR_VAL(Z_STR_P(function_name)));
+			if (zend_string_equals(Z_STR_P(function_name), called_name_lower)) {
+				// Modify that opline with the recalculated required stack size
+				uint32_t new_size = zend_vm_calc_used_stack(it->extended_value, called_f TSRMLS_CC);
+				if (new_size > it->op1.num) {
+					it->op1.num = new_size;
+				}
+			}
+		}
+	}
+}
+/* }}} */
+
+/* {{{ php_runkit_fix_hardcoded_stack_sizes_for_function_table */
+static void php_runkit_fix_hardcoded_stack_sizes_for_function_table(HashTable *function_table, zend_string *called_name_lower, zend_function *called_f) {
+	zend_function* f;
+	ZEND_HASH_FOREACH_PTR(function_table, f) {
+		php_runkit_fix_hardcoded_stack_sizes(f, called_name_lower, called_f);
+	} ZEND_HASH_FOREACH_END();
+}
+/* }}} */
+
+/* {{{ php_runkit_fix_hardcoded_stack_sizes */
+void php_runkit_fix_all_hardcoded_stack_sizes(zend_string *called_name_lower, zend_function *called_f TSRMLS_DC)
+{
+	uint32_t i;
+	zend_class_entry* ce;
+	zend_execute_data *ptr;
+
+	php_runkit_fix_hardcoded_stack_sizes_for_function_table(EG(function_table), called_name_lower, called_f TSRMLS_CC);
+
+	ZEND_HASH_FOREACH_PTR(EG(class_table), ce) {
+		php_runkit_fix_hardcoded_stack_sizes_for_function_table(&(ce->function_table), called_name_lower, called_f TSRMLS_CC);
+	} ZEND_HASH_FOREACH_END();
+
+	// This is also needed to get the top-level {main} script, which isn't in the function table
+	// FIXME what about other scripts that are include()ed
+	for (ptr = EG(current_execute_data); ptr != NULL; ptr = ptr->prev_execute_data) {
+		// TODO: I assume that ptr->run_time_cache is the same pointer, if set?
+		if (ptr->func == NULL || ptr->func->type != ZEND_USER_FUNCTION) {
+			continue;
+		}
+		php_runkit_fix_hardcoded_stack_sizes(ptr->func, called_name_lower, called_f TSRMLS_CC);
+	}
+
+	PHP_RUNKIT_ITERATE_THROUGH_OBJECTS_STORE_BEGIN(i)
+		if (object->ce == zend_ce_closure) {
+			zend_closure *cl = (zend_closure *) object;
+			php_runkit_fix_hardcoded_stack_sizes(&cl->func, called_name_lower, called_f TSRMLS_CC);
+		}
+	PHP_RUNKIT_ITERATE_THROUGH_OBJECTS_STORE_END
+}
+/* }}} */
+
 /* {{{ php_runkit_reflection_update_property */
 static void php_runkit_reflection_update_property(zval* object, const char* name, zval* value) {
 	// Copied from ext/reflection's reflection_update_property
@@ -725,6 +808,9 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 		doc_comment = orig_fe->op_array.doc_comment;
 	}
 	php_runkit_modify_function_doc_comment(func, doc_comment);
+
+	/* When redefining or adding a function (which may have been removed before), update the stack sizes it will be called with. */
+	php_runkit_fix_all_hardcoded_stack_sizes(funcname_lower, func TSRMLS_CC);
 
 	if (add_or_update == HASH_UPDATE) {
 		php_runkit_remove_function_from_reflection_objects(orig_fe TSRMLS_CC);

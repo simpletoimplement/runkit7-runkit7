@@ -13,7 +13,7 @@ __Now with partial support for PHP7.0!__ (This extension isn't production ready 
 Current Build Status
 --------------------
 
-In 7.0.x: Roughly 16 failing tests, 93 skipped tests, 79 passing tests.
+In 7.0.x: Roughly 12 failing tests, 93 skipped tests, 79 passing tests.
 
 In 7.1.0beta1: More segmentation faults and test failures than 7.0.x
 
