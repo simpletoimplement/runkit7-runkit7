@@ -28,7 +28,7 @@ try {
 }
 ?>
 --EXPECTREGEX--
-object\(ReflectionParameter\)#%d \(1\) {
+object\(ReflectionParameter\)#\d+ \(1\) {
   \["name"\]=>
   string\(31\) "__parameter_removed_by_runkit__"
 }
