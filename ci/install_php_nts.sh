@@ -5,6 +5,10 @@ if [ "x$PHP_NTS_VERSION" = "x" -o "x$PHP_CONFIGURE_ARGS" = "x" ] ; then
 	echo "Missing nts version or configuration arguments";
 	exit 1;
 fi
+if [ "$PHP_NTS_VERSION" = "7.2.0" ]; then
+	# The travis nightlies are on 7.2.0 now, but php.net is on 7.1.0
+	PHP_NTS_VERSION=7.1.0
+fi
 PHP_FOLDER="php-$PHP_NTS_VERSION"
 PHP_INSTALL_DIR="$(./ci/generate_php_install_dir.sh)"
 echo "Downloading $PHP_INSTALL_DIR\n"

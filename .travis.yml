@@ -33,7 +33,7 @@ install:
 
 php:
   - '7.0'
-  - nightly
+  - '7.1'
 
 before_script:
  - $CC --version && ci/print_php_int_max.php
