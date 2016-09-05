@@ -45,3 +45,6 @@ $t->t();
 --EXPECT--
 200
 200
+--XFAIL--
+Expected to fail because PHP VM inlines class constants as their value
+within the same file when it is safe to do so.

@@ -22,3 +22,6 @@ var_dump($const, TestClass::FOO);
 string(14) "TestClass::FOO"
 string(14) "TestClass::FOO"
 string(3) "bar"
+--XFAIL--
+Expected to fail because PHP VM inlines class constants as their value
+within the same file when it is safe to do so.

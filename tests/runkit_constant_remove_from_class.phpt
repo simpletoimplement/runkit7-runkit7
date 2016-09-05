@@ -22,3 +22,6 @@ string(14) "TestClass::FOO"
 string(14) "TestClass::FOO"
 
 Fatal error: Undefined class constant 'FOO' in %s on line %d
+--XFAIL--
+Expected to fail because PHP VM inlines class constants as their value
+within the same file when it is safe to do so.
