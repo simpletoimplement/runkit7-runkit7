@@ -21,7 +21,7 @@ PHP_TAR_FILE="$PHP_FOLDER.tar.bz2"
 if [ "$PHP_NTS_VERSION" != "7.1.0" ] ; then
 	curl --verbose https://secure.php.net/distributions/$PHP_TAR_FILE -o $PHP_TAR_FILE
 else
-	curl --verbose https://downloads.php.net/~ab/php-7.1.0beta1.tar.bz2 -o $PHP_TAR_FILE
+	curl --verbose https://downloads.php.net/~davey/php-7.1.0RC1.tar.bz2 -o $PHP_TAR_FILE
 fi
 tar xjf $PHP_TAR_FILE
 if [ "$PHP_NTS_VERSION" = "7.1.0" ] ; then
