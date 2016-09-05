@@ -80,3 +80,6 @@ bool(false)
 bool(true)
 string(5) "test2"
 ==DONE==
+--XFAIL--
+Expected to fail because PHP VM inlines class constants as their value
+within the same file when it is safe to do so.
