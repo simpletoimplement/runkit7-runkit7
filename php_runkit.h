@@ -217,13 +217,15 @@ void php_runkit_fix_all_hardcoded_stack_sizes(zend_string *called_name_lower, ze
 
 void php_runkit_remove_function_from_reflection_objects(zend_function *fe TSRMLS_DC);
 // void php_runkit_function_copy_ctor(zend_function *fe, zend_string *newname TSRMLS_DC);
-zend_function* php_runkit_function_clone(zend_function *fe, zend_string *newname TSRMLS_DC);
+zend_function* php_runkit_function_clone(zend_function *fe, zend_string *newname, char orig_fe_type TSRMLS_DC);
 void php_runkit_function_dtor(zend_function *fe);
+int php_runkit_remove_from_function_table(HashTable *function_table, zend_string *func_lower);
+void* php_runkit_update_function_table(HashTable *function_table, zend_string *func_lower, zend_function *f);
 int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *phpcode,
                                       zend_function **pfe, zend_bool return_ref TSRMLS_DC);
 int php_runkit_cleanup_lambda_method();
 int php_runkit_destroy_misplaced_functions(zval *pDest TSRMLS_DC);
-int php_runkit_restore_internal_functions(RUNKIT_53_TSRMLS_ARG(zval *pDest), int num_args, va_list args, zend_hash_key *hash_key);
+int php_runkit_restore_internal_function(zend_string *fname_lower, zend_function *f);
 int php_runkit_clean_zval(zval **val TSRMLS_DC);
 
 /* runkit_methods.c */

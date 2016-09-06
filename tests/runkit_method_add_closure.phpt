@@ -32,7 +32,13 @@ class test {
 			echo "g $is $g\n";
 			$d .= ' modified';
 			echo '$this is ';
-			var_dump($this);
+			try {
+				var_dump($this);
+			} catch(Error $e) {
+				// PHP 7.1 would also throw an Error if this was the actual implementation of runkit_method.
+				printf("\nError: %s\n", $e->getMessage());
+				printf("NULL\n");
+			}
 		});
 		runkit_class::runkit_method('foo', 'bar');
 		echo "d after call is $d\n";
@@ -44,14 +50,14 @@ $t->run();
 $rc = new runkit_class();
 $rc->runkit_method('foo','bar');
 ?>
---EXPECTF--
+--EXPECTREGEX--
 a is foo
 b is bar
 c is use
 d is ref_use
 g is global
-$this is 
-Notice: Undefined variable: this in %s on line %d
+\$this is 
+(Notice: Undefined variable: this in .* on line [0-9]+|Error: Using \$this when not in object context)
 NULL
 d after call is ref_use modified
 a is foo
@@ -59,5 +65,5 @@ b is bar
 c is use
 d is ref_use modified
 g is global
-$this is object(runkit_class)#2 (0) {
+\$this is object\(runkit_class\)#2 \(0\) {
 }
