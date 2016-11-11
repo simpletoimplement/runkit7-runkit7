@@ -225,8 +225,7 @@ int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_s
                                       zend_function **pfe, zend_bool return_ref TSRMLS_DC);
 int php_runkit_cleanup_lambda_method();
 int php_runkit_destroy_misplaced_functions(zval *pDest TSRMLS_DC);
-int php_runkit_restore_internal_function(zend_string *fname_lower, zend_function *f);
-int php_runkit_clean_zval(zval **val TSRMLS_DC);
+void php_runkit_restore_internal_function(zend_string *fname_lower, zend_function *f);
 
 /* runkit_methods.c */
 zend_class_entry *php_runkit_fetch_class(zend_string* classname);
