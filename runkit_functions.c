@@ -896,11 +896,14 @@ int php_runkit_destroy_misplaced_functions(zval *zv TSRMLS_DC)
 }
 /* }}} */
 
-/* {{{ php_runkit_restore_internal_functions
-	Cleanup after modifications to internal functions */
-int php_runkit_restore_internal_function(zend_string *fname_lower, zend_function *f)
+/* {{{ php_runkit_restore_internal_function
+	Cleanup after modifications to an internal function. */
+void php_runkit_restore_internal_function(zend_string *fname_lower, zend_function *f)
 {
-	php_runkit_update_function_table(EG(function_table), fname_lower, f);
+	if (!fname_lower || !ZSTR_LEN(fname_lower)) {  // Probably won't happen.
+		return;
+	}
+	php_runkit_update_ptr_in_function_table(EG(function_table), fname_lower, f);
 
 	/* It's possible for restored internal functions to now be blocking a ZEND_USER_FUNCTION
 	 * which will screw up post-request cleanup.
@@ -908,8 +911,6 @@ int php_runkit_restore_internal_function(zend_string *fname_lower, zend_function
 	 */
 	// FIXME: Need to fix move_to_front
 	php_runkit_hash_move_to_front(EG(function_table), php_runkit_hash_get_bucket(EG(function_table), fname_lower));
-
-	return ZEND_HASH_APPLY_REMOVE;
 }
 /* }}} */
 
