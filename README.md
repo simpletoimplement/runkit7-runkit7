@@ -67,6 +67,7 @@ Other methods and corresponding tests are disabled/skipped because changes to ph
 	Working on it.
 -	There are problems where the VM uses the precomputed stack size if the new implementation uses more temporary variables then the original implementation.
     See https://github.com/runkit7/runkit7/issues/24
+	(Known instances of this were fixed)
 -	There are reference counting bugs causing memory leaks.
 	2 calls to `emalloc` have been temporarily replaced with calls to `pemalloc`
 	so that I could execute tests.
@@ -98,20 +99,21 @@ Other methods and corresponding tests are disabled/skipped because changes to ph
 	Disabled because of bugs related to properties
 
 	`runkit_default_property_add` has been removed in php7 - it requires `realloc`ing a different zval to add a property to the property table
-	That would break a lot of things
+	That would break a lot of things.
+-	`runkit_return_value_used`: Returns incorrect results right now. `vld` seems to have a working implementation in the opcode analyzer, not familiar with how it works.
 
 #### Reasons for disabling property manipulation
 
 1. The property manipulation code still has bugs, and the "offset" used is in bytes as of php7, but still treated as an index in this code.
 2. As of php7's new zval layout, The only way to "add" a default property would be to realloc() every single one
-   of the zend_objects that are instances of that class (to make room for another property).
+   of the `zend_object`s that are instances of that class (to make room for another property).
    This would break php internals and possibly extensions.
-   A possible other way way would be to change the API to "runkit_default_property_modify($className, $propertyName, $value, $flags = TODO)"
+   A possible other way way would be to change the API to `runkit_default_property_modify($className, $propertyName, $value, $flags = TODO)`
    (with a precondition $propertyName already existed)
-   The old way properties of objects was stored was as a pointer to an array.
-   In php7, it's part of zend_object itself, similar to what is described in https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html (1-length, with an UNDEF value at the end)
-3. It should be possible to meet many uses by modifying constructors with runkit_method_move and runkit_method_add,
-   or using ReflectionProperty for fetching.
+   The old way properties of objects were stored was as a pointer to an array.
+   In php7, it's part of `zend_object` itself, similar to what is described in https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html (1-length, with an UNDEF value at the end)
+3. It should be possible to meet many uses by modifying constructors with `runkit_method_move` and `runkit_method_add`,
+   or using ReflectionProperty for getting and setting private properties.
    https://secure.php.net/manual/en/reflectionproperty.setaccessible.php (sets accessibility only for ReflectionProperty)
    https://secure.php.net/manual/en/reflectionproperty.setvalue.php
    https://secure.php.net/manual/en/reflectionproperty.getvalue.php
@@ -160,14 +162,18 @@ Things to do in the near future:
 -   Fix bugs related to edge cases of function and method manipulation
 -   See if constant manipulation in the same file can be fixed, e.g. by recompiling functions using those constants, or by patching php-src.
     It was broken because php7 compiler inlines the constants automatically in the generated opcodes.
--	PHP 7.1 testing
 -	Windows testing
 
 Things to do after that:
 
--   Replace property manipulation with runkit_default_property_modify
+-   Replace property manipulation with `runkit_default_property_modify`
 -   Support and test php 7.1 constant visibility
--   See if `runkit\_lint` can be implemented
+
+### Misc notes
+
+The Zend VM's implementation for 32-bit PHP is different from the 64-bit VMs.
+
+Some issues have been fixed, new issues may crop up in the future. (See travis builds for `USE_32BIT`)
 
 UPSTREAM DOCUMENTATION
 ======================
@@ -224,7 +230,7 @@ Baz is
 ### USER DEFINED FUNCTION AND CLASS MANIPULATION
 __NOTE: Only a subset of the APIs have been ported to PHP7. Some of these APIs have segmentation faults in corner cases__
 
-Userdefined functions and userdefined methods may now be renamed, delete, and redefined using the API described at http://www.php.net/runkit
+User defined functions and user defined methods may now be renamed, delete, and redefined using the API described at http://www.php.net/runkit
 
 Examples for these functions may also be found in the tests folder.
 
@@ -232,18 +238,26 @@ As a replacement for `runkit_lint`/`runkit_lint_file` try any of the following:
 
 - `php -l --no-php-ini $filename` will quickly check if a file is syntactically valid, but will not show you any php notices about deprecated code, etc.
 - [`opcache_compile_file`](https://secure.php.net/manual/en/function.opcache-compile-file.php) may help, but will not show you any notices.
-- Projects such as https://github.com/nikic/PHP-Parser , which produce an Abstract Syntax Tree from php code.
+- Projects such as [PHP-Parser (Pure PHP)](https://github.com/nikic/PHP-Parser) and [php-ast (C module)](https://github.com/nikic/php-ast, which produce an Abstract Syntax Tree from php code.
+  php-ast (PHP module) has a function is much faster and more accurate.
+
+  ```php
+  // Example replacement for runkit_lint.
+  try {
+      $ast = ast\parse_code('<?php function foo(){}', $version = 35)
+	  return true;
+  }catch (ParseError $e) {
+	  return false;
+  }
+  ```
 
 Installation
 ============
 
-The Zend VM's implementation for 32-bit PHP is different from the 64-bit VMs.
-
-Some issues have been fixed, new issues may crop up in the future. (See travis builds for USE_32BIT)
 
 ### BUILDING AND INSTALLING RUNKIT(7) IN UNIX
 
-```
+```bash
 git clone https://github.com/runkit7/runkit7.git
 cd runkit7
 phpize
@@ -279,11 +293,11 @@ There are currently no sources providing DLLs of this fork. Runkit7 and other ex
 
 Create subdirectory C:\php-sdk\phpdev\vc14\x86\pecl, adjacent to php source directory)
 
-extract download of runkit7 to C:\php-sdk\phpdev\vc14\x86\pecl\runkit7 (all of the c files and h files should be within runkit7, pecl is 
+extract download of runkit7 to C:\php-sdk\phpdev\vc14\x86\pecl\runkit7 (all of the c files and h files should be within runkit7, pecl is
 
 Then, execute the following (Add `--enable-runkit` to the configure flags you were already using)
 
-```
+```Batchfile
 cd C:\php-sdk
 C:\php-sdk\bin\phpsdk_setvars.bat
 cd phpdev\vc14\x86\php-7.0.9\src
@@ -294,6 +308,6 @@ nmake
 
 Then, optionally test it (Most of the tests should pass, around 16 are still failing):
 
-```
+```Batchfile
 nmake test TESTS="C:\php-sdk\vc14\x86\pecl\igbinary7\tests
 ```
