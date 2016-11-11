@@ -17,4 +17,4 @@ runkit_method_remove("Test", "__tostring");
 ?>
 --EXPECTF--
 __tostring
-Catchable fatal error: Method Test::__toString() must return a string value in %s on line %d
+%s fatal error: Method Test::__toString() must return a string value in %s on line %d

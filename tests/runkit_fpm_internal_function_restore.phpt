@@ -4,12 +4,15 @@ Test restoring internal functions after renaming and copying under fpm
 <?php include "_fpm_skipif.inc"; ?>
 --FILE--
 <?php
+// TODO: This isn't restoring properly, in 7.1RC3
 include "_fpm_include.inc";
 $code = <<<EOT
 <?php
 echo "Test Start\n";
-runkit_function_copy('chop', '__chop');
-runkit_function_rename('chop', '_chop');
+var_export(function_exists('rtrim'));
+echo "\n";
+runkit_function_copy('rtrim', '__chop');
+runkit_function_rename('rtrim', '_chop');
 echo _chop('A B '), "\n";
 echo __chop('C D '), "\n";
 echo "Test End\n";
@@ -18,6 +21,7 @@ fpm_test(array($code, $code, $code), "-d extension_dir=modules/ -d extension=run
 ?>
 Done
 --EXPECTF--
+true
 [%s] NOTICE: fpm is running, pid %d
 [%s] NOTICE: ready to handle connections
 Test Start

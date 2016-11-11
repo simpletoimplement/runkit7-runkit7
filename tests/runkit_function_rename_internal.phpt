@@ -13,7 +13,11 @@ if (function_exists('var_dump')) {
 	echo "Old function name still exists!\n";
 }
 qwerty($a);
-var_dump($a);
+try {
+	var_dump($a);
+} catch (Error $e) {
+	printf("\nFatal error: %s in %s on line %d\n", $e->getMessage(), $e->getFile(), $e->getLine());
+}
 ?>
 --EXPECTF--
 int(1)
