@@ -2,7 +2,7 @@ Runkit7: Unofficial runkit extension fork for PHP 7
 ===================================================
 
 For all those things you.... probably shouldn't have been doing anyway....
-__Now with partial support for PHP7.0!__ (This extension isn't production ready yet).
+__Now with partial support for PHP7.0 and PHP7.1!__ (This extension isn't production ready yet).
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/3jwsf76ge0yo8v74?svg=true)](https://ci.appveyor.com/project/TysonAndre/runkit7)
@@ -16,17 +16,16 @@ Current Build Status
 
 In 7.0.x: Roughly 12 failing tests, 93 skipped tests, 79 passing tests.
 
-In 7.1.0beta1: More segmentation faults and test failures than 7.0.x
+In 7.1.x: More segmentation faults and test failures than 7.0.x
 
 Compatability: PHP7.0 (Partial, buggy)
 --------------------------------------
 
 Superglobals work reliably when tested on web servers and tests.
 Class and function manipulation is recommended only for unit tests.
-PHP 7.1 support is in progress.
 
-- `runkit-superglobal` works reliably in 7.0.x and 7.1.0 (tested on 7.1.0beta3). Superglobals will be unavailable during request shutdown, e.g. when the session is being saved, when other extensions are shutting down.
-- Manipulating user-defined (i.e. not builtin or part of extensions) functions and methods via `runkit_method_*` and `runkit_function_*` generally works in 7.0.x, **but is recommended only in unit tests**
+- `runkit-superglobal` works reliably in 7.0.x and 7.1.x. Superglobals will be unavailable during request shutdown, e.g. when the session is being saved, when other extensions are shutting down.
+- Manipulating user-defined (i.e. not builtin or part of extensions) functions and methods via `runkit_method_*` and `runkit_function_*` generally works, **but is recommended only in unit tests**
 - Manipulating built in functions may cause segmentation faults.
   (Manipulating built in class methods is impossible/not supported)
 - Adding default properties to classes doesn't work in php7, because of a change
@@ -43,7 +42,7 @@ PHP 7.1 support is in progress.
   PHP7.0+ inlines constants within the same file if they are guaranteed to have only one definition.
   Patching php-src and/or opcache to not inline constants (e.g. based on a php.ini setting) is possible, but hasn't been tried yet.
 - Sandboxing (and `runkit_lint`) were removed.
-- TODO: Fix segmentation faults in the PHP 7.1 beta
+- TODO: Fix segmentation faults in PHP 7.1 internal function manipulation.
 
 The following contributions are welcome:
 
@@ -163,7 +162,6 @@ Things to do in the near future:
 -   Fix bugs related to edge cases of function and method manipulation
 -   See if constant manipulation in the same file can be fixed, e.g. by recompiling functions using those constants, or by patching php-src.
     It was broken because php7 compiler inlines the constants automatically in the generated opcodes.
--	Windows testing
 
 Things to do after that:
 
@@ -182,11 +180,7 @@ UPSTREAM DOCUMENTATION
 **(runkit7 is an unofficial fork of https://github.com/zenovich/runkit, adding php7 support)**
 
 ---------------------
-Feel free to support Dmitry Zenovich via PayPal (dzenovich@gmail.com) if Runkit serves you.
-By making donation you invest in the project's future, helping it to be compatible with current PHP versions
-and to have less bugs and more features.
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P2WY8LBB2YGMQ)
+[Feel free to support Dmitry Zenovich via PayPal (dzenovich@gmail.com) if Runkit serves you.](https://github.com/zenovich/runkit#runkit-extension-for-php)
 
 ---------------------
 
@@ -241,6 +235,7 @@ As a replacement for `runkit_lint`/`runkit_lint_file` try any of the following:
 - [`opcache_compile_file`](https://secure.php.net/manual/en/function.opcache-compile-file.php) may help, but will not show you any notices.
 - Projects such as [PHP-Parser (Pure PHP)](https://github.com/nikic/PHP-Parser) and [php-ast (C module)](https://github.com/nikic/php-ast, which produce an Abstract Syntax Tree from php code.
   php-ast (PHP module) has a function is much faster and more accurate.
+  (Unfortunately, I think it parses but does not detect erroneous code, e.g. duplicate classes).
 
   ```php
   // Example replacement for runkit_lint.
@@ -268,8 +263,7 @@ phpize
 ./configure
 make
 make test
-# If you know how to uninstall this:
-# sudo make install
+sudo make install
 ```
 
 ### BUILDING AND INSTALLING RUNKIT7 IN WINDOWS
