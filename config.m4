@@ -46,6 +46,7 @@ if test "$PHP_RUNKIT" != "no"; then
   PHP_NEW_EXTENSION(runkit, runkit.c runkit_functions.c runkit_methods.c \
 runkit_constants.c \
 runkit_object_id.c \
+runkit_object_listall.c \
 runkit_common.c \
 runkit_zend_execute_API.c \
 , $ext_shared,, -Wdeclaration-after-statement -Werror -Wall -Wno-deprecated-declarations -Wno-pedantic)

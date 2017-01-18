@@ -114,6 +114,7 @@ zend_function_entry runkit_functions[] = {
 	PHP_FE(runkit_constant_redefine,								NULL)
 	PHP_FE(runkit_constant_remove,									NULL)
 	PHP_FE(runkit_constant_add,										NULL)
+	PHP_FE(runkit_object_listall,									NULL)
 
 	// PHP_FE(runkit_default_property_add,								NULL)
 	// PHP_FE(runkit_default_property_remove,							NULL)

@@ -115,6 +115,7 @@ PHP_FUNCTION(runkit_method_copy);
 PHP_FUNCTION(runkit_constant_redefine);
 PHP_FUNCTION(runkit_constant_remove);
 PHP_FUNCTION(runkit_constant_add);
+PHP_FUNCTION(runkit_object_listall);
 // 1. The property manipulation code still has bugs, and the "offset" used is in bytes as of php7, but still treated as an index in this code.
 // 2. As of php7's new zval layout, The only way to "add" a default property would be to realloc() every single one
 //    of the zend_objects that are instances of that class (to make room for another property).
