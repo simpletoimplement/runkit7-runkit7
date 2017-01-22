@@ -281,6 +281,7 @@ void php_runkit_clean_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *ce
 static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int add_or_update)
 {
 	zend_string *classname = NULL, *methodname = NULL, *arguments = NULL, *phpcode = NULL, *doc_comment = NULL;
+	parsed_return_type return_type;
 	zend_class_entry *ce, *ancestor_class = NULL;
 	zend_function *func, *fe, *source_fe = NULL, *orig_fe = NULL;
 	zend_string* methodname_lower;
@@ -325,7 +326,19 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 
 	doc_comment = php_runkit_parse_doc_comment_arg(argc, args, opt_arg_pos + 1);
 
+	return_type = php_runkit_parse_return_type_arg(argc, args, opt_arg_pos + 2);
+
 	efree(args);
+
+	if (!return_type.valid) {
+		RETURN_FALSE;
+	}
+
+	if (source_fe && return_type.return_type) {
+		// TODO: Check what needs to be needs to be changed in opcode array if return_type is changed
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Overriding return_type is not currently supported for closures, use return type in closure definition instead (or pass in code as string)");
+		RETURN_FALSE;
+	}
 
 	methodname_lower = zend_string_tolower(methodname);
 
@@ -361,7 +374,7 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 	}
 
 	if (!source_fe) {
-		if (php_runkit_generate_lambda_method(arguments, phpcode, &source_fe,
+		if (php_runkit_generate_lambda_method(arguments, return_type.return_type, phpcode, &source_fe,
 						     (flags & PHP_RUNKIT_ACC_RETURN_REFERENCE) == PHP_RUNKIT_ACC_RETURN_REFERENCE
 						     TSRMLS_CC) == FAILURE) {
 			zend_string_release(methodname_lower);
@@ -493,7 +506,7 @@ static int php_runkit_method_copy(zend_string *dclass, zend_string* dfunc, zend_
    * Method API *
    ************** */
 
-/* {{{ proto bool runkit_method_add(string classname, string methodname, string args, string code[, long flags[, string doc_comment]])
+/* {{{ proto bool runkit_method_add(string classname, string methodname, string args, string code[, long flags[, string doc_comment[, string return_type]])
        proto bool runkit_method_add(string classname, string methodname, closure code[, long flags[, string doc_comment]])
        Add a method to an already defined class */
 PHP_FUNCTION(runkit_method_add)
@@ -502,7 +515,7 @@ PHP_FUNCTION(runkit_method_add)
 }
 /* }}} */
 
-/* {{{ proto bool runkit_method_redefine(string classname, string methodname, string args, string code[, long flags[, string doc_comment]])
+/* {{{ proto bool runkit_method_redefine(string classname, string methodname, string args, string code[, long flags[, string doc_comment, string return_type]]])
        proto bool runkit_method_redefine(string classname, string methodname, closure code[, long flags[, string doc_comment]])
        Redefine an already defined class method */
 PHP_FUNCTION(runkit_method_redefine)

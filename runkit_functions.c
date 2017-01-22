@@ -288,6 +288,10 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 		if (fe->op_array.static_variables) {
 			// Similar to zend_compile.c's zend_create_closure copying static variables, zend_compile.c's do_bind_function
 #if PHP_VERSION_ID >= 70100
+			// TODO: Does that work with references?
+			// 979: This seems to be calling an internal function returning a reference, then crashing?
+			// ZEND_ASSERT((call->func->common.fn_flags & ZEND_ACC_RETURN_REFERENCE)
+			// 	? Z_ISREF_P(ret) : !Z_ISREF_P(ret));
 			fe->op_array.static_variables = zend_array_dup(fe->op_array.static_variables);
 #else
 			HashTable *static_variables = fe->op_array.static_variables;
@@ -831,25 +835,43 @@ void php_runkit_remove_function_from_reflection_objects(zend_function *fe TSRMLS
 
 /* {{{ php_runkit_generate_lambda_method
 	Heavily borrowed from ZEND_FUNCTION(create_function) */
-int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *phpcode,
+int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *return_type, const zend_string *phpcode,
+
                                       zend_function **pfe, zend_bool return_ref TSRMLS_DC)
 {
-	char *eval_code, *eval_name;
+	char *eval_code;
+	char *eval_name;
+	char *return_type_code;
 	int eval_code_length;
 
-	eval_code_length = sizeof("function " RUNKIT_TEMP_FUNCNAME) + ZSTR_LEN(arguments) + 4 + ZSTR_LEN(phpcode) + return_ref;
+	eval_code_length = sizeof("function " RUNKIT_TEMP_FUNCNAME) +
+		ZSTR_LEN(arguments) + 4 +
+		ZSTR_LEN(phpcode) +
+		(return_ref ? 1 : 0);
+	if (return_type != NULL) {
+		int return_type_code_length = ZSTR_LEN(return_type) + 4;
+		return_type_code = (char*)emalloc(return_type_code_length + 1);
+		snprintf(return_type_code, return_type_code_length + 4, " : %s ", ZSTR_VAL(return_type));
+		eval_code_length += return_type_code_length;
+	} else {
+		return_type_code = (char*)emalloc(1);
+		return_type_code[0] = '\0';
+	}
+
 	eval_code = (char*)emalloc(eval_code_length);
-	snprintf(eval_code, eval_code_length, "function %s" RUNKIT_TEMP_FUNCNAME "(%s){%s}", (return_ref ? "&" : ""), ZSTR_VAL(arguments), ZSTR_VAL(phpcode));
+	snprintf(eval_code, eval_code_length, "function %s" RUNKIT_TEMP_FUNCNAME "(%s)%s{%s}", (return_ref ? "&" : ""), ZSTR_VAL(arguments), return_type_code, ZSTR_VAL(phpcode));
 	eval_name = zend_make_compiled_string_description("runkit runtime-created function" TSRMLS_CC);
 	if (zend_eval_string(eval_code, NULL, eval_name TSRMLS_CC) == FAILURE) {
 		efree(eval_code);
 		efree(eval_name);
+		efree(return_type_code);
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Cannot create temporary function");
 		zend_hash_str_del(EG(function_table), RUNKIT_TEMP_FUNCNAME, sizeof(RUNKIT_TEMP_FUNCNAME) - 1);
 		return FAILURE;
 	}
 	efree(eval_code);
 	efree(eval_name);
+	efree(return_type_code);
 
 	if ((*pfe = zend_hash_str_find_ptr(EG(function_table), RUNKIT_TEMP_FUNCNAME, sizeof(RUNKIT_TEMP_FUNCNAME) - 1)) == NULL) {
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Unexpected inconsistency during create_function");
@@ -921,6 +943,7 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 	zend_string* arguments = NULL;
 	zend_string* phpcode = NULL;
 	zend_string* doc_comment = NULL;  // TODO: Is this right?
+	parsed_return_type return_type;
 	zend_bool return_ref = 0;
 	zend_function *orig_fe = NULL, *source_fe = NULL, *func;
 	zval *args;
@@ -950,9 +973,6 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 	if (argc > opt_arg_pos && !source_fe) {
 		switch (Z_TYPE(args[opt_arg_pos])) {
 			case IS_NULL:
-			case IS_STRING:
-			case IS_LONG:
-			case IS_DOUBLE:
 			case IS_TRUE:
 			case IS_FALSE:
 				convert_to_boolean_ex(&args[opt_arg_pos]);
@@ -964,8 +984,18 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 		opt_arg_pos++;
 	}
 
-	doc_comment = php_runkit_parse_doc_comment_arg(argc, args, opt_arg_pos TSRMLS_CC);
+	doc_comment = php_runkit_parse_doc_comment_arg(argc, args, opt_arg_pos);
+	return_type = php_runkit_parse_return_type_arg(argc, args, opt_arg_pos + 1);
 	efree(args);
+	if (!return_type.valid) {
+		RETURN_FALSE;
+	}
+
+	if (source_fe && return_type.return_type) {
+		// TODO: Check what needs to be needs to be changed in opcode array if return_type is changed
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Overriding return_type is not currently supported for closures, use return type in closure definition instead (or pass in code as string)");
+		RETURN_FALSE;
+	}
 
 	if (add_or_update == HASH_UPDATE &&
 	    (orig_fe = php_runkit_fetch_function(funcname, PHP_RUNKIT_FETCH_FUNCTION_REMOVE TSRMLS_CC)) == NULL) {
@@ -982,7 +1012,7 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 	}
 
 	if (!source_fe) {
-		if (php_runkit_generate_lambda_method(arguments, phpcode, &source_fe, return_ref TSRMLS_CC) == FAILURE) {
+		if (php_runkit_generate_lambda_method(arguments, return_type.return_type, phpcode, &source_fe, return_ref TSRMLS_CC) == FAILURE) {
 			zend_string_release(funcname_lower);
 			RETURN_FALSE;
 		}
@@ -1043,7 +1073,7 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
    * Functions API *
    ***************** */
 
-/* {{{  proto bool runkit_function_add(string funcname, string arglist, string code[, bool return_by_reference=NULL[, string doc_comment]])
+/* {{{  proto bool runkit_function_add(string funcname, string arglist, string code[, bool return_by_reference=false[, string doc_comment]])
 	proto bool runkit_function_add(string funcname, closure code[, string doc_comment])
 	Add a new function, similar to create_function, but allows specifying name
 	*/
@@ -1235,7 +1265,7 @@ PHP_FUNCTION(runkit_function_rename)
 }
 /* }}} */
 
-/* {{{ proto bool runkit_function_redefine(string funcname, string arglist, string code[, bool return_by_reference=NULL[, string doc_comment]])
+/* {{{ proto bool runkit_function_redefine(string funcname, string arglist, string code[, bool return_by_reference=false[, string doc_comment[, string return_type]]])
  *     proto bool runkit_function_redefine(string funcname, closure code[, string doc_comment])
  */
 PHP_FUNCTION(runkit_function_redefine)
