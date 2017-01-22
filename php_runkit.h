@@ -221,7 +221,7 @@ zend_function* php_runkit_function_clone(zend_function *fe, zend_string *newname
 void php_runkit_function_dtor(zend_function *fe);
 int php_runkit_remove_from_function_table(HashTable *function_table, zend_string *func_lower);
 void* php_runkit_update_function_table(HashTable *function_table, zend_string *func_lower, zend_function *f);
-int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *phpcode,
+int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *return_type, const zend_string *phpcode,
                                       zend_function **pfe, zend_bool return_ref TSRMLS_DC);
 int php_runkit_cleanup_lambda_method();
 int php_runkit_destroy_misplaced_functions(zval *pDest TSRMLS_DC);
@@ -267,6 +267,11 @@ typedef struct _zend_closure {
     zend_function  func;
     HashTable     *debug_info;
 } zend_closure;
+
+typedef struct _parsed_return_type {
+	zend_string *return_type;
+	zend_bool   valid;
+} parsed_return_type;
 
 /*
 struct _php_runkit_default_class_members_list_element {
@@ -373,6 +378,64 @@ inline static zend_string* php_runkit_parse_doc_comment_arg(int argc, zval *args
 		}
 	}
 	return NULL;
+}
+/* }}} */
+
+/* {{{ php_runkit_is_valid_return_type */
+inline static zend_bool php_runkit_is_valid_return_type(const zend_string *return_type) {
+	const char *it = ZSTR_VAL(return_type);
+	unsigned char c;
+#if PHP_VERSION_ID >= 70100
+	if (*it == '?') {
+		it++;
+	}
+#endif
+	c = (unsigned char)*it;
+	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c >= 128) {
+		for (c = *++it; c != '\0'; c = *++it) {
+			if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c >= 128) {
+				continue;
+			}
+			return 0;
+		}
+		return 1;
+	}
+	return 0;
+	// https://secure.php.net/manual/en/language.oop5.basic.php
+}
+/* }}} */
+
+/* {{{ php_runkit_parse_return_type_arg */
+inline static parsed_return_type php_runkit_parse_return_type_arg(int argc, zval *args, int arg_pos) {
+	parsed_return_type retval;
+	retval.return_type = NULL;
+	retval.valid = 1;
+	if (argc <= arg_pos) {
+		return retval;
+	}
+	if (Z_TYPE(args[arg_pos]) == IS_STRING) {
+		// Return return type without increasing reference count.
+		zend_string *return_type = Z_STR(args[arg_pos]);
+		if (ZSTR_LEN(return_type) == 0) {
+			// NOTE: "" and NULL may mean different things in the future - "" could mean remove the return type (if one exists).
+			return retval;
+		}
+		if (php_runkit_is_valid_return_type(return_type)) {
+			retval.return_type = return_type;
+			return retval;
+		}
+#if PHP_VERSION_ID >= 70100
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Return type should match regex ^\\??[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*$");
+#else
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Return type should match regex ^[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*$");
+#endif
+		retval.valid = 0;
+		return retval;
+	} else if (Z_TYPE(args[arg_pos]) != IS_NULL) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Return type should be a string or NULL");
+		retval.valid = 0;
+	}
+	return retval;
 }
 /* }}} */
 
