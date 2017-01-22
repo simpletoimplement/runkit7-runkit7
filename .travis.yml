@@ -40,6 +40,7 @@ before_script:
  - (export CC; phpize && ./configure && make)
 
 script:
+ - phpenv config-rm xdebug.ini || true
  - ci/run_tests.sh
 
 notifications:
