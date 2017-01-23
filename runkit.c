@@ -417,6 +417,8 @@ PHP_RSHUTDOWN_FUNCTION(runkit)
 
 	if (RUNKIT_G(replaced_internal_functions)) {
 		/* Restore internal functions */
+		/*
+		// TODO: The pointer to `f` is correct, but the data inside of `f` is corrupted at the time request shutdown is reached
 		zend_function *f;
 		zend_string *key;
 		ZEND_HASH_FOREACH_STR_KEY_PTR(RUNKIT_G(replaced_internal_functions), key, f) {
@@ -425,6 +427,7 @@ PHP_RSHUTDOWN_FUNCTION(runkit)
 				php_runkit_restore_internal_function(key, f);
 			}
 		} ZEND_HASH_FOREACH_END();
+		*/
 		zend_hash_destroy(RUNKIT_G(replaced_internal_functions));
 		FREE_HASHTABLE(RUNKIT_G(replaced_internal_functions));
 		RUNKIT_G(replaced_internal_functions) = NULL;

@@ -105,16 +105,16 @@ static zend_function* php_runkit_fetch_function(zend_string* fname, int flag TSR
 	if (fe->type == ZEND_INTERNAL_FUNCTION &&
 		flag >= PHP_RUNKIT_FETCH_FUNCTION_REMOVE) {
 		zend_string* runkit_key;
-		//void* result;
 
 		if (!RUNKIT_G(replaced_internal_functions)) {
 			ALLOC_HASHTABLE(RUNKIT_G(replaced_internal_functions));
 			zend_hash_init(RUNKIT_G(replaced_internal_functions), 4, NULL, NULL, 0);
 		}
-		// FIXME figure out what this is intended to do (Restoring internal functions?)
+		// FIXME figure out what this is intended to do (Restoring internal functions on request shutdown)
+		// This is also used to check if a function with a given name was originally internal.
 		// Cloning this - It would otherwise be deleted with runkit_function_redefine called later... (TODO: Add 1 to the refcount?)
 		// TODO: Properly specify the behavior to avoid memory leaks
-		// result = zend_hash_add_ptr(RUNKIT_G(replaced_internal_functions), fname_lower, fe);
+		zend_hash_add_ptr(RUNKIT_G(replaced_internal_functions), fname_lower, fe);
 		// printf("Adding fe %llx to replaced_internal_functions key=%s result=%llx\n", (long long)fe, ZSTR_VAL(fname_lower), (long long)result);
 		/*
 		 * If internal functions have been modified then runkit's request shutdown handler
@@ -148,6 +148,7 @@ static inline void php_runkit_add_to_misplaced_internal_functions(zend_function 
 	) {
 		zval tmp;
 		php_runkit_ensure_misplaced_internal_functions_table_exists();
+		// Add misplaced internal functions to a list of strings, to be wiped out on request shutdown (before restoring originals)
 		ZVAL_STR(&tmp, name_lower);
 		zend_hash_next_index_insert(RUNKIT_G(misplaced_internal_functions), &tmp);
 	}
@@ -225,7 +226,7 @@ static void php_runkit_function_create_alias_internal_function(zend_function *fe
 	fe->type = ZEND_INTERNAL_FUNCTION;
 	fe->common.function_name = fe_inner->common.function_name;
 	zend_string_addref(fe->common.function_name);
-	//printf("Copying handler to %llx\n", (long long)php_runkit_function_alias_handler);
+	debug_printf("Copying handler to %llx\n", (long long)(uintptr_t)php_runkit_function_alias_handler);
 	fe->internal_function.handler = php_runkit_function_alias_handler;
 	RUNKIT_ALIASED_USER_FUNCTION(fe) = fe_inner;
 }
@@ -946,6 +947,7 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 	parsed_return_type return_type;
 	zend_bool return_ref = 0;
 	zend_function *orig_fe = NULL, *source_fe = NULL, *func;
+	char target_function_type;
 	zval *args;
 	int remove_temp = 0;
 	long argc = ZEND_NUM_ARGS();
@@ -1019,8 +1021,15 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 		remove_temp = 1;
 	}
 
-	// FIXME actually store the original type in a hash map.
-	func = php_runkit_function_clone(source_fe, funcname, (orig_fe ? orig_fe->type : ZEND_USER_FUNCTION) TSRMLS_CC);
+	if (orig_fe) {
+		// The function type should be preserved, before and after redefining.
+		target_function_type = orig_fe->type;
+	} else {
+		// The original type is stored in a hash map - If an internal function is renamed, it has an entry in replaced_internal_functions.
+		target_function_type = RUNKIT_G(replaced_internal_functions)
+			&& zend_hash_exists(RUNKIT_G(replaced_internal_functions), funcname_lower) ? ZEND_INTERNAL_FUNCTION : ZEND_USER_FUNCTION;
+	}
+	func = php_runkit_function_clone(source_fe, funcname, target_function_type TSRMLS_CC);
 	//printf("Func function->handler = %llx, op=%s\n", source_fe->type == ZEND_USER_FUNCTION ? (long long)source_fe->internal_function.handler : 0, add_or_update == HASH_ADD ? "add" : "update");
 	func->common.scope = NULL;
 	func->common.fn_flags &= ~ZEND_ACC_CLOSURE;
