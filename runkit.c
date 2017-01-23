@@ -294,15 +294,15 @@ PHP_MSHUTDOWN_FUNCTION(runkit)
 static void php_runkit_register_auto_global(char *s, int len TSRMLS_DC)
 {
 	zend_auto_global *auto_global;
-	zend_string* globalName;
+	zend_string* globalName = zend_string_init(s, len, 0);
 	zval z;
 
-	if (zend_hash_str_exists(CG(auto_globals), s, len + 1)) {
+	if (zend_hash_exists(CG(auto_globals), globalName)) {
 		/* Registered already */
+		zend_string_release(globalName);
 		return;
 	}
 
-	globalName = zend_string_init(s, len, 0);
 	if (zend_register_auto_global(globalName,
 			0,
 		    NULL TSRMLS_CC) == SUCCESS) {
