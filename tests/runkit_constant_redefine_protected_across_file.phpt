@@ -18,15 +18,28 @@ class TestClass extends TestBaseClass{
 
 $const = 'TestBaseClass::_FOO';
 var_dump($const, TestClass::get_foo());
-runkit_constant_redefine($const, 'bar');
+runkit_constant_redefine($const, 'roh');
 var_dump($const, TestClass::get_foo());
-runkit_constant_redefine($const, 'foo');
-var_dump(TestClass::get_foo());
+$x = TestClass::get_foo();
+runkit_constant_redefine($const, $x);
+var_dump($const, TestClass::get_foo());
+runkit_constant_redefine($const, ['dah']);
+var_dump($const, TestClass::get_foo());
+runkit_constant_redefine($const, 2);
+var_dump($const, TestClass::get_foo());
 // TODO test subclass
 ?>
 --EXPECT--
 string(19) "TestBaseClass::_FOO"
 string(3) "foo"
 string(19) "TestBaseClass::_FOO"
-string(3) "bar"
-string(3) "foo"
+string(3) "roh"
+string(19) "TestBaseClass::_FOO"
+string(3) "roh"
+string(19) "TestBaseClass::_FOO"
+array(1) {
+  [0]=>
+  string(3) "dah"
+}
+string(19) "TestBaseClass::_FOO"
+int(2)
