@@ -16,7 +16,7 @@ Reflection::export(new ReflectionMethod('C', 'x'));
 
 --EXPECTF--
 Method [ <user%S> public method x ] {
-  @@ %sbug56662.php(3) : runkit runtime-created function 1 - 1
+  @@ %sbug56662.php(3) : runkit runtime-created method 1 - 1
 }
 
 Method [ <user, overwrites A%S> public method x ] {

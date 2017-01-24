@@ -60,6 +60,10 @@ int php_runkit_check_call_stack(zend_op_array *op_array TSRMLS_DC)
 
 /* Temporary function name. This function is manipulated with functions in this file. */
 #define RUNKIT_TEMP_FUNCNAME  "__runkit_temporary_function__"
+/* Temporary class name. A function in this class is manipulated with functions in this file. */
+#define RUNKIT_TEMP_CLASSNAME  "__runkit_temporary_class__"
+/* Temporary method name. A function in this class is manipulated with functions in this file. */
+#define RUNKIT_TEMP_METHODNAME  "__runkit_temporary_method__"
 
 /* Maintain order */
 #define PHP_RUNKIT_FETCH_FUNCTION_INSPECT	0
@@ -827,11 +831,11 @@ void php_runkit_remove_function_from_reflection_objects(zend_function *fe TSRMLS
 }
 /* }}} */
 
-/* {{{ php_runkit_generate_lambda_method
-	Heavily borrowed from ZEND_FUNCTION(create_function) */
-int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *return_type, const zend_string *phpcode,
-
-                                      zend_function **pfe, zend_bool return_ref TSRMLS_DC)
+/* {{{ php_runkit_generate_lambda_function
+    Heavily borrowed from ZEND_FUNCTION(create_function).
+    Used by runkit_function_add and runkit_function_redefine. Also see php_runkit_generate_lambda_method. */
+int php_runkit_generate_lambda_function(const zend_string *arguments, const zend_string *return_type, const zend_string *phpcode,
+                                        zend_function **pfe, zend_bool return_ref TSRMLS_DC)
 {
 	char *eval_code;
 	char *eval_name;
@@ -859,7 +863,7 @@ int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_s
 		efree(eval_code);
 		efree(eval_name);
 		efree(return_type_code);
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Cannot create temporary function");
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Cannot create temporary function '%s'", eval_code);
 		zend_hash_str_del(EG(function_table), RUNKIT_TEMP_FUNCNAME, sizeof(RUNKIT_TEMP_FUNCNAME) - 1);
 		return FAILURE;
 	}
@@ -868,8 +872,72 @@ int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_s
 	efree(return_type_code);
 
 	if ((*pfe = zend_hash_str_find_ptr(EG(function_table), RUNKIT_TEMP_FUNCNAME, sizeof(RUNKIT_TEMP_FUNCNAME) - 1)) == NULL) {
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Unexpected inconsistency during create_function");
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Unexpected inconsistency creating temporary runkit function");
 		return FAILURE;
+	}
+
+	return SUCCESS;
+}
+
+/* {{{ php_runkit_generate_lambda_method
+	Heavily borrowed from ZEND_FUNCTION(create_function).
+	Used by runkit_method_add and runkit_method_redefine. Also see php_runkit_generate_lambda_function. */
+int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *return_type, const zend_string *phpcode,
+
+                                        zend_function **pfe, zend_bool return_ref, zend_bool is_static TSRMLS_DC)
+{
+	char *eval_code;
+	char *eval_name;
+	char *return_type_code;
+	int eval_code_length;
+	zend_class_entry *ce;
+
+	eval_code_length = sizeof("class " RUNKIT_TEMP_CLASSNAME " { %sfunction " RUNKIT_TEMP_METHODNAME) +
+		ZSTR_LEN(arguments) + 4 +
+		ZSTR_LEN(phpcode) +
+		(is_static ? (sizeof("static ") - 1) : 0) +
+		(return_ref ? 1 : 0) +
+		(sizeof("}") - 1);
+		;
+	if (return_type != NULL) {
+		int return_type_code_length = ZSTR_LEN(return_type) + 4;
+		return_type_code = (char*)emalloc(return_type_code_length + 1);
+		snprintf(return_type_code, return_type_code_length + 4, " : %s ", ZSTR_VAL(return_type));
+		eval_code_length += return_type_code_length;
+	} else {
+		return_type_code = (char*)emalloc(1);
+		return_type_code[0] = '\0';
+	}
+
+	eval_code = (char*)emalloc(eval_code_length);
+	snprintf(eval_code, eval_code_length,
+			"class " RUNKIT_TEMP_CLASSNAME " { %sfunction %s" RUNKIT_TEMP_METHODNAME "(%s)%s{%s}}",
+			(is_static ? "static " : ""),
+			(return_ref ? "&" : ""),
+			ZSTR_VAL(arguments),
+			return_type_code,
+			ZSTR_VAL(phpcode));
+	eval_name = zend_make_compiled_string_description("runkit runtime-created method" TSRMLS_CC);
+	if (zend_eval_string(eval_code, NULL, eval_name TSRMLS_CC) == FAILURE) {
+		efree(eval_code);
+		efree(eval_name);
+		efree(return_type_code);
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Cannot create temporary method");
+		zend_hash_str_del(EG(class_table), RUNKIT_TEMP_CLASSNAME, sizeof(RUNKIT_TEMP_CLASSNAME) - 1);
+		return FAILURE;
+	}
+	efree(eval_code);
+	efree(eval_name);
+	efree(return_type_code);
+
+	ce = zend_hash_str_find_ptr(EG(class_table), RUNKIT_TEMP_CLASSNAME, sizeof(RUNKIT_TEMP_CLASSNAME) - 1);
+	if (ce == NULL) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Unexpected inconsistency creating a temporary class");
+		return FAILURE;
+	}
+
+	if ((*pfe = zend_hash_str_find_ptr(&(ce->function_table), RUNKIT_TEMP_METHODNAME, sizeof(RUNKIT_TEMP_METHODNAME) - 1)) == NULL) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Unexpected inconsistency creating a temporary method");
 	}
 
 	return SUCCESS;
@@ -878,8 +946,9 @@ int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_s
 /* }}} */
 
 /** {{{ php_runkit_cleanup_lambda_method
-    Tries to free the temporary lambda function. If it fails, emits a warning and returns FAILURE.  */
-int php_runkit_cleanup_lambda_method() {
+	Tries to free the temporary lambda function (from php_runkit_generate_lambda_function).
+	If it fails, emits a warning and returns FAILURE.  */
+int php_runkit_cleanup_lambda_function() {
 	if (zend_hash_str_del(EG(function_table), RUNKIT_TEMP_FUNCNAME, sizeof(RUNKIT_TEMP_FUNCNAME) - 1) == FAILURE) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to remove temporary function entry");
 		return FAILURE;
@@ -887,6 +956,18 @@ int php_runkit_cleanup_lambda_method() {
 	return SUCCESS;
 }
 /* }}}*/
+
+/** {{{ php_runkit_cleanup_lambda_method
+	Tries to free the temporary lambda method (from php_runkit_generate_lambda_method).
+	If it fails, emits a warning and returns FAILURE.  */
+int php_runkit_cleanup_lambda_method() {
+	if (zend_hash_str_del(EG(class_table), RUNKIT_TEMP_CLASSNAME, sizeof(RUNKIT_TEMP_CLASSNAME) - 1) == FAILURE) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to remove temporary method entry");
+		return FAILURE;
+	}
+	return SUCCESS;
+}
+/* }}} */
 
 /* {{{ php_runkit_destroy_misplaced_functions
 	Wipe old internal functions that were renamed to new targets
@@ -1007,7 +1088,7 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 	}
 
 	if (!source_fe) {
-		if (php_runkit_generate_lambda_method(arguments, return_type.return_type, phpcode, &source_fe, return_ref TSRMLS_CC) == FAILURE) {
+		if (php_runkit_generate_lambda_function(arguments, return_type.return_type, phpcode, &source_fe, return_ref TSRMLS_CC) == FAILURE) {
 			zend_string_release(funcname_lower);
 			RETURN_FALSE;
 		}
@@ -1046,16 +1127,16 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 	if (runkit_zend_hash_add_or_update_function_table_ptr(EG(function_table), funcname_lower, func, add_or_update) == NULL) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to add new function");
 		zend_string_release(funcname_lower);
-		if (remove_temp && zend_hash_str_del(EG(function_table), RUNKIT_TEMP_FUNCNAME, sizeof(RUNKIT_TEMP_FUNCNAME) - 1) == FAILURE) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to remove temporary function entry");
+		if (remove_temp) {
+			php_runkit_cleanup_lambda_function();
 		}
 		// TODO: Is there a chance this will accidentally delete the original function?
 		php_runkit_function_dtor(func);
 		RETURN_FALSE;
 	}
 
-	if (remove_temp && zend_hash_str_del(EG(function_table), RUNKIT_TEMP_FUNCNAME, sizeof(RUNKIT_TEMP_FUNCNAME) - 1) == FAILURE) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to remove temporary function entry");
+	if (remove_temp) {
+		php_runkit_cleanup_lambda_function();
 	}
 
 	if (zend_hash_find(EG(function_table), funcname_lower) == NULL) {
