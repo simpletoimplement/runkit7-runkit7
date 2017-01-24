@@ -78,7 +78,6 @@ zend_function_entry runkit_functions[] = {
 
 	PHP_FE(runkit_zval_inspect,										NULL)
 	PHP_FE(runkit_object_id,										NULL)
-	PHP_FE(runkit_return_value_used,								NULL)
 
 #ifdef PHP_RUNKIT_SUPERGLOBALS
 	PHP_FE(runkit_superglobals,										NULL)

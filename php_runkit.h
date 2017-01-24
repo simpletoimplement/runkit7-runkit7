@@ -98,7 +98,6 @@ PHP_RINIT_FUNCTION(runkit);
 PHP_RSHUTDOWN_FUNCTION(runkit);
 PHP_MINFO_FUNCTION(runkit);
 
-PHP_FUNCTION(runkit_return_value_used);
 PHP_FUNCTION(runkit_object_id);
 
 #ifdef PHP_RUNKIT_MANIPULATION

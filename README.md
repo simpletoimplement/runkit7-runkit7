@@ -100,7 +100,8 @@ Other methods and corresponding tests are disabled/skipped because changes to ph
 
 	`runkit_default_property_add` has been removed in php7 - it requires `realloc`ing a different zval to add a property to the property table
 	That would break a lot of things.
--	`runkit_return_value_used`: Returns incorrect results right now. `vld` seems to have a working implementation in the opcode analyzer, not familiar with how it works.
+-	`runkit_return_value_used`: Removed, was not working and unrelated to other features.
+	`vld` seems to have a working implementation in the opcode analyzer, not familiar with how it works.
 
 #### Reasons for disabling property manipulation
 
