@@ -375,7 +375,8 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 
 	if (!source_fe) {
 		if (php_runkit_generate_lambda_method(arguments, return_type.return_type, phpcode, &source_fe,
-						     (flags & PHP_RUNKIT_ACC_RETURN_REFERENCE) == PHP_RUNKIT_ACC_RETURN_REFERENCE
+						     (flags & PHP_RUNKIT_ACC_RETURN_REFERENCE) == PHP_RUNKIT_ACC_RETURN_REFERENCE,
+							 ((flags & ZEND_ACC_STATIC) != 0)
 						     TSRMLS_CC) == FAILURE) {
 			zend_string_release(methodname_lower);
 			RETURN_FALSE;

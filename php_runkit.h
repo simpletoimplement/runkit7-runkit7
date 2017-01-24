@@ -221,8 +221,11 @@ void php_runkit_function_dtor(zend_function *fe);
 int php_runkit_remove_from_function_table(HashTable *function_table, zend_string *func_lower);
 void* php_runkit_update_function_table(HashTable *function_table, zend_string *func_lower, zend_function *f);
 int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *return_type, const zend_string *phpcode,
+                                      zend_function **pfe, zend_bool return_ref, zend_bool is_static TSRMLS_DC);
+int php_runkit_generate_lambda_function(const zend_string *arguments, const zend_string *return_type, const zend_string *phpcode,
                                       zend_function **pfe, zend_bool return_ref TSRMLS_DC);
 int php_runkit_cleanup_lambda_method();
+int php_runkit_cleanup_lambda_function();
 int php_runkit_destroy_misplaced_functions(zval *pDest TSRMLS_DC);
 void php_runkit_restore_internal_function(zend_string *fname_lower, zend_function *f);
 

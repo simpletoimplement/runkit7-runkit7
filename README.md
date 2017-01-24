@@ -14,9 +14,7 @@ __Now with partial support for PHP7.0 and PHP7.1!__ (This extension isn't produc
 Current Build Status
 --------------------
 
-In 7.0.x: Roughly 12 failing tests, 93 skipped tests, 79 passing tests.
-
-In 7.1.x: More segmentation faults and test failures than 7.0.x
+In 7.0.x and 7.1.x: Roughly 4 failing tests, 93 skipped tests, 91 passing tests.
 
 Compatability: PHP7.0 (Partial, buggy)
 --------------------------------------
