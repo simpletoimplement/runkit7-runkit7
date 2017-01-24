@@ -26,13 +26,6 @@
 #include "php_runkit_zend_execute_API.h"
 #include "Zend/zend.h"
 
-/* Used both by runkit_return_value_used and function manipulation */
-#if PHP_VERSION_ID >= 70100
-# define RETURN_VALUE_USED(opline) ((opline)->result_type != IS_UNUSED)
-#else
-# define RETURN_VALUE_USED(opline) !((opline)->result_type & EXT_TYPE_UNUSED)
-#endif
-
 // Get lvalue of the aliased user function for a fake internal function.
 #define RUNKIT_ALIASED_USER_FUNCTION(fe) ((fe)->internal_function.reserved[0])
 #define RUNKIT_IS_ALIAS_FOR_USER_FUNCTION(fe) ((fe)->type == ZEND_INTERNAL_FUNCTION && (fe)->internal_function.handler == php_runkit_function_alias_handler)
@@ -1335,22 +1328,6 @@ PHP_FUNCTION(runkit_function_copy)
 /* }}} */
 #endif /* PHP_RUNKIT_MANIPULATION */
 
-/* {{{ proto bool runkit_return_value_used(void)
-Does the calling function do anything with our return value? */
-PHP_FUNCTION(runkit_return_value_used)
-{
-    // This is still broken. Look into what vld does.
-	zend_execute_data *ptr = EX(prev_execute_data);
-
-	if (!ptr) {
-		/* main() */
-		RETURN_FALSE;
-	}
-
-	RETURN_BOOL(RETURN_VALUE_USED(ptr->opline));
-}
-/* }}} */
-
 /*
  * Local variables:
  * tab-width: 4
@@ -1359,4 +1336,3 @@ PHP_FUNCTION(runkit_return_value_used)
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
-

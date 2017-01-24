@@ -159,7 +159,6 @@ Define customized superglobal variables for general purpose use.
     <file name="runkit_remove_magic_serialize_method.phpt" role="test" />
     <file name="runkit_remove_magic_tostring_method.phpt" role="test" />
     <file name="runkit_remove_magic_unserialize_method.phpt" role="test" />
-    <file name="runkit_return_value_used.phpt" role="test" />
     <file name="runkit_zval_inspect.phpt" role="test" />
     <file name="runkit_static_vars.phpt" role="test" />
     <file name="bug10053.phpt" role="test" />
