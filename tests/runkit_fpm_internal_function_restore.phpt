@@ -4,7 +4,6 @@ Test restoring internal functions after renaming and copying under fpm
 <?php include "_fpm_skipif.inc"; ?>
 --FILE--
 <?php
-// TODO: This isn't restoring properly, in 7.1RC3
 include "_fpm_include.inc";
 $code = <<<EOT
 <?php

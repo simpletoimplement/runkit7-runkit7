@@ -52,7 +52,16 @@ inline static Bucket *php_runkit_hash_get_bucket(HashTable *ht, zend_string* key
 
 /* {{{ php_runkit_hash_move_to_front */
 inline static void php_runkit_hash_move_to_front(HashTable *ht, Bucket *p) {
-	if (!p) return;
+	zend_ulong numkey;
+	zend_string *strkey;
+	zval *zv;
+	php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front p=%llx", (long long)(uintptr_t)p);
+	// if (!p) return;
+
+	ZEND_HASH_FOREACH_KEY_PTR(ht, numkey, strkey, zv) {
+		(void)strkey;
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front numkey=%d strkey=%s zv=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (long long) (uintptr_t)zv);
+	} ZEND_HASH_FOREACH_END();
 
   // TODO: It appears that HT_HASH is the index of the next element in the chained list (negative index)
   // and Z_NEXT will point to the old value for this element.
