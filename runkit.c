@@ -369,6 +369,7 @@ PHP_RINIT_FUNCTION(runkit)
 #ifdef PHP_RUNKIT_MANIPULATION
 	RUNKIT_G(replaced_internal_functions) = NULL;
 	RUNKIT_G(misplaced_internal_functions) = NULL;
+	RUNKIT_G(module_moved_to_front) = 0;
 	// RUNKIT_G(removed_default_class_members) = NULL;
 #endif
 
@@ -414,19 +415,24 @@ PHP_RSHUTDOWN_FUNCTION(runkit)
 		RUNKIT_G(misplaced_internal_functions) = NULL;
 	}
 
-	if (RUNKIT_G(replaced_internal_functions)) {
+
+	if (RUNKIT_G(replaced_internal_functions) && strcmp(sapi_module.name, "fpm-fcgi") == 0) {
 		/* Restore internal functions */
-		/*
+		// Note: It only matters if we restore internal functions in certain module types, such as "fpm-fcgi".
+		// "cli" doesn't matter. Not sure about other module types yet.
+
 		// TODO: The pointer to `f` is correct, but the data inside of `f` is corrupted at the time request shutdown is reached
 		zend_function *f;
 		zend_string *key;
+		// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In RSHUTDOWN: restoring replaced internal functions: count=%d sapi_module=%s", (int) zend_array_count(RUNKIT_G(replaced_internal_functions)), sapi_module.name);
 		ZEND_HASH_FOREACH_STR_KEY_PTR(RUNKIT_G(replaced_internal_functions), key, f) {
 			if (key != NULL) {
+				// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In RSHUTDOWN: restoring '%s' addr=%llx", ZSTR_VAL(key), (long long)(uintptr_t)f);
+				// NOTE: On modules shutdown, modules will call zend_function_dtor on the modules they declared... so it's best if this is a clone of the internal function?
 				ZEND_ASSERT(f->type == ZEND_INTERNAL_FUNCTION || f->type == ZEND_USER_FUNCTION);
 				php_runkit_restore_internal_function(key, f);
 			}
 		} ZEND_HASH_FOREACH_END();
-		*/
 		zend_hash_destroy(RUNKIT_G(replaced_internal_functions));
 		FREE_HASHTABLE(RUNKIT_G(replaced_internal_functions));
 		RUNKIT_G(replaced_internal_functions) = NULL;
@@ -436,7 +442,6 @@ PHP_RSHUTDOWN_FUNCTION(runkit)
 
 	/*
 	el = RUNKIT_G(removed_default_class_members);
-	// TODO: I have no idea what this is trying to do.
 	while (el) {
 		php_runkit_default_class_members_list_element *tmp;
 		// TODO: Some sort of cleanup?
@@ -465,19 +470,6 @@ PHP_MINFO_FUNCTION(runkit)
 	php_info_print_table_start();
 	php_info_print_table_header(2, "runkit support", "enabled");
 	php_info_print_table_header(2, "version", PHP_RUNKIT_VERSION);
-
-	if (sapi_module.phpinfo_as_text) {
-	    php_info_print_table_row(2, "Donate Runkit", "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P2WY8LBB2YGMQ");
-	} else {
-		php_printf("<tr>"
-		              "<td colspan=\"2\" class=\"v\">"
-		                  "<strong style=\"font-size:300%%; color:#8822ff; font-style:italic\">&iexcl;Runkit needs your help!</strong>"
-		                  "<a href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=P2WY8LBB2YGMQ\" target=\"_blank\">"
-		                      "<img src=\"https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif\" alt=\"Donate Runkit via PayPal\" style=\"max-width:100%%;\">"
-		                  "</a>"
-		              "</td>"
-		           "</tr>");
-	}
 
 #ifdef PHP_RUNKIT_CLASSKIT_COMPAT
 	php_info_print_table_header(2, "classkit compatability", "enabled");
