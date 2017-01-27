@@ -21,7 +21,7 @@ const RUNKIT_VERSION              = "1.0.5-dev";
  * and this may or may not have an effect if the constant already exists.
  *
  * @param string $constname Name of constant to declare. Either a string to indicate a global constant, or classname::constname to indicate a class constant.
- * @param mixed $value null, Bool, Long, Double, String, or Resource value to store in the new constant.
+ * @param mixed $value null, Bool, Long, Double, String, Resource, or Array value to store in the new constant.
  * @return bool - TRUE on success or FALSE on failure.
  */
 function runkit_constant_add(string $constname, $value) : bool {
@@ -34,7 +34,7 @@ function runkit_constant_add(string $constname, $value) : bool {
  * and this may or may not have an effect if the constant already exists.
  *
  * @param string $constname Name of constant to declare. Either a string to indicate a global constant, or classname::constname to indicate a class constant.
- * @param mixed $value null, Bool, Long, Double, String, or Resource value to store in the new constant.
+ * @param mixed $value null, Bool, Long, Double, String, Resource, or Array value to store in the new constant.
  * @return bool - TRUE on success or FALSE on failure.
  */
 function runkit_constant_redefine(string $constname, $value) : bool {
@@ -232,6 +232,16 @@ function runkit_method_remove(string $funcname, string $methodname) : bool {
  * @return bool - True on success or false on failure.
  */
 function runkit_method_rename(string $funcname, string $newname) : bool {
+}
+
+/**
+ * Gets a unique integer identifier (Will be reused when the object is garbage collected) for an object.
+ * This is similar to `spl_object_hash`, but returns an int instead of a string.
+ *
+ * @param object $obj - The object
+ * @return int|null - Returns null if given a non-object.
+ */
+function runkit_object_id($obj) : int {
 }
 
 /**

@@ -1,8 +1,8 @@
-Runkit7: Unofficial runkit extension fork for PHP 7
-===================================================
+Runkit7: Unofficial runkit extension fork for PHP 7.0+
+======================================================
 
 For all those things you.... probably shouldn't have been doing anyway....
-__Now with partial support for PHP7.0 and PHP7.1!__ (This extension isn't production ready yet).
+__Now with partial support for PHP7.0 and PHP7.1!__ (function/method manipulation is recommended only for unit testing).
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/3jwsf76ge0yo8v74?svg=true)](https://ci.appveyor.com/project/TysonAndre/runkit7)
@@ -16,8 +16,10 @@ Current Build Status
 
 In 7.0.x and 7.1.x: Roughly 4 failing tests, 93 skipped tests, 91 passing tests.
 
-Compatability: PHP7.0 (Partial, buggy)
---------------------------------------
+Compatability: PHP7.0 and PHP7.1(Partial, buggy)
+------------------------------------------------
+
+See [runkit-api.php](./runkit-api.php) for the implemented functionality and method signatures.
 
 Superglobals work reliably when tested on web servers and tests.
 Class and function manipulation is recommended only for unit tests.
@@ -41,6 +43,7 @@ Class and function manipulation is recommended only for unit tests.
   Patching php-src and/or opcache to not inline constants (e.g. based on a php.ini setting) is possible, but hasn't been tried yet.
 - Sandboxing (and `runkit_lint`) were removed.
 - TODO: Fix segmentation faults in PHP 7.1 internal function manipulation.
+- `runkit_object_id` works.
 
 The following contributions are welcome:
 
@@ -48,8 +51,7 @@ The following contributions are welcome:
 -	New test cases for features that no longer work in PHP7, or code crashing runkit7.
 -	Issues for PHP language features that worked in PHP5, but no longer work in PHP7,
 	for the implemented methods (`runkit_function_*` and `runkit_method_*`)
-
-Pull requests with fixes, documentation, and additional tests for PHP7 are welcome.
+-   Fixes and documentation.
 
 Most of the runkit tests for method manipulation and function manipulation are passing.
 Other methods and corresponding tests are disabled/skipped because changes to php internals in php7 made them impractical.
@@ -63,24 +65,21 @@ Other methods and corresponding tests are disabled/skipped because changes to ph
 	(when you rename/redefine/(copy?) internal functions, and call internal functions with user functions' implementation, or vice versa)
 	(and when functions redefinitions aren't cleaned up)
 	Working on it.
--	There are problems where the VM uses the precomputed stack size if the new implementation uses more temporary variables then the original implementation.
-    See https://github.com/runkit7/runkit7/issues/24
-	(Known instances of this were fixed)
 -	There are reference counting bugs causing memory leaks.
 	2 calls to `emalloc` have been temporarily replaced with calls to `pemalloc`
 	so that I could execute tests.
 -	There may be a few remaining logic errors after migrating the code to PHP7.
--	The zend VM bytecode may change in 7.0 and 7.1, so some opcodes may not work.
+-	The zend VM bytecode may change in 7.0 and 7.1, so some opcodes may not work with each new minor php version release.
 -	I still need to fix bugs in the way runkit's extension shutdown is done.
 	Importantly, runkit still needs to be cleaned up first (i.e. before every other extension) (To do this, I need to implement the PHP7 version of `php_runkit_hash_move_to_front`)
 
 ### APIs for PHP7
-#### Implemented APIs for PHP7 (buggy):
+#### Implemented APIs for PHP7 (buggy internal function manipulation):
 
 -	`runkit_function_*`: Most tests are passing. There are some bugs related to renaming internal functions.
 -	`runkit_method_*`: Most tests are passing. Same comment as `runkit_function_*`
 -	`runkit_zval_inspect`: Partly passing, and needs to be rewritten because of PHP7's zval changes.
--	`runkit_constant_add` works. Other constant manipulation functions don't work yet for constants within the same file.
+-	`runkit_constant_add` works. Other constant manipulation functions don't work for constants within the same file due to the interpreter inlining them.
 -	Runkit superglobals.
 
 #### Unsupported APIs for PHP7:
@@ -103,56 +102,7 @@ Other methods and corresponding tests are disabled/skipped because changes to ph
 
 #### Reasons for disabling property manipulation
 
-1. The property manipulation code still has bugs, and the "offset" used is in bytes as of php7, but still treated as an index in this code.
-2. As of php7's new zval layout, The only way to "add" a default property would be to realloc() every single one
-   of the `zend_object`s that are instances of that class (to make room for another property).
-   This would break php internals and possibly extensions.
-   A possible other way way would be to change the API to `runkit_default_property_modify($className, $propertyName, $value, $flags = TODO)`
-   (with a precondition $propertyName already existed)
-   The old way properties of objects were stored was as a pointer to an array.
-   In php7, it's part of `zend_object` itself, similar to what is described in https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html (1-length, with an UNDEF value at the end)
-3. It should be possible to meet many uses by modifying constructors with `runkit_method_move` and `runkit_method_add`,
-   or using ReflectionProperty for getting and setting private properties.
-   https://secure.php.net/manual/en/reflectionproperty.setaccessible.php (sets accessibility only for ReflectionProperty)
-   https://secure.php.net/manual/en/reflectionproperty.setvalue.php
-   https://secure.php.net/manual/en/reflectionproperty.getvalue.php
-
-
-### USEFUL LINKS
-For those unfamiliar with PHP5 extension writing:
--	[PHP Internals book](http://www.phpinternalsbook.com/index.html) - Describes how to write extensions *for PHP7*
--	[Upgrading PHP extensions from PHP5 to NG](https://wiki.php.net/phpng-upgrading)
--	[PHPNG Implementation Details](https://wiki.php.net/phpng-int)
-
-
-The representation of internal values(`zval`s) has changed between PHP5 and PHP7, along with the way refcounting is done.
-
--	https://nikic.github.io/2015/05/05/Internal-value-representation-in-PHP-7-part-1.html
--	https://nikic.github.io/2015/06/19/Internal-value-representation-in-PHP-7-part-2.html
-
-This now uses `zend_string`.
-I changed the code to use `zend_string` wherever possible to be consistent.
-This is not strictly necessary.
-
-Notes on `HashTable`s
-
--	https://nikic.github.io/2014/12/22/PHPs-new-hashtable-implementation.html
--	HashTables no longer use linked lists. They use an array of `Bucket`s instead, and use collision chaining.
-	(TODO: implement php_runkit_hash_move_to_front)
--	The new versions of `zend_hash_*` take `zend_string` pointers instead of pairs of `char*
--	Most `zend_hash_*` now have equivalent `zend_hash_str_*` methods.
-	(If I remember correctly, `zend_hash_str_*` methods now taken `strlen` as the length instead of `strlen+1`)
--	To add/retrieve pointers from a `zend_hash`, there are now `zend_hash_*_ptr` methods.
-	Depending on the table being used, these may call destructor functions when pointers are removed.
-
-Changes to the internal representation of `HashTable`s require a lot of code changes.
-
-Miscellaneous notes on differences betwen PHP5 and PHP7
--	zend opcode, opline, and zend_functions have changed in PHP7.
--	Stack frame layout has changed.
--	Reflection data structures changed.
--	And so on: https://wiki.php.net/phpng-upgrading (Upgrading extensions from PHP5 to PHP7)
--	https://github.com/php/php-src/blob/PHP-7.0/UPGRADING - Describes changes to PHP that can be seen by PHP programmers. (E.g. backwards incompatible changes, deprecated functionality, new language features, etc.)
+See [PROPERTY\_MANIPULATION.md](./PROPERTY_MANIPULATION.md)
 
 ### FURTHER WORK
 
@@ -160,28 +110,18 @@ Things to do in the near future:
 
 -   Fix bugs related to edge cases of function and method manipulation
 -   See if constant manipulation in the same file can be fixed, e.g. by recompiling functions using those constants, or by patching php-src.
-    It was broken because php7 compiler inlines the constants automatically in the generated opcodes.
+    It was broken because the php7 compiler inlines the constants automatically in the generated opcodes.
 
 Things to do after that:
 
--   Replace property manipulation with `runkit_default_property_modify`
--   Support and test php 7.1 constant visibility
-
-### Misc notes
-
-The Zend VM's implementation for 32-bit PHP is different from the 64-bit VMs.
-
-Some issues have been fixed, new issues may crop up in the future. (See travis builds for `USE_32BIT`)
+-   Replace property manipulation with `runkit_default_property_modify` (https://github.com/runkit7/runkit7/issues/30)
+-   Support and test php 7.1 constant visibility (https://github.com/runkit7/runkit7/issues/60)
+-	Fix FPM
 
 UPSTREAM DOCUMENTATION
 ======================
 
 **(runkit7 is an unofficial fork of https://github.com/zenovich/runkit, adding php7 support)**
-
----------------------
-[Feel free to support Dmitry Zenovich via PayPal (dzenovich@gmail.com) if Runkit serves you.](https://github.com/zenovich/runkit#runkit-extension-for-php)
-
----------------------
 
 Features
 ========
@@ -222,7 +162,7 @@ Baz is
 
 
 ### USER DEFINED FUNCTION AND CLASS MANIPULATION
-__NOTE: Only a subset of the APIs have been ported to PHP7. Some of these APIs have segmentation faults in corner cases__
+__NOTE: Only a subset of the APIs have been ported to PHP7. Some of these APIs have segmentation faults in corner cases __ (when `runkit.internal_override=On`)
 
 User defined functions and user defined methods may now be renamed, delete, and redefined using the API described at http://www.php.net/runkit
 
