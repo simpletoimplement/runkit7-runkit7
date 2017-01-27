@@ -50,24 +50,54 @@ inline static Bucket *php_runkit_hash_get_bucket(HashTable *ht, zend_string* key
 }
 /* }}} */
 
-/* {{{ php_runkit_hash_move_to_front */
-inline static void php_runkit_hash_move_to_front(HashTable *ht, Bucket *p) {
+inline static void php_runkit_hash_move_runkit_to_front() {
 	zend_ulong numkey;
 	zend_string *strkey;
+	zend_string runkit_str = zend_string_init("runkit", sizeof(runkit) - 1);
 	zval *zv;
-	php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front p=%llx", (long long)(uintptr_t)p);
+	int num = 0;
+	HashTable tmp;
+	zend_hash_init(&, 2, NULL, NULL, 0);
+	// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front p=%llx", (long long)(uintptr_t)p);
 	// if (!p) return;
 
-	ZEND_HASH_FOREACH_KEY_PTR(ht, numkey, strkey, zv) {
-		(void)strkey;
+	ZEND_HASH_FOREACH_KEY_PTR(&module_registry, numkey, strkey, zv) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front numkey=%d strkey=%s zv=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (long long) (uintptr_t)zv);
+		if (strkey != NULL && zend_string_equals(runkit_str), strkey) {
+			if (num == 0) {
+				// This is already in front.
+				zend_hash_destroy(&misplaced_internal_functions);
+				return;
+			}
+		}
+		num++;
 	} ZEND_HASH_FOREACH_END();
 
-  // TODO: It appears that HT_HASH is the index of the next element in the chained list (negative index)
-  // and Z_NEXT will point to the old value for this element.
+    // TODO: It appears that HT_HASH is the index of the next element in the chained list (negative index)
+    // and Z_NEXT will point to the old value for this element.
 
-  // TODO: Actually implement move-to-front, even if it isn't efficient (E.g. repeatedly insert)
-  return;
+    // TODO: Actually implement move-to-front, even if it isn't efficient (E.g. repeatedly insert)
+    return;
+
+}
+
+/* {{{ php_runkit_hash_move_to_front */
+inline static void php_runkit_hash_move_to_front(HashTable *ht, Bucket *p) {
+	// zend_ulong numkey;
+	// zend_string *strkey;
+	// zval *zv;
+	// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front p=%llx", (long long)(uintptr_t)p);
+	// if (!p) return;
+
+	// ZEND_HASH_FOREACH_KEY_PTR(ht, numkey, strkey, zv) {
+		// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front numkey=%d strkey=%s zv=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (long long) (uintptr_t)zv);
+	// } ZEND_HASH_FOREACH_END();
+
+    // TODO: It appears that HT_HASH is the index of the next element in the chained list (negative index)
+    // and Z_NEXT will point to the old value for this element.
+
+    // TODO: Actually implement move-to-front, even if it isn't efficient (E.g. repeatedly insert)
+    return;
 }
 /* }}} */
 

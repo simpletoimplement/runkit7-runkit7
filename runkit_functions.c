@@ -111,13 +111,19 @@ static zend_function* php_runkit_fetch_function(zend_string* fname, int flag TSR
 		// This is also used to check if a function with a given name was originally internal.
 		// Cloning this - It would otherwise be deleted with runkit_function_redefine called later... (TODO: Add 1 to the refcount?)
 		// TODO: Properly specify the behavior to avoid memory leaks
-		zend_hash_add_ptr(RUNKIT_G(replaced_internal_functions), fname_lower, fe);
+		if (!zend_hash_exists(RUNKIT_G(replaced_internal_functions), fname_lower)) {
+			fname_lower = zend_string_to_interned(fname_lower);
+			zend_string_addref(fname_lower);
+			zend_hash_add_ptr(RUNKIT_G(replaced_internal_functions), fname_lower, fe);
+		}
 		// printf("Adding fe %llx to replaced_internal_functions key=%s result=%llx\n", (long long)fe, ZSTR_VAL(fname_lower), (long long)result);
 		/*
 		 * If internal functions have been modified then runkit's request shutdown handler
 		 * should be called after all other modules' ones.
 		 */
 		runkit_key = zend_string_init("runkit", sizeof("runkit") - 1, 0);
+		// TODO: Figure out why functions aren't properly restored in fpm test. They're added to function_table, but don't stay there in the next test.
+		// Run this under fpm.
 		php_runkit_hash_move_to_front(&module_registry, php_runkit_hash_get_bucket(&module_registry, runkit_key));
 		zend_string_release(runkit_key);
 		EG(full_tables_cleanup) = 1; // dirty hack!
@@ -516,9 +522,14 @@ void php_runkit_function_dtor(zend_function *fe TSRMLS_DC) {
 static dtor_func_t __function_table_orig_pDestructor = NULL;
 
 static void php_runkit_function_table_dtor(zval *pDest TSRMLS_DC) {
-	php_runkit_free_inner_if_aliased_function(Z_PTR_P(pDest));
-	if (__function_table_orig_pDestructor != NULL) {
-		__function_table_orig_pDestructor(pDest);
+	zend_function *fe = (zend_function*)Z_PTR_P(pDest);
+	if (RUNKIT_IS_ALIAS_FOR_USER_FUNCTION(fe)) {
+		php_runkit_free_inner_if_aliased_function(fe);
+	} else {
+		// Don't free the inner if it's one of the ZEND_INTERNAL_FUNCTIONs moved elsewhere
+		if (fe->type != ZEND_INTERNAL_FUNCTION && __function_table_orig_pDestructor != NULL) {
+			__function_table_orig_pDestructor(pDest);
+		}
 	}
 }
 
@@ -1001,13 +1012,14 @@ void php_runkit_restore_internal_function(zend_string *fname_lower, zend_functio
 		return;
 	}
 	php_runkit_update_ptr_in_function_table(EG(function_table), fname_lower, f);
+	php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s() exists: %d", ZSTR_VAL(fname_lower), (int)(zend_hash_exists(EG(function_table), fname_lower) ? 1 : 0));
 
 	/* It's possible for restored internal functions to now be blocking a ZEND_USER_FUNCTION
 	 * which will screw up post-request cleanup.
 	 * Avoid this by restoring internal functions to the front of the list where they won't be in the way
 	 */
 	// FIXME: Need to fix move_to_front
-	php_runkit_hash_move_to_front(EG(function_table), php_runkit_hash_get_bucket(EG(function_table), fname_lower));
+	// php_runkit_hash_move_to_front(EG(function_table), php_runkit_hash_get_bucket(EG(function_table), fname_lower));
 }
 /* }}} */
 

@@ -5,6 +5,7 @@ Test restoring internal functions after renaming and copying under fpm
 --FILE--
 <?php
 include "_fpm_include.inc";
+printf("Fpm path: %s\n", get_fpm_path());
 $code = <<<EOT
 <?php
 echo "Test Start\n";

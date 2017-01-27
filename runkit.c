@@ -419,14 +419,14 @@ PHP_RSHUTDOWN_FUNCTION(runkit)
 		// TODO: The pointer to `f` is correct, but the data inside of `f` is corrupted at the time request shutdown is reached
 		zend_function *f;
 		zend_string *key;
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "In RSHUTDOWN: restoring replaced internal functions: count=%d", (int) zend_array_count(RUNKIT_G(replaced_internal_functions)));
+		// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In RSHUTDOWN: restoring replaced internal functions: count=%d", (int) zend_array_count(RUNKIT_G(replaced_internal_functions)));
 		ZEND_HASH_FOREACH_STR_KEY_PTR(RUNKIT_G(replaced_internal_functions), key, f) {
 			(void)f;
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "In RSHUTDOWN: restoring '%s'", key != NULL ? ZSTR_VAL(key) : "(null)");
+			// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In RSHUTDOWN: restoring '%s'", key != NULL ? ZSTR_VAL(key) : "(null)");
 			if (key != NULL) {
-				// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In RSHUTDOWN: restoring '%s' type=%d", ZSTR_VAL(key), (int)f->type);
-				// ZEND_ASSERT(f->type == ZEND_INTERNAL_FUNCTION || f->type == ZEND_USER_FUNCTION);
-				// php_runkit_restore_internal_function(key, f);
+				php_error_docref(NULL TSRMLS_CC, E_WARNING, "In RSHUTDOWN: restoring '%s' addr=%llx", ZSTR_VAL(key), (long long)(uintptr_t)f);
+				ZEND_ASSERT(f->type == ZEND_INTERNAL_FUNCTION || f->type == ZEND_USER_FUNCTION);
+				php_runkit_restore_internal_function(key, f);
 			}
 		} ZEND_HASH_FOREACH_END();
 		zend_hash_destroy(RUNKIT_G(replaced_internal_functions));
