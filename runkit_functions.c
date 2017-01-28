@@ -102,7 +102,6 @@ static zend_function* php_runkit_fetch_function(zend_string* fname, int flag TSR
 
 	if (fe->type == ZEND_INTERNAL_FUNCTION &&
 		flag >= PHP_RUNKIT_FETCH_FUNCTION_REMOVE) {
-		zend_string* runkit_key;
 
 		if (!RUNKIT_G(replaced_internal_functions)) {
 			ALLOC_HASHTABLE(RUNKIT_G(replaced_internal_functions));
@@ -130,11 +129,7 @@ static zend_function* php_runkit_fetch_function(zend_string* fname, int flag TSR
 		 * If internal functions have been modified then runkit's request shutdown handler
 		 * should be called after all other modules' ones.
 		 */
-		runkit_key = zend_string_init("runkit", sizeof("runkit") - 1, 0);
-		// TODO: Figure out why functions aren't properly restored in fpm test. They're added to function_table, but don't stay there in the next test.
-		// Run this under fpm.
 		php_runkit_hash_move_runkit_to_front();
-		zend_string_release(runkit_key);
 		EG(full_tables_cleanup) = 1; // dirty hack!
 	}
 	zend_string_release(fname_lower);
@@ -1290,8 +1285,8 @@ PHP_FUNCTION(runkit_function_rename)
 	// This may cause errors.
 	// TODO: this was calling the destructor of EG(function_table)
 	// I want to extract the function, and want this to not happen.
-	was_internal_function = RUNKIT_G(misplaced_internal_functions)
-		&& zend_hash_exists(RUNKIT_G(misplaced_internal_functions), dfunc_lower);
+	was_internal_function = RUNKIT_G(replaced_internal_functions)
+		&& zend_hash_exists(RUNKIT_G(replaced_internal_functions), dfunc_lower);
 	orig_dfunc_type = was_internal_function ? ZEND_INTERNAL_FUNCTION : ZEND_USER_FUNCTION;
 
 	if (sfe->type == ZEND_INTERNAL_FUNCTION) {

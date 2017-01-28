@@ -425,6 +425,7 @@ PHP_RSHUTDOWN_FUNCTION(runkit)
 			(void)f;
 			if (key != NULL) {
 				// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In RSHUTDOWN: restoring '%s' addr=%llx", ZSTR_VAL(key), (long long)(uintptr_t)f);
+				// NOTE: On modules shutdown, modules will call zend_function_dtor on the modules they declared... so it's best if this is a clone of the internal function?
 				ZEND_ASSERT(f->type == ZEND_INTERNAL_FUNCTION || f->type == ZEND_USER_FUNCTION);
 				php_runkit_restore_internal_function(key, f);
 			}
