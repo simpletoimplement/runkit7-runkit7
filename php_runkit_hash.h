@@ -1,20 +1,20 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
+  | PHP Version 7														|
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | Patches (c) 2015-2017 Tyson Andre                                    |
+  | Patches (c) 2015-2017 Tyson Andre									|
   +----------------------------------------------------------------------+
-  | This source file is subject to the new BSD license,                  |
-  | that is bundled with this package in the file LICENSE, and is        |
-  | available through the world-wide-web at the following url:           |
-  | http://www.opensource.org/licenses/BSD-3-Clause                      |
-  | If you did not receive a copy of the license and are unable to       |
-  | obtain it through the world-wide-web, please send a note to          |
-  | dzenovich@gmail.com so we can mail you a copy immediately.           |
+  | This source file is subject to the new BSD license,				  |
+  | that is bundled with this package in the file LICENSE, and is		|
+  | available through the world-wide-web at the following url:		   |
+  | http://www.opensource.org/licenses/BSD-3-Clause					  |
+  | If you did not receive a copy of the license and are unable to	   |
+  | obtain it through the world-wide-web, please send a note to		  |
+  | dzenovich@gmail.com so we can mail you a copy immediately.		   |
   +----------------------------------------------------------------------+
-  | Author: Sara Golemon <pollita@php.net>                               |
-  | Modified by Dmitry Zenovich <dzenovich@gmail.com>                    |
+  | Author: Sara Golemon <pollita@php.net>							   |
+  | Modified by Dmitry Zenovich <dzenovich@gmail.com>					|
   | Modified for php7 "runkit7" by Tyson Andre<tysonandre775@hotmail.com>|
   +----------------------------------------------------------------------+
 */
@@ -22,15 +22,22 @@
 #ifndef PHP_RUNKIT_HASH_H
 #define PHP_RUNKIT_HASH_H
 
+#ifdef PHP_RUNKIT_MANIPULATION
+
+#include "php_runkit.h"
+#include "Zend/zend_types.h"
+
 /* {{{ php_runkit_hash_get_bucket */
 // Copied from zend_hash_find_bucket of zend_hash.c and modified slightly.
-inline static Bucket *php_runkit_hash_get_bucket(HashTable *ht, zend_string* key) {
+// Same as the implementation in 7.0 and 7.1
+inline static Bucket *php_runkit_zend_hash_find_bucket(HashTable *ht, zend_string* key)
+{
+	zend_ulong h;
 	uint32_t nIndex;
 	uint32_t idx;
-  uint32_t h;
 	Bucket *p, *arData;
 
-  h = ZSTR_HASH(key);
+	h = zend_string_hash_val(key);
 	arData = ht->arData;
 	nIndex = h | ht->nTableMask;
 	idx = HT_HASH_EX(arData, nIndex);
@@ -39,9 +46,9 @@ inline static Bucket *php_runkit_hash_get_bucket(HashTable *ht, zend_string* key
 		if (EXPECTED(p->key == key)) { /* check for the same interned string */
 			return p;
 		} else if (EXPECTED(p->h == h) &&
-		     EXPECTED(p->key) &&
-		     EXPECTED(ZSTR_LEN(p->key) == ZSTR_LEN(key)) &&
-		     EXPECTED(memcmp(ZSTR_VAL(p->key), ZSTR_VAL(key), ZSTR_LEN(key)) == 0)) {
+			 EXPECTED(p->key) &&
+			 EXPECTED(ZSTR_LEN(p->key) == ZSTR_LEN(key)) &&
+			 EXPECTED(memcmp(ZSTR_VAL(p->key), ZSTR_VAL(key), ZSTR_LEN(key)) == 0)) {
 			return p;
 		}
 		idx = Z_NEXT(p->val);
@@ -53,52 +60,97 @@ inline static Bucket *php_runkit_hash_get_bucket(HashTable *ht, zend_string* key
 inline static void php_runkit_hash_move_runkit_to_front() {
 	zend_ulong numkey;
 	zend_string *strkey;
-	zend_string runkit_str = zend_string_init("runkit", sizeof(runkit) - 1);
-	zval *zv;
+	zend_string *runkit_str;
+	dtor_func_t oldPDestructor;
+	zend_module_entry *module;
 	int num = 0;
 	HashTable tmp;
-	zend_hash_init(&, 2, NULL, NULL, 0);
-	// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front p=%llx", (long long)(uintptr_t)p);
-	// if (!p) return;
+	if (RUNKIT_G(module_moved_to_front)) {
+		// Already moved it to the front (but after "core").
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Already moved to front");
+		return;
+	}
+	RUNKIT_G(module_moved_to_front) = 1;
 
-	ZEND_HASH_FOREACH_KEY_PTR(&module_registry, numkey, strkey, zv) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front numkey=%d strkey=%s zv=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (long long) (uintptr_t)zv);
-		if (strkey != NULL && zend_string_equals(runkit_str), strkey) {
-			if (num == 0) {
-				// This is already in front.
-				zend_hash_destroy(&misplaced_internal_functions);
+	runkit_str = zend_string_init("runkit", sizeof("runkit") - 1, 0);
+	// 1. If runkit is not part of the module registry, warn and do nothing.
+	if (!zend_hash_exists(&module_registry, runkit_str)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to find \"runkit\" module when attempting to change module unloading order - The lifetime of internal function overrides will be unexpected");
+		zend_string_release(runkit_str);
+		return;
+	}
+	php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front size=%d", (int)zend_hash_num_elements(&module_registry));
+
+	// 2. Create a temporary table with "runkit" at the front.
+	ZEND_HASH_FOREACH_KEY_PTR(&module_registry, numkey, strkey, module) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front numkey=%d strkey=%s refcount=%d zv=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (int)(strkey != NULL ? zend_string_refcount(strkey) : 0), (long long) (uintptr_t)module);
+		if (num++ == 0) {
+			Bucket *b;
+			if (strkey != NULL && zend_string_equals(runkit_str, strkey)) {
+				zend_string_release(runkit_str);
+				// If the runkit module is already in front, then there is nothing to do.
 				return;
 			}
+			zend_hash_init(&tmp, zend_hash_num_elements(&module_registry), NULL, NULL, 0);
+			// add "core" first?
+			if (strkey != NULL) {
+				if (zend_string_equals(runkit_str, strkey)) {
+					// Already added persistent string for "runkit" to the front.
+					continue;
+				}
+				// zend_string_addref(strkey);
+				zend_hash_add_ptr(&tmp, strkey, module);
+			} else {
+				zend_hash_index_add_ptr(&tmp, numkey, module);
+			}
+			// Otherwise, initialize the temporary table (with no destructor function)
+			b = php_runkit_zend_hash_find_bucket(&module_registry, runkit_str);
+			// zend_string_addref(b->key);
+
+			zend_hash_add_ptr(&tmp, b->key, Z_PTR(b->val));
+			continue;
 		}
-		num++;
+		if (strkey != NULL) {
+			if (zend_string_equals(runkit_str, strkey)) {
+				// Already added persistent string for "runkit" to the front.
+				continue;
+			}
+			// zend_string_addref(strkey);
+			zend_hash_add_ptr(&tmp, strkey, module);
+		} else {
+			zend_hash_index_add_ptr(&tmp, numkey, module);
+		}
+	} ZEND_HASH_FOREACH_END();
+	zend_string_release(runkit_str);
+	runkit_str = NULL;
+
+	oldPDestructor = module_registry.pDestructor;
+	module_registry.pDestructor = NULL;
+	zend_hash_clean(&module_registry);
+	module_registry.pDestructor = oldPDestructor;
+	oldPDestructor = NULL;
+
+	// 3. Copy the reordered table to the original module_registry
+	ZEND_HASH_FOREACH_KEY_PTR(&tmp, numkey, strkey, module) {
+		if (strkey != NULL) {
+			// zend_string_addref(strkey);
+			zend_hash_add_ptr(&module_registry, strkey, module);
+		} else {
+			zend_hash_index_add_ptr(&module_registry, numkey, module);
+		}
 	} ZEND_HASH_FOREACH_END();
 
-    // TODO: It appears that HT_HASH is the index of the next element in the chained list (negative index)
-    // and Z_NEXT will point to the old value for this element.
+	tmp.pDestructor = NULL;
+	ZEND_HASH_FOREACH_KEY_PTR(&module_registry, numkey, strkey, module) {
+		if (strkey != NULL) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "done php_runkit_hash_move_to_front numkey=%d strkey=%s refcount=%d module=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (int)(strkey != NULL ? zend_string_refcount(strkey) : 0), (long long) (uintptr_t)module);
+		}
+	} ZEND_HASH_FOREACH_END();
+	zend_hash_destroy(&tmp);
 
-    // TODO: Actually implement move-to-front, even if it isn't efficient (E.g. repeatedly insert)
-    return;
-
+	return;
 }
 
-/* {{{ php_runkit_hash_move_to_front */
-inline static void php_runkit_hash_move_to_front(HashTable *ht, Bucket *p) {
-	// zend_ulong numkey;
-	// zend_string *strkey;
-	// zval *zv;
-	// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front p=%llx", (long long)(uintptr_t)p);
-	// if (!p) return;
-
-	// ZEND_HASH_FOREACH_KEY_PTR(ht, numkey, strkey, zv) {
-		// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front numkey=%d strkey=%s zv=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (long long) (uintptr_t)zv);
-	// } ZEND_HASH_FOREACH_END();
-
-    // TODO: It appears that HT_HASH is the index of the next element in the chained list (negative index)
-    // and Z_NEXT will point to the old value for this element.
-
-    // TODO: Actually implement move-to-front, even if it isn't efficient (E.g. repeatedly insert)
-    return;
-}
-/* }}} */
+#endif /* PHP_RUNKIT_MANIPULATION */
 
 #endif

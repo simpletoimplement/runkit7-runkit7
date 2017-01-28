@@ -369,6 +369,7 @@ PHP_RINIT_FUNCTION(runkit)
 #ifdef PHP_RUNKIT_MANIPULATION
 	RUNKIT_G(replaced_internal_functions) = NULL;
 	RUNKIT_G(misplaced_internal_functions) = NULL;
+	RUNKIT_G(module_moved_to_front) = 0;
 	// RUNKIT_G(removed_default_class_members) = NULL;
 #endif
 

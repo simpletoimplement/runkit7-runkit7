@@ -74,6 +74,7 @@ int php_runkit_check_call_stack(zend_op_array *op_array TSRMLS_DC)
  */
 static zend_function* php_runkit_fetch_function(zend_string* fname, int flag TSRMLS_DC)
 {
+	Bucket *b;
 	zend_function *fe;
 	zend_string* fname_lower;
 
@@ -112,7 +113,15 @@ static zend_function* php_runkit_fetch_function(zend_string* fname, int flag TSR
 		// Cloning this - It would otherwise be deleted with runkit_function_redefine called later... (TODO: Add 1 to the refcount?)
 		// TODO: Properly specify the behavior to avoid memory leaks
 		if (!zend_hash_exists(RUNKIT_G(replaced_internal_functions), fname_lower)) {
-			fname_lower = zend_string_to_interned(fname_lower);
+			// Copy over the original persistent string - That string wouldn't be destroyed on request shutdown in fpm, and can be reused in future requests?
+			b = php_runkit_zend_hash_find_bucket(EG(function_table), fname_lower);
+			// php_error_docref(NULL TSRMLS_CC, E_WARNING, "Finding persistent string %s: %llx\n", ZSTR_VAL(fname_lower), (long long)(uintptr_t)b);
+			// It's a persistent string, not an interned string? Is it always a persistent string (E.g. in NTS, ZTS, maintainer ZTS)?
+			if (b->key != NULL) {
+				zend_string_release(fname_lower);
+				fname_lower = b->key;
+				// php_error_docref(NULL TSRMLS_CC, E_WARNING, "Stealing persistent string %s\n", ZSTR_VAL(fname_lower));
+			}
 			zend_string_addref(fname_lower);
 			zend_hash_add_ptr(RUNKIT_G(replaced_internal_functions), fname_lower, fe);
 		}
@@ -124,7 +133,7 @@ static zend_function* php_runkit_fetch_function(zend_string* fname, int flag TSR
 		runkit_key = zend_string_init("runkit", sizeof("runkit") - 1, 0);
 		// TODO: Figure out why functions aren't properly restored in fpm test. They're added to function_table, but don't stay there in the next test.
 		// Run this under fpm.
-		php_runkit_hash_move_to_front(&module_registry, php_runkit_hash_get_bucket(&module_registry, runkit_key));
+		php_runkit_hash_move_runkit_to_front();
 		zend_string_release(runkit_key);
 		EG(full_tables_cleanup) = 1; // dirty hack!
 	}
@@ -1014,6 +1023,7 @@ void php_runkit_restore_internal_function(zend_string *fname_lower, zend_functio
 	php_runkit_update_ptr_in_function_table(EG(function_table), fname_lower, f);
 	php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s() exists: %d", ZSTR_VAL(fname_lower), (int)(zend_hash_exists(EG(function_table), fname_lower) ? 1 : 0));
 
+	// TODO: is moving to the front of hash necessary in php 7?
 	/* It's possible for restored internal functions to now be blocking a ZEND_USER_FUNCTION
 	 * which will screw up post-request cleanup.
 	 * Avoid this by restoring internal functions to the front of the list where they won't be in the way

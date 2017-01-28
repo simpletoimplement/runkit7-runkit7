@@ -151,6 +151,7 @@ ZEND_BEGIN_MODULE_GLOBALS(runkit)
 	zend_bool internal_override;
 	const char *name_str, *removed_method_str, *removed_function_str, *removed_parameter_str;
 	zend_function *removed_function, *removed_method;
+	zend_bool module_moved_to_front;
 #endif
 ZEND_END_MODULE_GLOBALS(runkit)
 #endif
