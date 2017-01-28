@@ -1021,7 +1021,7 @@ void php_runkit_restore_internal_function(zend_string *fname_lower, zend_functio
 		return;
 	}
 	php_runkit_update_ptr_in_function_table(EG(function_table), fname_lower, f);
-	php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s() exists: %d", ZSTR_VAL(fname_lower), (int)(zend_hash_exists(EG(function_table), fname_lower) ? 1 : 0));
+	// php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s() exists: %d", ZSTR_VAL(fname_lower), (int)(zend_hash_exists(EG(function_table), fname_lower) ? 1 : 0));
 
 	// TODO: is moving to the front of hash necessary in php 7?
 	/* It's possible for restored internal functions to now be blocking a ZEND_USER_FUNCTION

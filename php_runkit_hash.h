@@ -1,20 +1,20 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7														|
+  | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | Patches (c) 2015-2017 Tyson Andre									|
+  | Patches (c) 2015-2017 Tyson Andre                                    |
   +----------------------------------------------------------------------+
-  | This source file is subject to the new BSD license,				  |
-  | that is bundled with this package in the file LICENSE, and is		|
-  | available through the world-wide-web at the following url:		   |
-  | http://www.opensource.org/licenses/BSD-3-Clause					  |
-  | If you did not receive a copy of the license and are unable to	   |
-  | obtain it through the world-wide-web, please send a note to		  |
-  | dzenovich@gmail.com so we can mail you a copy immediately.		   |
+  | This source file is subject to the new BSD license,                  |
+  | that is bundled with this package in the file LICENSE, and is        |
+  | available through the world-wide-web at the following url:           |
+  | http://www.opensource.org/licenses/BSD-3-Clause                      |
+  | If you did not receive a copy of the license and are unable to       |
+  | obtain it through the world-wide-web, please send a note to          |
+  | dzenovich@gmail.com so we can mail you a copy immediately.           |
   +----------------------------------------------------------------------+
-  | Author: Sara Golemon <pollita@php.net>							   |
-  | Modified by Dmitry Zenovich <dzenovich@gmail.com>					|
+  | Author: Sara Golemon <pollita@php.net>                               |
+  | Modified by Dmitry Zenovich <dzenovich@gmail.com>                    |
   | Modified for php7 "runkit7" by Tyson Andre<tysonandre775@hotmail.com>|
   +----------------------------------------------------------------------+
 */
@@ -25,6 +25,7 @@
 #ifdef PHP_RUNKIT_MANIPULATION
 
 #include "php_runkit.h"
+#include "Zend/zend_types.h"
 #include "Zend/zend_types.h"
 
 /* {{{ php_runkit_hash_get_bucket */
@@ -46,9 +47,9 @@ inline static Bucket *php_runkit_zend_hash_find_bucket(HashTable *ht, zend_strin
 		if (EXPECTED(p->key == key)) { /* check for the same interned string */
 			return p;
 		} else if (EXPECTED(p->h == h) &&
-			 EXPECTED(p->key) &&
-			 EXPECTED(ZSTR_LEN(p->key) == ZSTR_LEN(key)) &&
-			 EXPECTED(memcmp(ZSTR_VAL(p->key), ZSTR_VAL(key), ZSTR_LEN(key)) == 0)) {
+				EXPECTED(p->key) &&
+				EXPECTED(ZSTR_LEN(p->key) == ZSTR_LEN(key)) &&
+				EXPECTED(memcmp(ZSTR_VAL(p->key), ZSTR_VAL(key), ZSTR_LEN(key)) == 0)) {
 			return p;
 		}
 		idx = Z_NEXT(p->val);
@@ -57,6 +58,9 @@ inline static Bucket *php_runkit_zend_hash_find_bucket(HashTable *ht, zend_strin
 }
 /* }}} */
 
+/* {{{ php_runkit_hash_move_runkit_to_front }}} */
+// Moves the runkit module to the front of the list (After "core", but before modules such as "session"
+// so that it will be unloaded after all of the PHP code is executed.
 inline static void php_runkit_hash_move_runkit_to_front() {
 	zend_ulong numkey;
 	zend_string *strkey;
@@ -67,7 +71,6 @@ inline static void php_runkit_hash_move_runkit_to_front() {
 	HashTable tmp;
 	if (RUNKIT_G(module_moved_to_front)) {
 		// Already moved it to the front (but after "core").
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Already moved to front");
 		return;
 	}
 	RUNKIT_G(module_moved_to_front) = 1;
@@ -79,43 +82,36 @@ inline static void php_runkit_hash_move_runkit_to_front() {
 		zend_string_release(runkit_str);
 		return;
 	}
-	php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front size=%d", (int)zend_hash_num_elements(&module_registry));
+	// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front size=%d", (int)zend_hash_num_elements(&module_registry));
 
 	// 2. Create a temporary table with "runkit" at the front.
 	ZEND_HASH_FOREACH_KEY_PTR(&module_registry, numkey, strkey, module) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front numkey=%d strkey=%s refcount=%d zv=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (int)(strkey != NULL ? zend_string_refcount(strkey) : 0), (long long) (uintptr_t)module);
+		// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front numkey=%d strkey=%s refcount=%d zv=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (int)(strkey != NULL ? zend_string_refcount(strkey) : 0), (long long) (uintptr_t)module);
 		if (num++ == 0) {
+			zend_bool first_is_core = 0;
 			Bucket *b;
-			if (strkey != NULL && zend_string_equals(runkit_str, strkey)) {
-				zend_string_release(runkit_str);
-				// If the runkit module is already in front, then there is nothing to do.
-				return;
-			}
 			zend_hash_init(&tmp, zend_hash_num_elements(&module_registry), NULL, NULL, 0);
-			// add "core" first?
-			if (strkey != NULL) {
-				if (zend_string_equals(runkit_str, strkey)) {
-					// Already added persistent string for "runkit" to the front.
-					continue;
-				}
-				// zend_string_addref(strkey);
+			// add "core" first, then "runkit", then the remaining modules.
+			// If core isn't first, core tries to free the memory of strings that runkit allocated.
+			first_is_core = strkey != NULL && zend_string_equals_literal(strkey, "core");
+			if (first_is_core) {
 				zend_hash_add_ptr(&tmp, strkey, module);
 			} else {
-				zend_hash_index_add_ptr(&tmp, numkey, module);
+				php_error_docref(NULL TSRMLS_CC, E_WARNING, "unexpected module order: \"core\" isn't first");
 			}
 			// Otherwise, initialize the temporary table (with no destructor function)
 			b = php_runkit_zend_hash_find_bucket(&module_registry, runkit_str);
-			// zend_string_addref(b->key);
 
 			zend_hash_add_ptr(&tmp, b->key, Z_PTR(b->val));
-			continue;
+			if (first_is_core) {
+				continue;  // Already added "core" to tmp map
+			}
 		}
 		if (strkey != NULL) {
 			if (zend_string_equals(runkit_str, strkey)) {
 				// Already added persistent string for "runkit" to the front.
 				continue;
 			}
-			// zend_string_addref(strkey);
 			zend_hash_add_ptr(&tmp, strkey, module);
 		} else {
 			zend_hash_index_add_ptr(&tmp, numkey, module);
@@ -133,7 +129,6 @@ inline static void php_runkit_hash_move_runkit_to_front() {
 	// 3. Copy the reordered table to the original module_registry
 	ZEND_HASH_FOREACH_KEY_PTR(&tmp, numkey, strkey, module) {
 		if (strkey != NULL) {
-			// zend_string_addref(strkey);
 			zend_hash_add_ptr(&module_registry, strkey, module);
 		} else {
 			zend_hash_index_add_ptr(&module_registry, numkey, module);
@@ -141,11 +136,6 @@ inline static void php_runkit_hash_move_runkit_to_front() {
 	} ZEND_HASH_FOREACH_END();
 
 	tmp.pDestructor = NULL;
-	ZEND_HASH_FOREACH_KEY_PTR(&module_registry, numkey, strkey, module) {
-		if (strkey != NULL) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "done php_runkit_hash_move_to_front numkey=%d strkey=%s refcount=%d module=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (int)(strkey != NULL ? zend_string_refcount(strkey) : 0), (long long) (uintptr_t)module);
-		}
-	} ZEND_HASH_FOREACH_END();
 	zend_hash_destroy(&tmp);
 
 	return;
