@@ -16,7 +16,7 @@ Define customized superglobal variables for general purpose use.
   <email></email>
   <active>yes</active>
  </lead>
-   <date>2016-07-31</date>
+   <date>2017-01-28</date>
    <version>
     <release>1.0.5a1</release>
     <api>1.0.5a1</api>
@@ -28,11 +28,16 @@ Define customized superglobal variables for general purpose use.
    <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
    <notes>
      Supported features:
-         + PHP 7.0 has partial support, tested on 64-bit builds (ZTS and non-ZTS)
-	     + Superglobals work reliably in php7.0
-         - PHP 5.x is not supported in this fork
-         + runkit_method_* and runkit_function_* have been ported. Manipulating built in functions (e.g. `var_dump`) may cause segfaults.
+         + Supports PHP 7.0 and PHP 7.1, tested on 64-bit and 32-bit builds (ZTS and non-ZTS)
+		 - Removed support for PHP &lt;= 5.x
+	     + Superglobals work reliably in php7.0 and 7.1
+         + runkit_method_* and runkit_function_* have been ported. Manipulating built in functions (e.g. `var_dump` with `runkit.internal_override`) may cause segfaults or memory leaks.
 		 + Constant manipulation works, if the constant is declared in a different file from the file doing the accessing. Constants declared within the same file may be inlined by the PHP Zend VM.
+		 + See runkit-api.php for the supported APIs.
+		 + Allows using static::/self::/$this in runkit_method_add/redefine.
+
+     New features
+	     + Allow specifying the return type for runkit function and method manipulation. Supports optional return types in 7.1 (e.g. '?string')
 
      Disabled features
          + runkit_default_property_* was disabled because of changes to the PHP Zend VM. Future releases may introduce `runkit_default_property_redefine`.
