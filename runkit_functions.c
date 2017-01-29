@@ -101,7 +101,6 @@ static zend_function* php_runkit_fetch_function(zend_string* fname, int flag TSR
 
 	if (fe->type == ZEND_INTERNAL_FUNCTION &&
 		flag >= PHP_RUNKIT_FETCH_FUNCTION_REMOVE) {
-		zend_string* runkit_key;
 
 		if (!RUNKIT_G(replaced_internal_functions)) {
 			ALLOC_HASHTABLE(RUNKIT_G(replaced_internal_functions));
@@ -111,15 +110,32 @@ static zend_function* php_runkit_fetch_function(zend_string* fname, int flag TSR
 		// This is also used to check if a function with a given name was originally internal.
 		// Cloning this - It would otherwise be deleted with runkit_function_redefine called later... (TODO: Add 1 to the refcount?)
 		// TODO: Properly specify the behavior to avoid memory leaks
-		zend_hash_add_ptr(RUNKIT_G(replaced_internal_functions), fname_lower, fe);
+		if (!zend_hash_exists(RUNKIT_G(replaced_internal_functions), fname_lower)) {
+			Bucket *b;
+			zend_function *fe_copy;
+			// Copy over the original function - If the original function remains, it will be freed on module shutdown.
+			zend_string_addref(fe->common.function_name);  // possibly unnecessary
+			fe_copy = php_runkit_function_clone(fe, fe->common.function_name, ZEND_INTERNAL_FUNCTION TSRMLS_CC);
+			// Copy over the original persistent string - That string wouldn't be destroyed on request shutdown in fpm, and can be reused in future requests?
+			b = php_runkit_zend_hash_find_bucket(EG(function_table), fname_lower);
+			// php_error_docref(NULL TSRMLS_CC, E_WARNING, "Finding persistent string %s: %llx\n", ZSTR_VAL(fname_lower), (long long)(uintptr_t)b);
+			// It's a persistent string, not an interned string? Is it always a persistent string (E.g. in NTS, ZTS, maintainer ZTS)?
+			if (b->key != NULL) {
+				zend_string_addref(b->key);
+				zend_string_release(fname_lower);
+				fname_lower = b->key;
+				// php_error_docref(NULL TSRMLS_CC, E_WARNING, "Stealing persistent string %s\n", ZSTR_VAL(fname_lower));
+			} else {
+				zend_string_addref(fname_lower);
+			}
+			zend_hash_add_ptr(RUNKIT_G(replaced_internal_functions), fname_lower, fe_copy);
+		}
 		// printf("Adding fe %llx to replaced_internal_functions key=%s result=%llx\n", (long long)fe, ZSTR_VAL(fname_lower), (long long)result);
 		/*
 		 * If internal functions have been modified then runkit's request shutdown handler
 		 * should be called after all other modules' ones.
 		 */
-		runkit_key = zend_string_init("runkit", sizeof("runkit") - 1, 0);
-		php_runkit_hash_move_to_front(&module_registry, php_runkit_hash_get_bucket(&module_registry, runkit_key));
-		zend_string_release(runkit_key);
+		php_runkit_hash_move_runkit_to_front();
 		EG(full_tables_cleanup) = 1; // dirty hack!
 	}
 	zend_string_release(fname_lower);
@@ -516,9 +532,14 @@ void php_runkit_function_dtor(zend_function *fe TSRMLS_DC) {
 static dtor_func_t __function_table_orig_pDestructor = NULL;
 
 static void php_runkit_function_table_dtor(zval *pDest TSRMLS_DC) {
-	php_runkit_free_inner_if_aliased_function(Z_PTR_P(pDest));
-	if (__function_table_orig_pDestructor != NULL) {
-		__function_table_orig_pDestructor(pDest);
+	zend_function *fe = (zend_function*)Z_PTR_P(pDest);
+	if (RUNKIT_IS_ALIAS_FOR_USER_FUNCTION(fe)) {
+		php_runkit_free_inner_if_aliased_function(fe);
+	} else {
+		// Don't free the inner if it's one of the ZEND_INTERNAL_FUNCTIONs moved elsewhere
+		if (fe->type != ZEND_INTERNAL_FUNCTION && __function_table_orig_pDestructor != NULL) {
+			__function_table_orig_pDestructor(pDest);
+		}
 	}
 }
 
@@ -1001,13 +1022,14 @@ void php_runkit_restore_internal_function(zend_string *fname_lower, zend_functio
 		return;
 	}
 	php_runkit_update_ptr_in_function_table(EG(function_table), fname_lower, f);
+	// php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s() exists: %d", ZSTR_VAL(fname_lower), (int)(zend_hash_exists(EG(function_table), fname_lower) ? 1 : 0));
 
+	// NOTE: moving to the front of the hash seems to be unnecessary in php 7 - Entries of function_table are removed with plain zend_hash_del
 	/* It's possible for restored internal functions to now be blocking a ZEND_USER_FUNCTION
 	 * which will screw up post-request cleanup.
 	 * Avoid this by restoring internal functions to the front of the list where they won't be in the way
 	 */
-	// FIXME: Need to fix move_to_front
-	php_runkit_hash_move_to_front(EG(function_table), php_runkit_hash_get_bucket(EG(function_table), fname_lower));
+	// php_runkit_hash_move_to_front(EG(function_table), php_runkit_hash_get_bucket(EG(function_table), fname_lower));
 }
 /* }}} */
 
@@ -1268,8 +1290,8 @@ PHP_FUNCTION(runkit_function_rename)
 	// This may cause errors.
 	// TODO: this was calling the destructor of EG(function_table)
 	// I want to extract the function, and want this to not happen.
-	was_internal_function = RUNKIT_G(misplaced_internal_functions)
-		&& zend_hash_exists(RUNKIT_G(misplaced_internal_functions), dfunc_lower);
+	was_internal_function = RUNKIT_G(replaced_internal_functions)
+		&& zend_hash_exists(RUNKIT_G(replaced_internal_functions), dfunc_lower);
 	orig_dfunc_type = was_internal_function ? ZEND_INTERNAL_FUNCTION : ZEND_USER_FUNCTION;
 
 	if (sfe->type == ZEND_INTERNAL_FUNCTION) {

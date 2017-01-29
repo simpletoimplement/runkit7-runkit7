@@ -3,7 +3,6 @@ runkit_method_redefine() function with closure
 --SKIPIF--
 <?php
 	if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
-	if(version_compare(PHP_VERSION, '7.1.0', '>=')) print "skip";
 ?>
 --INI--
 display_errors=on
@@ -13,7 +12,7 @@ display_errors=on
 function runkit_function() {}
 
 class test {
-	public function run() {
+	public static function run() {
 		$c = 'use';
 		$d = 'ref_use';
 		runkit_function_redefine('runkit_function',
@@ -24,8 +23,6 @@ class test {
 				echo "c $is $c\nd $is $d\n";
 				echo "g $is $g\n";
 				$d .= ' modified';
-				echo '$this is';
-				var_dump($this);
 			}
 		);
 		runkit_function('foo', 'bar');
@@ -33,8 +30,7 @@ class test {
 	}
 }
 $g = 'global';
-$t = new test();
-$t->run();
+test::run();
 runkit_function('foo','bar');
 ?>
 --EXPECTF--
@@ -43,15 +39,9 @@ b is bar
 c is use
 d is ref_use
 g is global
-$this is
-Notice: Undefined variable: this in %s on line %d
-NULL
 d after call is ref_use modified
 a is foo
 b is bar
 c is use
 d is ref_use modified
 g is global
-$this is
-Notice: Undefined variable: this in %s on line %d
-NULL

@@ -4,7 +4,6 @@ Test restoring internal functions after renaming and copying under fpm
 <?php include "_fpm_skipif.inc"; ?>
 --FILE--
 <?php
-// TODO: This isn't restoring properly, in 7.1RC3
 include "_fpm_include.inc";
 $code = <<<EOT
 <?php
@@ -21,22 +20,24 @@ fpm_test(array($code, $code, $code), "-d extension_dir=modules/ -d extension=run
 ?>
 Done
 --EXPECTF--
-true
 [%s] NOTICE: fpm is running, pid %d
 [%s] NOTICE: ready to handle connections
 Test Start
+true
 A B
 C D
 Test End
 
 Request ok
 Test Start
+true
 A B
 C D
 Test End
 
 Request ok
 Test Start
+true
 A B
 C D
 Test End
