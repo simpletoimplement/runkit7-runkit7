@@ -5,11 +5,10 @@ x=1
 --SKIPIF--
 <?php
 	if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
-	if(array_shift(explode('.', PHP_VERSION)) < 5) print "skip";
 ?>
 --FILE--
 <?php
-// If the compiler knows what TestClass will be, it would be able to 
+// If the compiler knows what TestClass will be, it would be able to
 // optimize out the opcode FETCH_CONSTANT and replace it with SEND_VAL 'foo'
 if ($_POST['x'] == 1) {
 	class TestClass {

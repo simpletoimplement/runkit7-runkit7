@@ -13,16 +13,7 @@ function testme() {
 	echo "Baz is $baz\n";
 }
 
-$v = explode(".", PHP_VERSION);
-if (array_shift($v) >= 5) {
-	if (!defined('E_STRICT')) {
-		define('E_STRICT', 0);
-	}
-	if (!defined('E_DEPRECATED')) {
-		define('E_DEPRECATED', 0);
-	}
-	ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT));
-}
+ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT));
 
 $foo = 1;
 $bar = 2;

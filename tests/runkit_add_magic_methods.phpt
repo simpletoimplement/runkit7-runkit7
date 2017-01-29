@@ -2,7 +2,6 @@
 adding and removing magic methods
 --SKIPIF--
 <?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
-      if(array_shift(explode('.', PHP_VERSION)) < 5) print "skip";
 ?>
 --FILE--
 <?php
@@ -57,38 +56,20 @@ $uc = unserialize($s3);
 $ca = clone $a;
 $cb = clone $b;
 $cc = clone $c;
-if(version_compare(PHP_VERSION, '5.2.999', '>')) {
-	Test::method();
-	FOO_Test::method();
-	FOO_Test_child::method();
-} else {
-	echo "__callstatic\n";
-	echo "__callstatic\n";
-	echo "__callstatic\n";
-}
+Test::method();
+FOO_Test::method();
+FOO_Test_child::method();
 
-if(version_compare(PHP_VERSION, '5.1.999', '>')) {
-	echo $a;
-	echo $b;
-	echo $c;
-} else {
-	echo "__tostring\n";
-	echo "__tostring\n";
-	echo "__tostring\n";
-}
+echo $a;
+echo $b;
+echo $c;
 
-if(version_compare(PHP_VERSION, '5.5.999', '>')) {
-	var_dump($a);
-	ob_end_clean();
-	var_dump($b);
-	ob_end_clean();
-	var_dump($c);
-	ob_end_clean();
-} else {
-	echo "__debuginfo\n";
-	echo "__debuginfo\n";
-	echo "__debuginfo\n";
-}
+var_dump($a);
+ob_end_clean();
+var_dump($b);
+ob_end_clean();
+var_dump($c);
+ob_end_clean();
 $a = NULL;
 $b = NULL;
 $c = NULL;

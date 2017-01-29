@@ -2,8 +2,6 @@
 runkit_default_property_remove() remove private properties with inheritance with objects overriding
 --SKIPIF--
 <?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
-      $version = explode(".", PHP_VERSION);
-      if($version[0] < 5) print "skip";
 	  if(!function_exists('runkit_default_property_remove')) print "skip";
 ?>
 --INI--
