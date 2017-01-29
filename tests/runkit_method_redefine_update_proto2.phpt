@@ -1,7 +1,5 @@
 --TEST--
 runkit_method_redefine() must also update method's prototype
---SKIPIF--
-<?php if(array_shift(explode('.', PHP_VERSION)) < 5) print "skip"; ?>
 --FILE--
 <?php
 

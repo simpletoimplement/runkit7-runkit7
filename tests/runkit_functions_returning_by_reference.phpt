@@ -4,12 +4,6 @@ runkit_function_redefine() & runkit_function_add() for functions returning a val
 <?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
-if (!defined('E_STRICT')) {
-	define('E_STRICT', 0);
-}
-if (!defined('E_DEPRECATED')) {
-	define('E_DEPRECATED', 0);
-}
 ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT) & (~E_NOTICE));
 
 $a = 0;
