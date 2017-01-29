@@ -1,7 +1,7 @@
 Runkit7: Unofficial runkit extension fork for PHP 7.0+
 ======================================================
 
-For all those things you.... probably shouldn't have been doing anyway....
+For all those things you.... probably shouldn't have been doing anyway.... but surely do!
 __Now with partial support for PHP7.0 and PHP7.1!__ (function/method manipulation is recommended only for unit testing).
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)

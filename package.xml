@@ -6,12 +6,12 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <!-- not an actual pecl extension name -->
  <name>runkit</name>
  <channel>pecl.php.net</channel>
- <summary>Runkit7 : For all those things you.... probably shouldn&apos;t have been doing anyway....</summary>
+ <summary>Runkit7 : For all those things you.... probably shouldn&apos;t have been doing anyway.... but surely do!</summary>
  <description>Replace, rename, and remove user defined functions, methods, properties, and constants (Unstable).
 Define customized superglobal variables for general purpose use.
  </description>
  <lead>
-  <name></name>
+  <name>Tyson Andre</name>
   <user></user>
   <email></email>
   <active>yes</active>
@@ -48,163 +48,10 @@ Define customized superglobal variables for general purpose use.
  <contents>
   <dir name="/">
    <dir name="tests">
-    <file name="_fcgi.inc" role="test" />
-    <file name="_fpm_include.inc" role="test" />
-    <file name="_fpm_skipif.inc" role="test" />
-    <file name="runkit_add_magic_methods.phpt" role="test" />
-    <file name="runkit_add_magic_serialize_method_ignored_for_common_classes.phpt" role="test" />
-    <file name="runkit_add_old_style_ctor.phpt" role="test" />
-    <file name="runkit_add_old_style_ctor1.phpt" role="test" />
-    <file name="runkit_add_old_style_ctor_by_adopting.phpt" role="test" />
-    <file name="runkit_add_old_style_ctor_by_copying.phpt" role="test" />
-    <file name="runkit_add_old_style_ctor_by_importing.inc" role="test" />
-    <file name="runkit_add_old_style_ctor_by_importing.phpt" role="test" />
-    <file name="runkit_adopt_emancipate_and_inheritance.phpt" role="test" />
-    <file name="runkit_and_superglobals.phpt" role="test" />
-    <file name="runkit_class_adopt.phpt" role="test" />
-    <file name="runkit_class_adopt_and_properties.phpt" role="test" />
-    <file name="runkit_class_emancipate.phpt" role="test" />
-    <file name="runkit_class_emancipate_and_reflection.phpt" role="test" />
-    <file name="runkit_constant_add.phpt" role="test" />
-    <file name="runkit_constant_add_to_class.phpt" role="test" />
-    <file name="runkit_constant_redefine.phpt" role="test" />
-    <file name="runkit_constant_redefine_in_class.phpt" role="test" />
-    <file name="runkit_constant_remove.phpt" role="test" />
-    <file name="runkit_constant_remove_from_class.phpt" role="test" />
-    <file name="runkit_constants_manipulations_and_cache.phpt" role="test" />
-    <file name="runkit_finally.phpt" role="test" />
-    <file name="runkit_function_redefine_and_reflection.phpt" role="test" />
-    <file name="runkit_function_redefine_and_revert.phpt" role="test" />
-    <file name="runkit_function_add.phpt" role="test" />
-    <file name="runkit_function_add_and_doc_comment.phpt" role="test" />
-    <file name="runkit_function_add_closure.phpt" role="test" />
-    <file name="runkit_function_add_closure_and_doc_comment.phpt" role="test" />
-    <file name="runkit_function_add_closure_and_doc_comment_from_closure.phpt" role="test" />
-    <file name="runkit_function_copy.phpt" role="test" />
-    <file name="runkit_function_redefine.phpt" role="test" />
-    <file name="runkit_function_redefine_and_doc_comment.phpt" role="test" />
-    <file name="runkit_function_redefine_closure.phpt" role="test" />
-    <file name="runkit_function_redefine_closure_and_doc_comment.phpt" role="test" />
-    <file name="runkit_function_redefine_closure_and_doc_comment_from_closure.phpt" role="test" />
-    <file name="runkit_function_redefine_from_anonymous.phpt" role="test" />
-    <file name="runkit_function_remove.phpt" role="test" />
-    <file name="runkit_function_remove_and_reflection_parameter.phpt" role="test" />
-    <file name="runkit_function_remove_and_reflection.phpt" role="test" />
-    <file name="runkit_constant_remove_from_ns.phpt" role="test" />
-    <file name="runkit_function_rename.phpt" role="test" />
-    <file name="runkit_function_rename_and_reflection.phpt" role="test" />
-    <file name="runkit_function_rename_internal.phpt" role="test" />
-    <file name="runkit_function_rename_redefine_add_remove.phpt" role="test" />
-    <file name="runkit_functions_redefining_and_cache.inc" role="test" />
-    <file name="runkit_functions_redefining_and_cache.phpt" role="test" />
-    <file name="runkit_functions_returning_by_reference.phpt" role="test" />
-    <file name="runkit_fpm_internal_function_restore.phpt" role="test" />
-    <file name="runkit_import_class.inc" role="test" />
-    <file name="runkit_import_class.phpt" role="test" />
-    <file name="runkit_import_class_extend.inc" role="test" />
-    <file name="runkit_import_class_extend.phpt" role="test" />
-    <file name="runkit_import_class_property_and_inheritance.inc" role="test" />
-    <file name="runkit_import_class_property_and_inheritance.phpt" role="test" />
-    <file name="runkit_import_constant_properties.inc" role="test" />
-    <file name="runkit_import_constant_properties.phpt" role="test" />
-    <file name="runkit_import_constant_static_properties.inc" role="test" />
-    <file name="runkit_import_constant_static_properties.phpt" role="test" />
-    <file name="runkit_import_constants_and_inheritance.inc" role="test" />
-    <file name="runkit_import_constants_and_inheritance.phpt" role="test" />
-    <file name="runkit_import_functions.inc" role="test" />
-    <file name="runkit_import_functions.phpt" role="test" />
-    <file name="runkit_import_function_and_reflection.inc" role="test" />
-    <file name="runkit_import_function_and_reflection.phpt" role="test" />
-    <file name="runkit_import_function_with_static_var.inc" role="test" />
-    <file name="runkit_import_function_with_static_var.phpt" role="test" />
-    <file name="runkit_import_method_and_reflection.inc" role="test" />
-    <file name="runkit_import_method_and_reflection.phpt" role="test" />
-    <file name="runkit_import_method_with_closure.inc" role="test" />
-    <file name="runkit_import_method_with_closure.phpt" role="test" />
-    <file name="runkit_import_method_with_static_var.inc" role="test" />
-    <file name="runkit_import_method_with_static_var.phpt" role="test" />
-    <file name="runkit_import_properies_modified_via_reflection.inc" role="test" />
-    <file name="runkit_import_properies_modified_via_reflection.phpt" role="test" />
-    <file name="runkit_method_add.phpt" role="test" />
-    <file name="runkit_method_add_and_doc_comment.phpt" role="test" />
-    <file name="runkit_method_add_closure.phpt" role="test" />
-    <file name="runkit_method_add_closure2.phpt" role="test" />
-    <file name="runkit_method_add_closure_and_doc_comment.phpt" role="test" />
-    <file name="runkit_method_add_closure_and_doc_comment_from_closure.phpt" role="test" />
-    <file name="runkit_method_add_closure_and_flags.phpt" role="test" />
-    <file name="runkit_method_add_overriding_parent_method.phpt" role="test" />
-    <file name="runkit_method_copy.phpt" role="test" />
-    <file name="runkit_method_copy_and_doc_comment.phpt" role="test" />
-    <file name="runkit_method_copy_uninit_read.phpt" role="test" />
-    <file name="runkit_method_redefine.phpt" role="test" />
-    <file name="runkit_method_redefine_and_doc_comment.phpt" role="test" />
-    <file name="runkit_method_redefine_and_reflection.phpt" role="test" />
-    <file name="runkit_method_redefine_and_reflection_with_inheritance.phpt" role="test" />
-    <file name="runkit_method_redefine_closure_and_doc_comment.phpt" role="test" />
-    <file name="runkit_method_redefine_closure_and_doc_comment_from_closure.phpt" role="test" />
-    <file name="runkit_method_redefine_protected.phpt" role="test" />
-    <file name="runkit_method_redefine_update_proto.phpt" role="test" />
-    <file name="runkit_method_redefine_update_proto2.phpt" role="test" />
-    <file name="runkit_method_redefine_with_static_vars.phpt" role="test" />
-    <file name="runkit_method_remove.phpt" role="test" />
-    <file name="runkit_method_remove_and_reflection_parameter.phpt" role="test" />
-    <file name="runkit_method_remove_and_reflection_parameter_with_inheritance.phpt" role="test" />
-    <file name="runkit_method_remove_and_reflection.phpt" role="test" />
-    <file name="runkit_method_remove_and_reflection_with_inheritance.phpt" role="test" />
-    <file name="runkit_method_rename.phpt" role="test" />
-    <file name="runkit_method_rename_and_access.phpt" role="test" />
-    <file name="runkit_method_rename_and_reflection.phpt" role="test" />
-    <file name="runkit_method_rename_inheritance.phpt" role="test" />
-    <file name="runkit_methods_redefining_and_cache.inc" role="test" />
-    <file name="runkit_methods_redefining_and_cache.phpt" role="test" />
-    <file name="runkit_methods_returning_by_reference.phpt" role="test" />
-    <file name="runkit_redefine_old_style_ctor.phpt" role="test" />
-    <file name="runkit_remove_magic_call_method.phpt" role="test" />
-    <file name="runkit_remove_magic_callstatic_method.phpt" role="test" />
-    <file name="runkit_remove_magic_serialize_method.phpt" role="test" />
-    <file name="runkit_remove_magic_tostring_method.phpt" role="test" />
-    <file name="runkit_remove_magic_unserialize_method.phpt" role="test" />
-    <file name="runkit_zval_inspect.phpt" role="test" />
-    <file name="runkit_static_vars.phpt" role="test" />
     <file name="bug10053.phpt" role="test" />
     <file name="bug10300.phpt" role="test" />
     <file name="bug4519.inc" role="test" />
     <file name="bug4519.phpt" role="test" />
-    <file name="namespaces.phpt" role="test" />
-    <file name="runkit_default_property_add.phpt" role="test" />
-    <file name="runkit_default_property_add_and_remove_for_class_with_dynamic_properties.phpt" role="test" />
-    <file name="runkit_default_property_add_to_subclasses.phpt" role="test" />
-    <file name="runkit_default_property_remove.phpt" role="test" />
-    <file name="runkit_default_property_remove_and_add_for_class_with_dynamic_properties.phpt" role="test" />
-    <file name="runkit_default_property_remove_and_reflection.phpt" role="test" />
-    <file name="runkit_default_property_remove_from_subclasses.phpt" role="test" />
-    <file name="runkit_default_property_remove_inheritance.phpt" role="test" />
-    <file name="runkit_import_class_property_not_overriding_subclasses.inc" role="test" />
-    <file name="runkit_import_class_property_not_overriding_subclasses.phpt" role="test" />
-    <file name="runkit_import_class_property.inc" role="test" />
-    <file name="runkit_import_class_property.phpt" role="test" />
-    <file name="runkit_import_non_existent_file.phpt" role="test" />
-    <file name="runkit_import_static_properties_override.inc" role="test" />
-    <file name="runkit_import_static_properties_override.phpt" role="test" />
-    <file name="runkit_import_with_syntax_error.inc" role="test" />
-    <file name="runkit_import_with_syntax_error.phpt" role="test" />
-    <file name="runkit_static_property_add.phpt" role="test" />
-    <file name="runkit_static_property_add_existing.phpt" role="test" />
-    <file name="runkit_static_property_add_to_subclasses.phpt" role="test" />
-    <file name="runkit_superglobals.phpt" role="test" />
-    <file name="runkit_default_property_add_and_remove_for_class_with_dynamic_properties_overriding_in_objects.phpt" role="test" />
-    <file name="runkit_default_property_add_overriding_objects.phpt" role="test" />
-    <file name="runkit_default_property_add_to_subclasses_overriding_objects.phpt" role="test" />
-    <file name="runkit_default_property_remove_and_add_for_class_with_dynamic_properties_overriding_objects.phpt" role="test" />
-    <file name="runkit_default_property_remove_from_subclasses_overriding_objects.phpt" role="test" />
-    <file name="runkit_default_property_remove_inheritance_overriding_objects.phpt" role="test" />
-    <file name="runkit_default_property_remove_overriding_objects.phpt" role="test" />
-    <file name="runkit_default_property_remove_private_and_inheritance.phpt" role="test" />
-    <file name="runkit_default_property_remove_private_and_inheritance_overriding_objects.phpt" role="test" />
-    <file name="runkit_default_property_remove_private_shadow_and_inheritance.phpt" role="test" />
-    <file name="runkit_default_property_remove_private_shadow_and_inheritance54.phpt" role="test" />
-    <file name="runkit_default_property_remove_private_shadow_and_inheritance_overriding_objects.phpt" role="test" />
-    <file name="runkit_import_class_property_and_inheritance_overriding_objects.phpt" role="test" />
     <file name="bug56662.phpt" role="test" />
     <file name="bug56976.phpt" role="test" />
     <file name="bug57249.inc" role="test" />
@@ -212,11 +59,184 @@ Define customized superglobal variables for general purpose use.
     <file name="bug57649.inc" role="test" />
     <file name="bug57649.phpt" role="test" />
     <file name="bug57658.phpt" role="test" />
+    <file name="_fcgi.inc" role="test" />
+    <file name="_fpm_include.inc" role="test" />
+    <file name="_fpm_skipif.inc" role="test" />
+    <file name="namespaces.phpt" role="test" />
+    <file name="runkit_add_magic_methods.phpt" role="test" />
+    <file name="runkit_add_magic_serialize_method_ignored_for_common_classes.phpt" role="test" />
+    <file name="runkit_add_old_style_ctor1.phpt" role="test" />
+    <file name="runkit_add_old_style_ctor_by_adopting.phpt" role="test" />
+    <file name="runkit_add_old_style_ctor_by_copying.phpt" role="test" />
+    <file name="runkit_add_old_style_ctor_by_importing.inc" role="test" />
+    <file name="runkit_add_old_style_ctor_by_importing.phpt" role="test" />
+    <file name="runkit_add_old_style_ctor.phpt" role="test" />
+    <file name="runkit_adopt_emancipate_and_inheritance.phpt" role="test" />
+    <file name="runkit_and_superglobals.phpt" role="test" />
+    <file name="runkit_class_adopt_and_properties.phpt" role="test" />
+    <file name="runkit_class_adopt.phpt" role="test" />
+    <file name="runkit_class_emancipate_and_reflection.phpt" role="test" />
+    <file name="runkit_class_emancipate.phpt" role="test" />
+    <file name="runkit_constant_add_array.phpt" role="test" />
+    <file name="runkit_constant_add_array_to_class.phpt" role="test" />
+    <file name="runkit_constant_add.phpt" role="test" />
+    <file name="runkit_constant_add_to_class.phpt" role="test" />
+    <file name="runkit_constant_redefine_in_class.phpt" role="test" />
+    <file name="runkit_constant_redefine.phpt" role="test" />
+    <file name="runkit_constant_redefine_protected_across_file.phpt" role="test" />
+    <file name="runkit_constant_remove_from_class.phpt" role="test" />
+    <file name="runkit_constant_remove_from_class_without_inlining.phpt" role="test" />
+    <file name="runkit_constant_remove_from_ns.phpt" role="test" />
+    <file name="runkit_constant_remove.phpt" role="test" />
+    <file name="runkit_constants_manipulations_and_cache.phpt" role="test" />
+    <file name="runkit_default_property_add_and_remove_for_class_with_dynamic_properties_overriding_in_objects.phpt" role="test" />
+    <file name="runkit_default_property_add_and_remove_for_class_with_dynamic_properties.phpt" role="test" />
+    <file name="runkit_default_property_add_instance.phpt" role="test" />
+    <file name="runkit_default_property_add_overriding_objects.phpt" role="test" />
+    <file name="runkit_default_property_add.phpt" role="test" />
+    <file name="runkit_default_property_add_to_subclasses_overriding_objects.phpt" role="test" />
+    <file name="runkit_default_property_add_to_subclasses.phpt" role="test" />
+    <file name="runkit_default_property_remove_and_add_for_class_with_dynamic_properties_overriding_objects.phpt" role="test" />
+    <file name="runkit_default_property_remove_and_add_for_class_with_dynamic_properties.phpt" role="test" />
+    <file name="runkit_default_property_remove_and_reflection.phpt" role="test" />
+    <file name="runkit_default_property_remove_from_subclasses_overriding_objects.phpt" role="test" />
+    <file name="runkit_default_property_remove_from_subclasses.phpt" role="test" />
+    <file name="runkit_default_property_remove_inheritance_overriding_objects.phpt" role="test" />
+    <file name="runkit_default_property_remove_inheritance.phpt" role="test" />
+    <file name="runkit_default_property_remove_overriding_objects.phpt" role="test" />
+    <file name="runkit_default_property_remove.phpt" role="test" />
+    <file name="runkit_default_property_remove_private_and_inheritance_overriding_objects.phpt" role="test" />
+    <file name="runkit_default_property_remove_private_and_inheritance.phpt" role="test" />
+    <file name="runkit_default_property_remove_private_shadow_and_inheritance54.phpt" role="test" />
+    <file name="runkit_default_property_remove_private_shadow_and_inheritance_overriding_objects.phpt" role="test" />
+    <file name="runkit_default_property_remove_private_shadow_and_inheritance.phpt" role="test" />
+    <file name="runkit_default_property_remove_simple.phpt" role="test" />
+    <file name="runkit_finally.phpt" role="test" />
+    <file name="runkit_fpm_internal_function_restore.phpt" role="test" />
+    <file name="runkit_function_add_and_doc_comment.phpt" role="test" />
+    <file name="runkit_function_add_closure_and_doc_comment_from_closure.phpt" role="test" />
+    <file name="runkit_function_add_closure_and_doc_comment.phpt" role="test" />
+    <file name="runkit_function_add_closure.phpt" role="test" />
+    <file name="runkit_function_add.phpt" role="test" />
+    <file name="runkit_function_add_return_type_invalid.phpt" role="test" />
+    <file name="runkit_function_add_return_type.phpt" role="test" />
+    <file name="runkit_function_copy.phpt" role="test" />
+    <file name="runkit_function_redefine_and_doc_comment.phpt" role="test" />
+    <file name="runkit_function_redefine_and_reflection.phpt" role="test" />
+    <file name="runkit_function_redefine_and_revert.phpt" role="test" />
+    <file name="runkit_function_redefine_closure_and_doc_comment_from_closure.phpt" role="test" />
+    <file name="runkit_function_redefine_closure_and_doc_comment.phpt" role="test" />
+    <file name="runkit_function_redefine_closure.phpt" role="test" />
+    <file name="runkit_function_redefine_closure_static.phpt" role="test" />
+    <file name="runkit_function_redefine_from_anonymous.phpt" role="test" />
+    <file name="runkit_function_redefine.phpt" role="test" />
+    <file name="runkit_function_redefine_using_undef.phpt" role="test" />
+    <file name="runkit_function_redefine_var_dump.phpt" role="test" />
+    <file name="runkit_function_remove_and_reflection_parameter.phpt" role="test" />
+    <file name="runkit_function_remove_and_reflection.phpt" role="test" />
+    <file name="runkit_function_remove.phpt" role="test" />
+    <file name="runkit_function_rename_and_reflection.phpt" role="test" />
+    <file name="runkit_function_rename_internal.phpt" role="test" />
+    <file name="runkit_function_rename.phpt" role="test" />
+    <file name="runkit_function_rename_redefine_add_remove.phpt" role="test" />
+    <file name="runkit_functions_redefining_and_cache.inc" role="test" />
+    <file name="runkit_functions_redefining_and_cache.phpt" role="test" />
+    <file name="runkit_functions_returning_by_reference.phpt" role="test" />
+    <file name="runkit_function_variadic.phpt" role="test" />
+    <file name="runkit_function_variadic_typed.phpt" role="test" />
+    <file name="runkit_import_class_extend.inc" role="test" />
+    <file name="runkit_import_class_extend.phpt" role="test" />
+    <file name="runkit_import_class.inc" role="test" />
+    <file name="runkit_import_class.phpt" role="test" />
+    <file name="runkit_import_class_property_and_inheritance.inc" role="test" />
+    <file name="runkit_import_class_property_and_inheritance_overriding_objects.phpt" role="test" />
+    <file name="runkit_import_class_property_and_inheritance.phpt" role="test" />
+    <file name="runkit_import_class_property.inc" role="test" />
+    <file name="runkit_import_class_property_not_overriding_subclasses.inc" role="test" />
+    <file name="runkit_import_class_property_not_overriding_subclasses.phpt" role="test" />
+    <file name="runkit_import_class_property.phpt" role="test" />
+    <file name="runkit_import_constant_properties.inc" role="test" />
+    <file name="runkit_import_constant_properties.phpt" role="test" />
+    <file name="runkit_import_constants_and_inheritance.inc" role="test" />
+    <file name="runkit_import_constants_and_inheritance.phpt" role="test" />
+    <file name="runkit_import_constant_static_properties.inc" role="test" />
+    <file name="runkit_import_constant_static_properties.phpt" role="test" />
+    <file name="runkit_import_function_and_reflection.inc" role="test" />
+    <file name="runkit_import_function_and_reflection.phpt" role="test" />
+    <file name="runkit_import_functions.inc" role="test" />
+    <file name="runkit_import_functions.phpt" role="test" />
+    <file name="runkit_import_function_with_static_var.inc" role="test" />
+    <file name="runkit_import_function_with_static_var.phpt" role="test" />
+    <file name="runkit_import_method_and_reflection.inc" role="test" />
+    <file name="runkit_import_method_and_reflection.phpt" role="test" />
     <file name="runkit_import_methods1.inc" role="test" />
     <file name="runkit_import_methods2.inc" role="test" />
     <file name="runkit_import_methods.phpt" role="test" />
+    <file name="runkit_import_method_with_closure.inc" role="test" />
+    <file name="runkit_import_method_with_closure.phpt" role="test" />
+    <file name="runkit_import_method_with_static_var.inc" role="test" />
+    <file name="runkit_import_method_with_static_var.phpt" role="test" />
+    <file name="runkit_import_non_existent_file.phpt" role="test" />
+    <file name="runkit_import_properies_modified_via_reflection.inc" role="test" />
+    <file name="runkit_import_properies_modified_via_reflection.phpt" role="test" />
+    <file name="runkit_import_static_properties_override.inc" role="test" />
+    <file name="runkit_import_static_properties_override.phpt" role="test" />
+    <file name="runkit_import_with_syntax_error.inc" role="test" />
+    <file name="runkit_import_with_syntax_error.phpt" role="test" />
+    <file name="runkit_lint.phpt" role="test" />
+    <file name="runkit_method_add_and_doc_comment.phpt" role="test" />
+    <file name="runkit_method_add_closure2.phpt" role="test" />
+    <file name="runkit_method_add_closure_and_doc_comment_from_closure.phpt" role="test" />
+    <file name="runkit_method_add_closure_and_doc_comment.phpt" role="test" />
+    <file name="runkit_method_add_closure_and_flags.phpt" role="test" />
+    <file name="runkit_method_add_closure.phpt" role="test" />
+    <file name="runkit_method_add_overriding_parent_method.phpt" role="test" />
+    <file name="runkit_method_add.phpt" role="test" />
+    <file name="runkit_method_add_return_type_invalid.phpt" role="test" />
+    <file name="runkit_method_add_return_type.phpt" role="test" />
+    <file name="runkit_method_copy_and_doc_comment_leak.phpt" role="test" />
+    <file name="runkit_method_copy_and_doc_comment.phpt" role="test" />
+    <file name="runkit_method_copy.phpt" role="test" />
+    <file name="runkit_method_copy_uninit_read.phpt" role="test" />
+    <file name="runkit_method_redefine_and_doc_comment.phpt" role="test" />
+    <file name="runkit_method_redefine_and_reflection.phpt" role="test" />
+    <file name="runkit_method_redefine_and_reflection_with_inheritance.phpt" role="test" />
+    <file name="runkit_method_redefine_closure_and_doc_comment_from_closure.phpt" role="test" />
+    <file name="runkit_method_redefine_closure_and_doc_comment.phpt" role="test" />
+    <file name="runkit_method_redefine.phpt" role="test" />
+    <file name="runkit_method_redefine_protected.phpt" role="test" />
+    <file name="runkit_method_redefine_update_proto2.phpt" role="test" />
+    <file name="runkit_method_redefine_update_proto.phpt" role="test" />
+    <file name="runkit_method_redefine_with_static_vars.phpt" role="test" />
+    <file name="runkit_method_remove_and_reflection_parameter.phpt" role="test" />
+    <file name="runkit_method_remove_and_reflection_parameter_with_inheritance.phpt" role="test" />
+    <file name="runkit_method_remove_and_reflection.phpt" role="test" />
+    <file name="runkit_method_remove_and_reflection_with_inheritance.phpt" role="test" />
+    <file name="runkit_method_remove.phpt" role="test" />
     <file name="runkit_method_rename_002.phpt" role="test" />
+    <file name="runkit_method_rename_and_access.phpt" role="test" />
+    <file name="runkit_method_rename_and_reflection.phpt" role="test" />
+    <file name="runkit_method_rename_inheritance.phpt" role="test" />
+    <file name="runkit_method_rename.phpt" role="test" />
+    <file name="runkit_methods_redefining_and_cache.inc" role="test" />
+    <file name="runkit_methods_redefining_and_cache.phpt" role="test" />
+    <file name="runkit_methods_returning_by_reference.phpt" role="test" />
+    <file name="runkit_method_variadic.phpt" role="test" />
+    <file name="runkit_method_variadic_typed.phpt" role="test" />
+    <file name="runkit_redefine_old_style_ctor.phpt" role="test" />
+    <file name="runkit_remove_magic_call_method.phpt" role="test" />
+    <file name="runkit_remove_magic_callstatic_method.phpt" role="test" />
+    <file name="runkit_remove_magic_serialize_method.phpt" role="test" />
+    <file name="runkit_remove_magic_tostring_method.phpt" role="test" />
+    <file name="runkit_remove_magic_unserialize_method.phpt" role="test" />
+    <file name="runkit_static_property_add_existing.phpt" role="test" />
+    <file name="runkit_static_property_add.phpt" role="test" />
+    <file name="runkit_static_property_add_single.phpt" role="test" />
+    <file name="runkit_static_property_add_to_subclasses.phpt" role="test" />
+    <file name="runkit_static_vars.phpt" role="test" />
+    <file name="runkit_superglobals.phpt" role="test" />
     <file name="runkit_user_functions_on_shutdown.phpt" role="test" />
+    <file name="runkit_zval_inspect.phpt" role="test" />
    </dir> <!-- //tests -->
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
@@ -226,6 +246,7 @@ Define customized superglobal variables for general purpose use.
    <file name="php_runkit_zval.h" role="src" />
    <file name="runkit_zend_execute_API.c" role="src" />
    <file name="LICENSE" role="doc" />
+   <file name="PROPERTY_MANIPULATION.md" role="doc" />
    <file name="README.md" role="doc" />
    <file name="runkit.c" role="src" />
    <file name="runkit.dsp" role="src" />
