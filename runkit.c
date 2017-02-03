@@ -125,9 +125,7 @@ zend_function_entry runkit_functions[] = {
 /* {{{ runkit_module_entry
  */
 zend_module_entry runkit_module_entry = {
-#if ZEND_MODULE_API_NO >= 20010901
 	STANDARD_MODULE_HEADER,
-#endif
 	"runkit",
 	runkit_functions,
 	PHP_MINIT(runkit),
@@ -135,9 +133,7 @@ zend_module_entry runkit_module_entry = {
 	PHP_RINIT(runkit),
 	PHP_RSHUTDOWN(runkit),
 	PHP_MINFO(runkit),
-#if ZEND_MODULE_API_NO >= 20010901
 	PHP_RUNKIT_VERSION,
-#endif
 	STANDARD_MODULE_PROPERTIES
 };
 /* }}} */
