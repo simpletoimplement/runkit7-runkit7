@@ -72,13 +72,7 @@ static inline void* _debug_emalloc(void* data, int bytes, char* file, int line) 
 #define PHP_RUNKIT_IMPORT_OVERRIDE                          0x0020
 #define PHP_RUNKIT_OVERRIDE_OBJECTS                         0x8000
 
-#if ZEND_MODULE_API_NO > 20050922
-#define ZEND_ENGINE_2_2
-#endif
-#if ZEND_MODULE_API_NO > 20050921
-#define ZEND_ENGINE_2_1
-#endif
-
+/* Hardcoded. TODO should not be. */
 #define PHP_RUNKIT_SUPERGLOBALS
 
 #ifdef PHP_RUNKIT_FEATURE_MODIFY
@@ -239,6 +233,7 @@ void php_runkit_update_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *c
 void php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_ARG(HashTable *ht), zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe);
 int php_runkit_fetch_interface(zend_string *classname, zend_class_entry **pce TSRMLS_DC);
 
+/* Redundant unless 7.1 changes - string may no longer apply */
 #define PHP_RUNKIT_FUNCTION_ADD_REF(f)	function_add_ref(f TSRMLS_CC)
 #define php_runkit_locate_scope(ce, fe, methodname_lower)   fe->common.scope
 #define PHP_RUNKIT_STRTOLOWER(param)			php_u_strtolower(param, &param##_len, UG(default_locale))
@@ -276,6 +271,7 @@ typedef struct _parsed_return_type {
 	zend_bool   valid;
 } parsed_return_type;
 
+/* Disabled because of changes in the way properties are handled */
 /*
 struct _php_runkit_default_class_members_list_element {
     zend_class_entry* ce;
@@ -303,6 +299,7 @@ static inline void php_runkit_default_class_members_list_add(php_runkit_default_
 /* }}} */
 
 /* {{{ php_runkit_modify_function_doc_comment */
+/** Replace the doc comment of the copied/created function with that of the original */
 static inline void php_runkit_modify_function_doc_comment(zend_function *fe, zend_string* doc_comment) {
 	if (fe->type == ZEND_USER_FUNCTION) {
 		if (doc_comment) {
@@ -318,10 +315,7 @@ static inline void php_runkit_modify_function_doc_comment(zend_function *fe, zen
 }
 /* }}} */
 
-// TODO: If needed, rewrite this to account for PHP7's changes to HashTables.
-// Buckets have been changed from linked lists to a plain array of zvals
-// wrapped with a bit of additional data, as well as an index of the next Bucket to search
-// (Check if IS_UNDEF?)
+/* This macro iterates through all instances of objects. */
 #define PHP_RUNKIT_ITERATE_THROUGH_OBJECTS_STORE_BEGIN(i) { \
 	if (EG(objects_store).object_buckets) { \
 		for (i = 1; i < EG(objects_store).top ; i++) { \
@@ -345,6 +339,7 @@ static inline void php_runkit_modify_function_doc_comment(zend_function *fe, zen
 
 #ifdef PHP_RUNKIT_MANIPULATION
 
+// Split pnname into classname and pnname, if it contains the string "::"
 // FIXME: Need to correctly do reference tracking for the original and created strings.
 #define PHP_RUNKIT_SPLIT_PN(classname, pnname) { \
 	char *colon; \
@@ -363,18 +358,22 @@ static inline void php_runkit_modify_function_doc_comment(zend_function *fe, zen
 		zend_string_release(constname); \
 	}
 
-
+// If lcmname is one of the magic method names(e.g. __get, __construct), then override the magic method function entry for the class entry ce (And its subclasses)
 void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string* lcmname, zend_function *fe, const zend_function *orig_fe TSRMLS_DC);
 
+// If lcmname is one of the magic method names(e.g. __get, __construct), and being removed,
+// then override the magic method function entry for the class entry ce (And its subclasses)
 void PHP_RUNKIT_DEL_MAGIC_METHOD(zend_class_entry *ce, const zend_function *fe TSRMLS_DC);
 
+// Sets type flags for ce and its subclasses' class entries so that the VM knows to check for magic methods.
 void ensure_all_objects_of_class_have_magic_methods(zend_class_entry *ce);
 
 /* {{{ php_runkit_parse_doc_comment_arg */
+/* Validate that the provided doc comment is a string or null */
 inline static zend_string* php_runkit_parse_doc_comment_arg(int argc, zval *args, int arg_pos) {
 	if (argc > arg_pos) {
 		if (Z_TYPE(args[arg_pos]) == IS_STRING) {
-			// Return doc comment without increasing reference count.
+			/* Return doc comment without increasing reference count. */
 			return Z_STR(args[arg_pos]);
 		} else if (Z_TYPE(args[arg_pos]) != IS_NULL) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Doc comment should be a string or NULL");
@@ -404,7 +403,7 @@ inline static zend_bool php_runkit_is_valid_return_type(const zend_string *retur
 		return 1;
 	}
 	return 0;
-	// https://secure.php.net/manual/en/language.oop5.basic.php
+	// The format of a valid class identifier is documented at https://secure.php.net/manual/en/language.oop5.basic.php
 }
 /* }}} */
 
@@ -460,6 +459,10 @@ inline static zend_bool php_runkit_parse_args_to_zvals(int argc, zval **pargs TS
 
 #define PHP_RUNKIT_BODY_ERROR_MSG "%s's body should be either a closure or two strings"
 
+/** Create an interned string. Useful for ensuring that method names, etc.
+    won't be freed on request shutdown before runkit has a chance to free it. */
+/* NOTE: In the case of internal overrides and fpm, we want the "permanent" string (the string originally associated
+ * with an internal function or method), which won't be garbage collected. */
 inline static zend_string* zend_string_to_interned(zend_string* original) {
 	zend_string *interned_name = zend_new_interned_string(original);
 	if (interned_name != original) {
@@ -470,6 +473,7 @@ inline static zend_string* zend_string_to_interned(zend_string* original) {
 }
 
 /* {{{ zend_bool php_runkit_parse_function_arg */
+/** Parses either multiple strings (1. function args, 2. body 3. (optional) return type), or a Closure. */
 inline static zend_bool php_runkit_parse_function_arg(int argc, zval *args, int arg_pos, zend_function **fe, zend_string** arguments, zend_string** phpcode, long *opt_arg_pos, char *type TSRMLS_DC) {
 	// TODO: Does this do the right thing?
 	if (Z_TYPE(args[arg_pos]) == IS_OBJECT && Z_OBJCE(args[arg_pos]) == zend_ce_closure) {
@@ -490,6 +494,7 @@ inline static zend_bool php_runkit_parse_function_arg(int argc, zval *args, int 
 }
 /* }}} */
 
+// TODO: redundant and part of an unsupported feature
 #	define PHP_RUNKIT_DESTROY_FUNCTION(fe) 	destroy_zend_function(fe TSRMLS_CC);
 
 // TODO: move to a separate file.
