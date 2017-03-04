@@ -49,10 +49,9 @@ function runkit_constant_redefine(string $constname, $value, int $newVisibility 
  * and this may or may not have an effect if the constant already exists.
  *
  * @param string $constname Name of constant to declare. Either a string to indicate a global constant, or classname::constname to indicate a class constant.
- * @param mixed $value null, Bool, Long, Double, String, or Resource value to store in the new constant.
  * @return bool - TRUE on success or FALSE on failure.
  */
-function runkit_constant_remove(string $constname, $value) : bool {
+function runkit_constant_remove(string $constname) : bool {
 }
 
 /**
@@ -81,7 +80,7 @@ function runkit_function_add(string $funcname, string $arglist, string $code, bo
  * @param string|null $doc_comment The doc comment of the function
  * @return bool - True on success or false on failure.
  */
-function runkit_function_add(string $funcname, Closure $closure = null, string $doc_comment = null) : bool {
+function runkit_function_add(string $funcname, Closure $closure, string $doc_comment = null) : bool {
 }
 
 /**
@@ -117,7 +116,7 @@ function runkit_function_redefine(string $funcname, string $arglist, string $cod
  * @param string|null $doc_comment The doc comment of the function
  * @return bool - True on success or false on failure.
  */
-function runkit_function_redefine(string $funcname, Closure $closure = null, string $doc_comment = null) : bool {
+function runkit_function_redefine(string $funcname, Closure $closure, string $doc_comment = null) : bool {
 }
 
 /**
@@ -154,7 +153,7 @@ function runkit_function_rename(string $funcname, string $newname) : bool {
  * @param string|null $return_type Return type of this method (e.g. `stdClass`, `?string`(php 7.1))
  * @return bool - True on success or false on failure.
  */
-function runkit_method_add(string $funcname, string $methodname, string $arglist, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null) : bool {
+function runkit_method_add(string $classname, string $methodname, string $arglist, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null) : bool {
 }
 
 /**
@@ -170,7 +169,7 @@ function runkit_method_add(string $funcname, string $methodname, string $arglist
  * @param string|null $doc_comment The doc comment of the method
  * @return bool - True on success or false on failure.
  */
-function runkit_method_add(string $funcname, string $methodname, Closure $closure, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null) : bool {
+function runkit_method_add(string $classname, string $methodname, Closure $closure, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null) : bool {
 }
 
 /**
@@ -198,7 +197,7 @@ function runkit_method_copy(string $dClass, string $dMethod, string $sClass, str
  * @param string|null $return_type Return type of this method (e.g. `stdClass`, `?string`(php 7.1))
  * @return bool - True on success or false on failure.
  */
-function runkit_method_redefine(string $funcname, string $methodname, string $args, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null) : bool {
+function runkit_method_redefine(string $classname, string $methodname, string $args, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null) : bool {
 }
 
 /**
@@ -211,7 +210,7 @@ function runkit_method_redefine(string $funcname, string $methodname, string $ar
  * @param string|null $doc_comment The doc comment of the method
  * @return bool - True on success or false on failure.
  */
-function runkit_method_redefine(string $funcname, string $methodname, Closure $closure, $doc_comment = null) : bool {
+function runkit_method_redefine(string $classname, string $methodname, Closure $closure, $doc_comment = null) : bool {
 }
 
 /**
@@ -222,7 +221,7 @@ function runkit_method_redefine(string $funcname, string $methodname, Closure $c
  * @param string $methodname The name of the method to remove
  * @return bool - True on success or false on failure.
  */
-function runkit_method_remove(string $funcname, string $methodname) : bool {
+function runkit_method_remove(string $classname, string $methodname) : bool {
 }
 
 /**
@@ -233,7 +232,7 @@ function runkit_method_remove(string $funcname, string $methodname) : bool {
  * @param string $newname The new name to give to the renamed method
  * @return bool - True on success or false on failure.
  */
-function runkit_method_rename(string $funcname, string $newname) : bool {
+function runkit_method_rename(string $classname, string $methodname, string $newname) : bool {
 }
 
 /**
