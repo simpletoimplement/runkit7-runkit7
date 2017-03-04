@@ -60,6 +60,7 @@ Define customized superglobal variables for general purpose use.
     <file name="runkit_add_old_style_ctor.phpt" role="test" />
     <file name="runkit_adopt_emancipate_and_inheritance.phpt" role="test" />
     <file name="runkit_and_superglobals.phpt" role="test" />
+    <file name="runkit_arginfo.phpt" role="test" />
     <file name="runkit_class_adopt_and_properties.phpt" role="test" />
     <file name="runkit_class_adopt.phpt" role="test" />
     <file name="runkit_class_emancipate_and_reflection.phpt" role="test" />
