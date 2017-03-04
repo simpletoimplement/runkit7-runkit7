@@ -83,6 +83,11 @@ static inline void* _debug_emalloc(void* data, int bytes, char* file, int line) 
 
 #ifdef PHP_RUNKIT_FEATURE_MODIFY
 #define PHP_RUNKIT_MANIPULATION
+// TODO: Enable these macros once the corresponding functions/files compile and pass some of the tests.
+// TODO: Clean up these macros once the corresponding functions/files are 100% correct.
+#define PHP_RUNKIT_MANIPULATION_IMPORT
+// #define PHP_RUNKIT_MANIPULATION_PROPERTIES
+// #define PHP_RUNKIT_MANIPULATION_CLASSES
 #endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
@@ -146,6 +151,14 @@ PHP_FUNCTION(runkit_constant_add);
 // PHP_FUNCTION(runkit_class_adopt);
 #endif
 // PHP_FUNCTION(runkit_import);
+#ifdef PHP_RUNKIT_MANIPULATION_PROPERTIES
+PHP_FUNCTION(runkit_default_property_add);
+PHP_FUNCTION(runkit_default_property_remove);
+#endif
+// TODO
+#ifdef PHP_RUNKIT_MANIPULATION_IMPORT
+PHP_FUNCTION(runkit_import);
+#endif /* PHP_RUNKIT_MANIPULATION_IMPORT */
 #endif /* PHP_RUNKIT_MANIPULATION */
 
 #ifdef PHP_RUNKIT_MANIPULATION
@@ -429,6 +442,7 @@ inline static zend_bool php_runkit_is_valid_return_type(const zend_string *retur
 	if (it >= end) {
 		return 0;
 	}
+	// The format of a valid class identifier is documented at https://secure.php.net/manual/en/language.oop5.basic.php
 	while (1) {
 		unsigned char c = *it;
 		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c >= 128) {
@@ -453,7 +467,6 @@ inline static zend_bool php_runkit_is_valid_return_type(const zend_string *retur
 		}
 		return 0;
 	}
-	// The format of a valid class identifier is documented at https://secure.php.net/manual/en/language.oop5.basic.php
 }
 /* }}} */
 
@@ -546,7 +559,9 @@ inline static zend_string* zend_string_to_interned(zend_string* original) {
 /* {{{ zend_bool php_runkit_parse_function_arg */
 /** Parses either multiple strings (1. function args, 2. body 3. (optional) return type), or a Closure. */
 inline static zend_bool php_runkit_parse_function_arg(int argc, zval *args, int arg_pos, zend_function **fe, zend_string** arguments, zend_string** phpcode, long *opt_arg_pos, char *type TSRMLS_DC) {
-	// TODO: Does this do the right thing?
+	// If is successful, it returns true, advances opt_arg_pos. There are two was this could succeed
+	// 1. *fe = zend_function extracted from a closure.
+	// 2. *arguments, *phpcode = strings extracted from arguments
 	if (Z_TYPE(args[arg_pos]) == IS_OBJECT && Z_OBJCE(args[arg_pos]) == zend_ce_closure) {
 		*fe = (zend_function *) zend_get_closure_method_def(&(args[arg_pos]) TSRMLS_CC);
 	} else if (Z_TYPE(args[arg_pos]) == IS_STRING) {

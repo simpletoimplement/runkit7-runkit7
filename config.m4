@@ -51,6 +51,7 @@ if test "$PHP_RUNKIT" != "no"; then
     AC_DEFINE(PHP_RUNKIT_SPL_OBJECT_ID, 1, [Whether to define spl_object_id in php <= 7.1])
   fi
   PHP_NEW_EXTENSION(runkit, runkit.c runkit_functions.c runkit_methods.c \
+runkit_import.c \
 runkit_constants.c \
 runkit_object_id.c \
 runkit_common.c \

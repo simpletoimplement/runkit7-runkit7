@@ -26,6 +26,7 @@ runkit_property_modify() may be implemented in the future.
 #include "php_runkit_zval.h"
 
 #ifdef PHP_RUNKIT_MANIPULATION
+#ifdef PHP_RUNKIT_MANIPULATION_CLASSES
 /* {{{ php_runkit_remove_inherited_methods_foreach */
 // Remove methods that were inherited from class ce from the function_table.
 static int php_runkit_remove_inherited_methods(zval *pDest, void *argument TSRMLS_DC); // forward declare.
@@ -295,6 +296,7 @@ PHP_FUNCTION(runkit_class_adopt)
 }
 /* }}} */
 
+#endif /* PHP_RUNKIT_MANIPULATION_CLASSES */
 #endif /* PHP_RUNKIT_MANIPULATION */
 /*
  * Local variables:
