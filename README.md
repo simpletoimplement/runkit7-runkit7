@@ -62,8 +62,8 @@ Examples
 
 The following mocking libraries work with the runkit7 fork
 
-- [timecop-PHP (Fork)](https://github.com/runkit7/Timecop-PHP) (requires `runkit.internal_override=1`, suggested only for unit tests)
-- [staticmock (Fork)](https://github.com/runkit7/staticmock)
+- [![Build Status](https://travis-ci.org/runkit7/Timecop-PHP.svg?branch=master)](https://travis-ci.org/runkit7/Timecop-PHP) [timecop-PHP (Fork)](https://github.com/runkit7/Timecop-PHP) (requires `runkit.internal_override=1`, suggested only for unit tests)
+- [![Build Status](https://travis-ci.org/runkit7/staticmock.svg?branch=master)](https://travis-ci.org/runkit7/staticmock) [staticmock (Fork)](https://github.com/runkit7/staticmock)
 
 ## PHP7 SPECIFIC DETAILS
 
