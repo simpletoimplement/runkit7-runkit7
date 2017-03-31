@@ -218,8 +218,8 @@ sudo make install
 Pecl tars are also included with newer GitHub releases.
 
 1. Go to https://github.com/runkit7/runkit7/releases
-2. Download the tgz file from the link (e.g. runkit-1.0.5a2.tgz)
-3. `pecl install ./runkit-1.0.5a2.tgz`
+2. Download the tgz file from the link (e.g. runkit-1.0.5a3.tgz)
+3. `pecl install ./runkit-1.0.5a3.tgz`
 
 ### BUILDING AND INSTALLING RUNKIT7 IN WINDOWS
 
