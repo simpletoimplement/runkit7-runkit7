@@ -31,7 +31,7 @@ build_script:
 
     buildconf.bat
 
-    configure.bat --disable-all --enable-debug --enable-cli --enable-cgi --enable-runkit --enable-json --with-config-file-scan-dir=%APPVEYOR_BUILD_FOLDER%\bin\modules.d --with-prefix=%APPVEYOR_BUILD_FOLDER%\bin --with-php-build=deps
+    configure.bat --disable-all --enable-session --enable-debug --enable-cli --enable-cgi --enable-runkit --enable-json --with-config-file-scan-dir=%APPVEYOR_BUILD_FOLDER%\bin\modules.d --with-prefix=%APPVEYOR_BUILD_FOLDER%\bin --with-php-build=deps
 
     nmake
 
@@ -40,7 +40,7 @@ test_script:
 - cmd: cd C:\projects\php-src
 - cmd: set NO_INTERACTION=1
 - cmd: set REPORT_EXIT_STATUS=1
-- cmd: nmake test TESTS=C:\projects\php-src\ext\runkit\tests
+- cmd: nmake test TESTS="C:\projects\php-src\ext\runkit\tests --show-diff"
 
 # Would require `nmake install` in the build script.
 #artifacts:
