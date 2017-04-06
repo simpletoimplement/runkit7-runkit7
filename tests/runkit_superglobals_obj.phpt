@@ -2,6 +2,7 @@
 runkit.superglobal setting creates superglobals that can be referenced multiple ways.
 --SKIPIF--
 <?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("session")) print "skip - This test assumes \$_SESSION will exist, but the session extension isn't enabled/installed"; ?>
 --INI--
 display_errors=on
 runkit.superglobal=foo
