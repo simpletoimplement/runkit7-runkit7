@@ -16,10 +16,10 @@ Define customized superglobal variables for general purpose use.
   <email></email>
   <active>yes</active>
  </lead>
- <date>2017-03-31</date>
+ <date>2017-04-06</date>
  <version>
-  <release>1.0.5a3</release>
-  <api>1.0.5a3</api>
+  <release>1.0.5a4</release>
+  <api>1.0.5a4</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -27,10 +27,12 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-   New Features
-     + Allow preserving and manipulating visibility of class constants with runkit constant manipulation functions.
-     + Update Reflection argument info for runkit functions
-  </notes>
+   Bug Fixes
+     + Fix bugs in reference counting variable names of runkit superglobals.
+	   The bug may have caused crashes or erroneous undefined variable notices.
+	   Only affects users if the `runkit.superglobal` ini setting is non-empty.
+	   Mainly affects NTS builds.
+ </notes>
  <contents>
   <dir name="/">
    <dir name="tests">
@@ -225,6 +227,7 @@ Define customized superglobal variables for general purpose use.
     <file name="runkit_static_property_add_to_subclasses.phpt" role="test" />
     <file name="runkit_static_vars.phpt" role="test" />
     <file name="runkit_superglobals.phpt" role="test" />
+    <file name="runkit_superglobals_obj.phpt" role="test" />
     <file name="runkit_user_functions_on_shutdown.phpt" role="test" />
     <file name="runkit_zval_inspect.phpt" role="test" />
    </dir> <!-- //tests -->
@@ -263,6 +266,25 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2017-04-06</date>
+   <version>
+    <release>1.0.5a4</release>
+    <api>1.0.5a4</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+   Bug Fixes
+     + Fix bugs in reference counting variable names of runkit superglobals.
+	   The bug may have caused crashes or erroneous undefined variable notices.
+	   Only affects users if the `runkit.superglobal` ini setting is non-empty.
+	   Mainly affects NTS builds.
+   </notes>
+  </release>
   <release>
    <date>2017-03-31</date>
    <version>
