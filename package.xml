@@ -225,6 +225,7 @@ Define customized superglobal variables for general purpose use.
     <file name="runkit_static_property_add_to_subclasses.phpt" role="test" />
     <file name="runkit_static_vars.phpt" role="test" />
     <file name="runkit_superglobals.phpt" role="test" />
+    <file name="runkit_superglobals_obj.phpt" role="test" />
     <file name="runkit_user_functions_on_shutdown.phpt" role="test" />
     <file name="runkit_zval_inspect.phpt" role="test" />
    </dir> <!-- //tests -->
