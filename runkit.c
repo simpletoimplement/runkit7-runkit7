@@ -36,6 +36,7 @@ PHP_FUNCTION(runkit_superglobals)
 	array_init(return_value);
 	ZEND_HASH_FOREACH_STR_KEY(CG(auto_globals), key) {
 		if (key != NULL) {
+			zend_string_addref(key);
 			add_next_index_str(return_value, key);
 		}
 	} ZEND_HASH_FOREACH_END();
@@ -400,7 +401,7 @@ PHP_MSHUTDOWN_FUNCTION(runkit)
 static void php_runkit_register_auto_global(char *s, int len TSRMLS_DC)
 {
 	zend_auto_global *auto_global;
-	zend_string* globalName = zend_string_init(s, len, 0);
+	zend_string* globalName = zend_string_init(s, len, 1);
 	zval z;
 
 	if (zend_hash_exists(CG(auto_globals), globalName)) {
@@ -425,9 +426,9 @@ static void php_runkit_register_auto_global(char *s, int len TSRMLS_DC)
 			ALLOC_HASHTABLE(RUNKIT_G(superglobals));
 			zend_hash_init(RUNKIT_G(superglobals), 2, NULL, NULL, 0);
 		}
-		// TODO: destructor calls?
-		ZVAL_NEW_STR(&z, globalName);
-		// This seems like it was a bug in the original function? They tried to insert a raw string?
+		// Insert a different but equivalent zend_string into the map for function runkit_superglobals(),
+		// to make reasoning about reference tracking easier.
+		ZVAL_NEW_STR(&z, zend_string_init(s, len, 1));
 		zend_hash_next_index_insert(RUNKIT_G(superglobals), &z);
 	}
 }
