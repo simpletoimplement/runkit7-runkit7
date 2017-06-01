@@ -242,7 +242,6 @@ Define customized superglobal variables for general purpose use.
    <file name="PROPERTY_MANIPULATION.md" role="doc" />
    <file name="README.md" role="doc" />
    <file name="runkit.c" role="src" />
-   <file name="runkit.dsp" role="src" />
    <!-- <file name="runkit_classes.c" role="src" /> -->
    <file name="runkit_common.c" role="src" />
    <file name="runkit_constants.c" role="src" />
