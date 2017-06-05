@@ -1,5 +1,5 @@
-Runkit7: Unofficial runkit extension fork for PHP 7.0+
-======================================================
+[Runkit7](https://github.com/runkit7/runkit7): Unofficial runkit extension fork for PHP 7.0+
+============================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
 __Now with partial support for PHP7.0 and PHP7.1!__ (function/method manipulation is recommended only for unit testing).
@@ -14,7 +14,7 @@ __Now with partial support for PHP7.0 and PHP7.1!__ (function/method manipulatio
 Current Build Status
 --------------------
 
-In 7.0.x and 7.1.x: 0 failing tests, 4 expected failures (constant manipulation in same file), 61 skipped tests(for disabled property and import), and 95 passing tests.
+In 7.0.x and 7.1.x: 0 failing tests, 4 expected failures (constant manipulation in same file), 61 skipped tests(for disabled property and import support), and 95 passing tests.
 
 Compatability: PHP7.0 and PHP7.1(Partial)
 -----------------------------------------
@@ -44,7 +44,7 @@ Class and function manipulation is recommended only for unit tests.
   PHP7.0+ inlines constants within the same file if they are guaranteed to have only one definition.
   Patching php-src and/or opcache to not inline constants (e.g. based on a php.ini setting) is possible, but hasn't been tried yet.
 - Sandboxing (and `runkit_lint`) were removed.
-- `runkit_object_id` works.
+- `runkit_object_id` works. If that function is the only function you need from runkit, see [runkit7/runkit\_object\_id](https://github.com/runkit7/runkit_object_id).
 
 The following contributions are welcome:
 
@@ -261,5 +261,5 @@ nmake
 Then, optionally test it (Most of the tests should pass, around 16 are still failing):
 
 ```Batchfile
-nmake test TESTS="C:\php-sdk\vc14\x86\pecl\igbinary7\tests
+nmake test TESTS="C:\php-sdk\vc14\x86\pecl\runkit7\tests
 ```
