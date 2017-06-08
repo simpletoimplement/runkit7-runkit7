@@ -40,7 +40,7 @@ foreach ([
 
 ?>
 --EXPECT--
-runkit_constant_add           : 1 to 3 args: ($constname, $value, $newVisibility)
+runkit_constant_add           : 2 to 3 args: ($constname, $value, $newVisibility)
 runkit_constant_redefine      : 2 to 3 args: ($constname, $value, $newVisibility)
 runkit_constant_remove        : 1 to 1 args: ($constname)
 runkit_function_add           : 2 to 6 args: ($funcname, $arglist_or_closure, $code_or_doc_comment, $return_by_reference, $doc_comment, $return_type)
