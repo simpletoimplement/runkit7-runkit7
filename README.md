@@ -2,7 +2,7 @@
 ============================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
-__Now with partial support for PHP7.0 and PHP7.1!__ (function/method manipulation is recommended only for unit testing).
+__Now with partial support for PHP7.0 and PHP7.1!__ and PHP 7.2.0alpha1 (function/method manipulation is recommended only for unit testing).
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/3jwsf76ge0yo8v74/branch/master?svg=true)](https://ci.appveyor.com/project/TysonAndre/runkit7/branch/master)
@@ -14,9 +14,9 @@ __Now with partial support for PHP7.0 and PHP7.1!__ (function/method manipulatio
 Current Build Status
 --------------------
 
-In 7.0.x and 7.1.x: 0 failing tests, 4 expected failures (constant manipulation in same file), 61 skipped tests(for disabled property and import support), and 95 passing tests.
+In 7.0.x and 7.1.x and 7.2.0alpha1: 0 failing tests, 4 expected failures (constant manipulation in same file), 61 skipped tests(for disabled property and import), and 95 passing tests.
 
-Compatability: PHP7.0 and PHP7.1(Partial)
+Compatability: PHP7.0 and PHP7.1 and PHP7.2alpha1(Partial)
 -----------------------------------------
 
 See [runkit-api.php](./runkit-api.php) for the implemented functionality and method signatures.
@@ -24,7 +24,9 @@ See [runkit-api.php](./runkit-api.php) for the implemented functionality and met
 Superglobals work reliably when tested on web servers and tests.
 Class and function manipulation is recommended only for unit tests.
 
-- `runkit-superglobal` works reliably in 7.0.x and 7.1.x. Superglobals will be unavailable during request shutdown, e.g. when the session is being saved, when other extensions are shutting down.
+- `runkit-superglobal` works reliably in 7.0.x and 7.1.x.
+  Haven't gotten around to extensively testing it with 7.2alpha1 yet.
+  Superglobals will be unavailable during request shutdown, e.g. when the session is being saved, when other extensions are shutting down.
 - Manipulating user-defined (i.e. not builtin or part of extensions) functions and methods via `runkit_method_*` and `runkit_function_*` generally works, **but is recommended only in unit tests** (unlikely to crash, but will cause memory leaks)
 - Manipulating built in functions may cause segmentation faults in rare cases.
   File a bug report if you see this.
@@ -220,8 +222,8 @@ sudo make install
 Pecl tars are also included with newer GitHub releases.
 
 1. Go to https://github.com/runkit7/runkit7/releases
-2. Download the tgz file from the link (e.g. runkit-1.0.5a4.tgz)
-3. `pecl install ./runkit-1.0.5a4.tgz`
+2. Download the tgz file from the link (e.g. runkit-1.0.5a5.tgz)
+3. `pecl install ./runkit-1.0.5a5.tgz`
 
 ### BUILDING AND INSTALLING RUNKIT7 IN WINDOWS
 

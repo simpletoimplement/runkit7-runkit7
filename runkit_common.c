@@ -43,7 +43,10 @@ void ensure_all_objects_of_class_have_magic_methods(zend_class_entry *ce) {
 /* {{{ PHP_RUNKIT_ADD_MAGIC_METHOD */
 void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string* lcmname, zend_function *fe, const zend_function *orig_fe TSRMLS_DC) {
 	if (zend_string_equals_literal(lcmname, ZEND_CLONE_FUNC_NAME)) {
-		(ce)->clone = (fe); (fe)->common.fn_flags |= ZEND_ACC_CLONE;
+		(ce)->clone = (fe);
+#if PHP_VERSION_ID < 70200
+		(fe)->common.fn_flags |= ZEND_ACC_CLONE;
+#endif
 	} else if (zend_string_equals_literal(lcmname, ZEND_CONSTRUCTOR_FUNC_NAME)) {
 		if (!(ce)->constructor || (ce)->constructor == (orig_fe)) {
 			(ce)->constructor = (fe); (fe)->common.fn_flags |= ZEND_ACC_CTOR;
