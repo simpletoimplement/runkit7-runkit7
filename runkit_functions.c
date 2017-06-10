@@ -461,9 +461,11 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 				if (tmpArginfo[i].name) {
 					zend_string_addref((tmpArginfo[i].name));
 				}
+#if PHP_VERSION_ID < 70200
 				if (tmpArginfo[i].class_name) {
 					zend_string_addref(tmpArginfo[i].class_name);
 				}
+#endif
 			}
 			fe->op_array.arg_info = &tmpArginfo[offset];
 		}

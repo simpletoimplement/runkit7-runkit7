@@ -4,6 +4,8 @@ cache:
   directories:
     - $HOME/travis_cache
 
+dist: trusty
+
 addons:
  apt:
    sources:
@@ -32,9 +34,11 @@ install:
   - if [ "$VALGRIND" -eq 1 ]; then sudo apt-get install -qq valgrind; export TEST_PHP_ARGS="-m"; valgrind --version; fi
   - if [ "$VALGRIND" -eq 1 -a "x$USE_32BIT" != "x" ]; then sudo apt-get install -y libc6-dbg:i386; fi
 
+# Defined at https://github.com/php-build/php-build/tree/master/share/php-build/definitions
 php:
-  - '7.0'
+  - 'master'
   - '7.1'
+  - '7.0'
 
 before_script:
  - $CC --version && ci/print_php_int_max.php

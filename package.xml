@@ -16,10 +16,10 @@ Define customized superglobal variables for general purpose use.
   <email></email>
   <active>yes</active>
  </lead>
- <date>2017-04-06</date>
+ <date>2017-06-10</date>
  <version>
-  <release>1.0.5a4</release>
-  <api>1.0.5a4</api>
+  <release>1.0.5a5</release>
+  <api>1.0.5a5</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -27,11 +27,7 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-   Bug Fixes
-     + Fix bugs in reference counting variable names of runkit superglobals.
-	   The bug may have caused crashes or erroneous undefined variable notices.
-	   Only affects users if the `runkit.superglobal` ini setting is non-empty.
-	   Mainly affects NTS builds.
+   Support building with php 7.2.0alpha1 (It's possible builds may fail for new alphas of php 7.2, the binary API PHP provides is unstable.)
  </notes>
  <contents>
   <dir name="/">
@@ -265,6 +261,21 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2017-06-10</date>
+   <version>
+    <release>1.0.5a5</release>
+    <api>1.0.5a5</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+   Support building with php 7.2.0alpha1 (It's possible builds may fail for new alphas of php 7.2, the binary API PHP provides is unstable.)
+   </notes>
+  </release>
   <release>
    <date>2017-04-06</date>
    <version>
