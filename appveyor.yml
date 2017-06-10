@@ -1,5 +1,5 @@
 # Based on igbinary's appveyor config.
-# This tests against the latest stable minor version of PHP 7 (Currently 7.0)
+# This tests against the latest stable minor version of PHP 7 (Currently 7.1)
 # Author: Tyson Andre
 
 version: '{branch}.{build}'
@@ -17,15 +17,15 @@ build_script:
 
     C:\projects\php-sdk\bin\phpsdk_setvars.bat
 
-    git clone --depth=1 --branch=PHP-7.0 https://github.com/php/php-src C:\projects\php-src
+    git clone --depth=1 --branch=PHP-7.1 https://github.com/php/php-src C:\projects\php-src
 
     mkdir C:\projects\php-src\ext\runkit
 
     xcopy %APPVEYOR_BUILD_FOLDER% C:\projects\php-src\ext\runkit /s /e /y
 
-    wget http://windows.php.net/downloads/php-sdk/deps-7.0-vc14-x86.7z
+    wget http://windows.php.net/downloads/php-sdk/deps-7.1-vc14-x86.7z
 
-    7z x -y deps-7.0-vc14-x86.7z -oC:\projects\php-src
+    7z x -y deps-7.1-vc14-x86.7z -oC:\projects\php-src
 
     cd C:\projects\php-src
 
