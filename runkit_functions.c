@@ -858,7 +858,7 @@ void php_runkit_remove_function_from_reflection_objects(zend_function *fe TSRMLS
 /* {{{ php_runkit_generate_lambda_function
     Heavily borrowed from ZEND_FUNCTION(create_function).
     Used by runkit_function_add and runkit_function_redefine. Also see php_runkit_generate_lambda_method. */
-int php_runkit_generate_lambda_function(const zend_string *arguments, const zend_string *return_type, const zend_string *phpcode,
+int php_runkit_generate_lambda_function(const zend_string *arguments, const zend_string *return_type, const zend_bool is_strict, const zend_string *phpcode,
                                         zend_function **pfe, zend_bool return_ref TSRMLS_DC)
 {
 	char *eval_code;
@@ -866,7 +866,9 @@ int php_runkit_generate_lambda_function(const zend_string *arguments, const zend
 	char *return_type_code;
 	int eval_code_length;
 
-	eval_code_length = sizeof("function " RUNKIT_TEMP_FUNCNAME) +
+	eval_code_length =
+		(is_strict ? (sizeof("declare(strict_types=1);") - 1) : 0) +
+		sizeof("function " RUNKIT_TEMP_FUNCNAME) +
 		ZSTR_LEN(arguments) + 4 +
 		ZSTR_LEN(phpcode) +
 		(return_ref ? 1 : 0);
@@ -880,8 +882,10 @@ int php_runkit_generate_lambda_function(const zend_string *arguments, const zend
 		return_type_code[0] = '\0';
 	}
 
+	// TODO: ZEND_CALL_USES_STRICT_TYPES (ZEND_ACC_STRICT_TYPES) controls the strict mode behavior
+	// I don't believe that that option changes the opcodes, so copy() can work.
 	eval_code = (char*)emalloc(eval_code_length);
-	snprintf(eval_code, eval_code_length, "function %s" RUNKIT_TEMP_FUNCNAME "(%s)%s{%s}", (return_ref ? "&" : ""), ZSTR_VAL(arguments), return_type_code, ZSTR_VAL(phpcode));
+	snprintf(eval_code, eval_code_length, "%sfunction %s" RUNKIT_TEMP_FUNCNAME "(%s)%s{%s}", is_strict ? "declare(strict_types=1);" : "", (return_ref ? "&" : ""), ZSTR_VAL(arguments), return_type_code, ZSTR_VAL(phpcode));
 	eval_name = zend_make_compiled_string_description("runkit runtime-created function" TSRMLS_CC);
 	if (zend_eval_string(eval_code, NULL, eval_name TSRMLS_CC) == FAILURE) {
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Cannot create temporary function '%s'", eval_code);
@@ -906,7 +910,7 @@ int php_runkit_generate_lambda_function(const zend_string *arguments, const zend
 /* {{{ php_runkit_generate_lambda_method
 	Heavily borrowed from ZEND_FUNCTION(create_function).
 	Used by runkit_method_add and runkit_method_redefine. Also see php_runkit_generate_lambda_function. */
-int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *return_type, const zend_string *phpcode,
+int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *return_type, const zend_bool is_strict, const zend_string *phpcode,
 
                                         zend_function **pfe, zend_bool return_ref, zend_bool is_static TSRMLS_DC)
 {
@@ -916,7 +920,9 @@ int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_s
 	int eval_code_length;
 	zend_class_entry *ce;
 
-	eval_code_length = sizeof("class " RUNKIT_TEMP_CLASSNAME " { %sfunction " RUNKIT_TEMP_METHODNAME) +
+	eval_code_length =
+		(is_strict ? (sizeof("declare(strict_types=1);") - 1) : 0) +
+		sizeof("class " RUNKIT_TEMP_CLASSNAME " { %sfunction " RUNKIT_TEMP_METHODNAME) +
 		ZSTR_LEN(arguments) + 4 +
 		ZSTR_LEN(phpcode) +
 		(is_static ? (sizeof("static ") - 1) : 0) +
@@ -935,7 +941,8 @@ int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_s
 
 	eval_code = (char*)emalloc(eval_code_length);
 	snprintf(eval_code, eval_code_length,
-			"class " RUNKIT_TEMP_CLASSNAME " { %sfunction %s" RUNKIT_TEMP_METHODNAME "(%s)%s{%s}}",
+			"%sclass " RUNKIT_TEMP_CLASSNAME " { %sfunction %s" RUNKIT_TEMP_METHODNAME "(%s)%s{%s}}",
+			(is_strict ? "declare(strict_types=1);" : ""),
 			(is_static ? "static " : ""),
 			(return_ref ? "&" : ""),
 			ZSTR_VAL(arguments),
@@ -1044,6 +1051,7 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 	zend_string* phpcode = NULL;
 	zend_string* doc_comment = NULL;  // TODO: Is this right?
 	parsed_return_type return_type;
+	parsed_is_strict is_strict;
 	zend_bool return_ref = 0;
 	zend_function *orig_fe = NULL, *source_fe = NULL, *func;
 	char target_function_type;
@@ -1086,15 +1094,27 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 	}
 
 	doc_comment = php_runkit_parse_doc_comment_arg(argc, args, opt_arg_pos);
+
 	return_type = php_runkit_parse_return_type_arg(argc, args, opt_arg_pos + 1);
+
+	is_strict = php_runkit_parse_is_strict_arg(argc, args, opt_arg_pos + 2);
+
 	efree(args);
 	if (!return_type.valid) {
+		RETURN_FALSE;
+	}
+	if (!is_strict.valid) {
 		RETURN_FALSE;
 	}
 
 	if (source_fe && return_type.return_type) {
 		// TODO: Check what needs to be needs to be changed in opcode array if return_type is changed
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Overriding return_type is not currently supported for closures, use return type in closure definition instead (or pass in code as string)");
+		RETURN_FALSE;
+	}
+	if (source_fe && is_strict.overridden) {
+		// TODO: Check what needs to be needs to be changed in opcode array if is_strict is changed
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Overriding is_strict is not currently supported for closures (pass in code as string)");
 		RETURN_FALSE;
 	}
 
@@ -1113,7 +1133,7 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 	}
 
 	if (!source_fe) {
-		if (php_runkit_generate_lambda_function(arguments, return_type.return_type, phpcode, &source_fe, return_ref TSRMLS_CC) == FAILURE) {
+		if (php_runkit_generate_lambda_function(arguments, return_type.return_type, is_strict.is_strict, phpcode, &source_fe, return_ref TSRMLS_CC) == FAILURE) {
 			zend_string_release(funcname_lower);
 			RETURN_FALSE;
 		}

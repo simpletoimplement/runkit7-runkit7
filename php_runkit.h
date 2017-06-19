@@ -225,9 +225,9 @@ zend_function* php_runkit_function_clone(zend_function *fe, zend_string *newname
 void php_runkit_function_dtor(zend_function *fe);
 int php_runkit_remove_from_function_table(HashTable *function_table, zend_string *func_lower);
 void* php_runkit_update_function_table(HashTable *function_table, zend_string *func_lower, zend_function *f);
-int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *return_type, const zend_string *phpcode,
+int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *return_type, const zend_bool is_strict, const zend_string *phpcode,
                                       zend_function **pfe, zend_bool return_ref, zend_bool is_static TSRMLS_DC);
-int php_runkit_generate_lambda_function(const zend_string *arguments, const zend_string *return_type, const zend_string *phpcode,
+int php_runkit_generate_lambda_function(const zend_string *arguments, const zend_string *return_type, const zend_bool is_strict, const zend_string *phpcode,
                                       zend_function **pfe, zend_bool return_ref TSRMLS_DC);
 int php_runkit_cleanup_lambda_method();
 int php_runkit_cleanup_lambda_function();
@@ -280,6 +280,12 @@ typedef struct _parsed_return_type {
 	zend_string *return_type;
 	zend_bool   valid;
 } parsed_return_type;
+
+typedef struct _parsed_is_strict {
+	zend_bool   overridden;
+	zend_bool   is_strict;
+	zend_bool   valid;
+} parsed_is_strict;
 
 /* Disabled because of changes in the way properties are handled */
 /*
@@ -450,6 +456,27 @@ inline static parsed_return_type php_runkit_parse_return_type_arg(int argc, zval
 	return retval;
 }
 /* }}} */
+
+/* {{{ php_runkit_parse_return_type_arg */
+inline static parsed_is_strict php_runkit_parse_is_strict_arg(int argc, zval *args, int arg_pos) {
+	parsed_is_strict retval;
+	retval.is_strict = 0;
+	retval.overridden = 0;
+	retval.valid = 1;
+	if (argc <= arg_pos) {
+		return retval;
+	}
+	if (Z_TYPE(args[arg_pos]) == IS_TRUE || Z_TYPE(args[arg_pos]) == IS_FALSE) {
+		// Return return type without increasing reference count.
+		retval.is_strict = Z_TYPE(args[arg_pos]) == IS_TRUE;
+		retval.overridden = 1;
+		return retval;
+	} else if (Z_TYPE(args[arg_pos]) != IS_NULL) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "is_strict should be a boolean or NULL");
+		retval.valid = 0;
+	}
+	return retval;
+}
 
 /* {{{ php_runkit_parse_args_to_zvals */
 inline static zend_bool php_runkit_parse_args_to_zvals(int argc, zval **pargs TSRMLS_DC) {

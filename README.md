@@ -19,7 +19,10 @@ In 7.0.x and 7.1.x and 7.2.0alpha1: 0 failing tests, 4 expected failures (consta
 Compatability: PHP7.0 and PHP7.1 and PHP7.2alpha1(Partial)
 -----------------------------------------
 
-See [runkit-api.php](./runkit-api.php) for the implemented functionality and method signatures.
+**See [runkit-api.php](./runkit-api.php) for the implemented functionality and method signatures.** New functionality was added to support usage with PHP7.
+
+- This adds the ability to set return types (including nullable return types, in PHP 7.1) on added/redefined functions.
+- This adds the ability to set `declare(strict_types=1)` on added/redefined functions.
 
 Superglobals work reliably when tested on web servers and tests.
 Class and function manipulation is recommended only for unit tests.

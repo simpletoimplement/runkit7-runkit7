@@ -282,6 +282,7 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 {
 	zend_string *classname = NULL, *methodname = NULL, *arguments = NULL, *phpcode = NULL, *doc_comment = NULL;
 	parsed_return_type return_type;
+	parsed_is_strict is_strict;
 	zend_class_entry *ce, *ancestor_class = NULL;
 	zend_function *func, *fe, *source_fe = NULL, *orig_fe = NULL;
 	zend_string* methodname_lower;
@@ -327,6 +328,8 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 	doc_comment = php_runkit_parse_doc_comment_arg(argc, args, opt_arg_pos + 1);
 
 	return_type = php_runkit_parse_return_type_arg(argc, args, opt_arg_pos + 2);
+
+	is_strict = php_runkit_parse_is_strict_arg(argc, args, opt_arg_pos + 3);
 
 	efree(args);
 
@@ -374,7 +377,7 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 	}
 
 	if (!source_fe) {
-		if (php_runkit_generate_lambda_method(arguments, return_type.return_type, phpcode, &source_fe,
+		if (php_runkit_generate_lambda_method(arguments, return_type.return_type, is_strict.is_strict, phpcode, &source_fe,
 						     (flags & PHP_RUNKIT_ACC_RETURN_REFERENCE) == PHP_RUNKIT_ACC_RETURN_REFERENCE,
 							 ((flags & ZEND_ACC_STATIC) != 0)
 						     TSRMLS_CC) == FAILURE) {
