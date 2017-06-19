@@ -11,7 +11,7 @@ const RUNKIT_ACC_PROTECTED        = 0x200;
 const RUNKIT_ACC_PRIVATE          = 0x400;
 const RUNKIT_ACC_STATIC           = 0x1;
 
-const RUNKIT_VERSION              = "1.0.5a5";
+const RUNKIT_VERSION              = "1.0.5b1";
 
 
 /**
@@ -63,11 +63,11 @@ function runkit_constant_remove(string $constname) : bool {
  * @param string $arglist Comma separated argument list
  * @param string $code Code making up the function
  * @param bool $return_by_reference whether the function should return by reference
- * @param string|null $doc_comment The doc comment of the function
- * @param string|null $return_type Return type of this function (e.g. `stdClass`, `?string`(php 7.1))
+ * @param ?string $doc_comment The doc comment of the function
+ * @param ?string $return_type Return type of this function (e.g. `stdClass`, `?string`(php 7.1))
  * @return bool - True on success or false on failure.
  */
-function runkit_function_add(string $funcname, string $arglist, string $code, bool $return_by_reference = null, string $doc_comment = null, string $return_type = null) : bool {
+function runkit_function_add(string $funcname, string $arglist, string $code, bool $return_by_reference = null, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
 }
 
 /**
@@ -77,10 +77,11 @@ function runkit_function_add(string $funcname, string $arglist, string $code, bo
  *
  * @param string $funcname Name of function to be created
  * @param Closure $closure A closure to use as the source for this function. Static variables and `use` variables are copied.
- * @param string|null $doc_comment The doc comment of the function
+ * @param ?string $doc_comment The doc comment of the function
+ * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_function_add(string $funcname, Closure $closure, string $doc_comment = null) : bool {
+function runkit_function_add(string $funcname, Closure $closure, string $doc_comment = null, bool $is_strict = null) : bool {
 }
 
 /**
@@ -100,11 +101,12 @@ function runkit_function_copy(string $funcname, string $targetname) : bool {
  * @param string $arglist New list of arguments to be accepted by function
  * @param string $code New code implementation
  * @param bool $return_by_reference whether the function should return by reference
- * @param string|null $doc_comment The doc comment of the function
- * @param string|null $return_type Return type of this function (e.g. `stdClass`, `?string`(php 7.1))
+ * @param ?string $doc_comment The doc comment of the function
+ * @param ?string $return_type Return type of this function (e.g. `stdClass`, `?string`(php 7.1))
+ * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_function_redefine(string $funcname, string $arglist, string $code, bool $return_by_reference = null, string $doc_comment = null, string $return_type = null) : bool {
+function runkit_function_redefine(string $funcname, string $arglist, string $code, bool $return_by_reference = null, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
 }
 
 /**
@@ -113,10 +115,11 @@ function runkit_function_redefine(string $funcname, string $arglist, string $cod
  *
  * @param string $funcname Name of function to redefine
  * @param Closure $closure A closure to use as the new definition for this function. Static variables and `use` variables are copied.
- * @param string|null $doc_comment The doc comment of the function
+ * @param ?string $doc_comment The doc comment of the function
+ * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_function_redefine(string $funcname, Closure $closure, string $doc_comment = null) : bool {
+function runkit_function_redefine(string $funcname, Closure $closure, string $doc_comment = null, bool $is_strict = null) : bool {
 }
 
 /**
@@ -149,11 +152,12 @@ function runkit_function_rename(string $funcname, string $newname) : bool {
  * @param string $code The code to be evaluated when $methodname is called
  * @param int $flags The type of method to create, can be RUNKIT_ACC_PUBLIC, RUNKIT_ACC_PROTECTED or RUNKIT_ACC_PRIVATE
  *                   optionally combined via bitwise OR with RUNKIT_ACC_STATIC (since 1.0.1)
- * @param string|null $doc_comment The doc comment of the method
- * @param string|null $return_type Return type of this method (e.g. `stdClass`, `?string`(php 7.1))
+ * @param ?string $doc_comment The doc comment of the method
+ * @param ?string $return_type Return type of this method (e.g. `stdClass`, `?string`(php 7.1))
+ * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_method_add(string $classname, string $methodname, string $arglist, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null) : bool {
+function runkit_method_add(string $classname, string $methodname, string $arglist, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
 }
 
 /**
@@ -166,10 +170,11 @@ function runkit_method_add(string $classname, string $methodname, string $arglis
  * @param Closure $closure A closure to use as the source for this function. Static variables and `use` variables and return types are copied.
  * @param int $flags The type of method to create, can be RUNKIT_ACC_PUBLIC, RUNKIT_ACC_PROTECTED or RUNKIT_ACC_PRIVATE
  *                   optionally combined via bitwise OR with RUNKIT_ACC_STATIC (since 1.0.1)
- * @param string|null $doc_comment The doc comment of the method
+ * @param ?string $doc_comment The doc comment of the method
+ * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_method_add(string $classname, string $methodname, Closure $closure, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null) : bool {
+function runkit_method_add(string $classname, string $methodname, Closure $closure, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, bool $is_strict = null) : bool {
 }
 
 /**
@@ -193,11 +198,12 @@ function runkit_method_copy(string $dClass, string $dMethod, string $sClass, str
  * @param string $code The new code to be evaluated when methodname is called
  * @param int $flags The type of method to create, can be RUNKIT_ACC_PUBLIC, RUNKIT_ACC_PROTECTED or RUNKIT_ACC_PRIVATE
  *                   optionally combined via bitwise OR with RUNKIT_ACC_STATIC (since 1.0.1)
- * @param string|null $doc_comment The doc comment of the method
- * @param string|null $return_type Return type of this method (e.g. `stdClass`, `?string`(php 7.1))
+ * @param ?string $doc_comment The doc comment of the method
+ * @param ?string $return_type Return type of this method (e.g. `stdClass`, `?string`(php 7.1))
+ * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_method_redefine(string $classname, string $methodname, string $args, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null) : bool {
+function runkit_method_redefine(string $classname, string $methodname, string $args, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
 }
 
 /**
@@ -207,10 +213,11 @@ function runkit_method_redefine(string $classname, string $methodname, string $a
  * @param string $classname The class in which to redefine the method
  * @param string $methodname The name of the method to redefine
  * @param Closure $closure A closure to use as the new definition for this function. Static variables and `use` variables and return types are copied.
- * @param string|null $doc_comment The doc comment of the method
+ * @param ?string $doc_comment The doc comment of the method
+ * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_method_redefine(string $classname, string $methodname, Closure $closure, $doc_comment = null) : bool {
+function runkit_method_redefine(string $classname, string $methodname, Closure $closure, string $doc_comment = null, bool $is_strict = null) : bool {
 }
 
 /**
