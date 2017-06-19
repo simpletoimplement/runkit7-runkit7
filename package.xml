@@ -16,10 +16,10 @@ Define customized superglobal variables for general purpose use.
   <email></email>
   <active>yes</active>
  </lead>
- <date>2017-06-10</date>
+ <date>2017-06-18</date>
  <version>
-  <release>1.0.5a5</release>
-  <api>1.0.5a5</api>
+  <release>1.0.5b1</release>
+  <api>1.0.5b1</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -27,7 +27,8 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-   Support building with php 7.2.0alpha1 (It's possible builds may fail for new alphas of php 7.2, the binary API PHP provides is unstable.)
+   Support specifying `?bool $is_strict` on added or redefined functions and methods.
+   If this is set to true, they will work as if they were declared in a file with `declare(strict_types=1);` at the top.
  </notes>
  <contents>
   <dir name="/">
@@ -261,6 +262,22 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2017-06-18</date>
+   <version>
+    <release>1.0.5b1</release>
+    <api>1.0.5b1</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+     Support specifying `?bool $is_strict` on added or redefined functions and methods.
+     If this is set to true, they will work as if they were declared in a file with `declare(strict_types=1);` at the top.
+   </notes>
+  </release>
   <release>
    <date>2017-06-10</date>
    <version>
