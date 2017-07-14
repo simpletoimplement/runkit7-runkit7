@@ -2,7 +2,7 @@
 ============================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
-__Now with partial support for PHP7.0 and PHP7.1!__ and PHP 7.2.0alpha1 (function/method manipulation is recommended only for unit testing).
+__Now with partial support for PHP7.0 and PHP7.1!__ and PHP 7.2.0beta2 (function/method manipulation is recommended only for unit testing).
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/3jwsf76ge0yo8v74/branch/master?svg=true)](https://ci.appveyor.com/project/TysonAndre/runkit7/branch/master)
@@ -14,9 +14,9 @@ __Now with partial support for PHP7.0 and PHP7.1!__ and PHP 7.2.0alpha1 (functio
 Current Build Status
 --------------------
 
-In 7.0.x and 7.1.x and 7.2.0alpha1: 0 failing tests, 4 expected failures (constant manipulation in same file), 61 skipped tests(for disabled property and import), and 95 passing tests.
+In 7.0.x and 7.1.x and 7.2.0beta2: 0 failing tests, 4 expected failures (constant manipulation in same file), 61 skipped tests(for disabled property and import), and 95 passing tests.
 
-Compatability: PHP7.0 and PHP7.1 and PHP7.2alpha1(Partial)
+Compatability: PHP7.0 and PHP7.1 and PHP7.2beta2(Partial)
 -----------------------------------------
 
 **See [runkit-api.php](./runkit-api.php) for the implemented functionality and method signatures.** New functionality was added to support usage with PHP7.
@@ -28,8 +28,7 @@ Superglobals work reliably when tested on web servers and tests.
 Class and function manipulation is recommended only for unit tests.
 
 - `runkit-superglobal` works reliably in 7.0.x and 7.1.x.
-  Haven't gotten around to extensively testing it with 7.2alpha1 yet.
-  Superglobals will be unavailable during request shutdown, e.g. when the session is being saved, when other extensions are shutting down.
+  Haven't gotten around to extensively testing superglobals with 7.2.0beta2 yet.
 - Manipulating user-defined (i.e. not builtin or part of extensions) functions and methods via `runkit_method_*` and `runkit_function_*` generally works, **but is recommended only in unit tests** (unlikely to crash, but will cause memory leaks)
 - Manipulating built in functions may cause segmentation faults in rare cases.
   File a bug report if you see this.
@@ -85,7 +84,7 @@ The following mocking libraries work with the runkit7 fork
 	2 calls to `emalloc` have been temporarily replaced with calls to `pemalloc`
 	so that I could execute tests.
 -	There may be a few remaining logic errors after migrating the code to PHP7.
--	The zend VM bytecode may change in 7.2, so some opcodes may not work with each new minor php version release.
+-	The zend VM bytecode may change in 7.2 or future releases, so some opcodes may not work with each new minor php version release.
 
 ### APIs for PHP7
 #### Implemented APIs for PHP7 (buggy internal function manipulation):
