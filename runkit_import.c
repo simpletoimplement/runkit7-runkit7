@@ -323,13 +323,15 @@ static int php_runkit_import_class_props(zend_class_entry *dce, zend_class_entry
 
 /* {{{ php_runkit_import_classes
  */
-static int php_runkit_import_classes(HashTable *class_table, long flags
+static int php_runkit_import_classes(HashTable *class_table, const long flags
                                      , zend_bool *clear_cache
                                      TSRMLS_DC)
 {
 	zval *ce_zv;
 	zend_string *key;
+	HashTable processed_class_names;
 
+	zend_hash_init(&processed_class_names, zend_hash_num_elements(class_table), NULL, NULL, 0);
 	ZEND_HASH_FOREACH_STR_KEY_VAL(class_table, key, ce_zv) {
 		zend_class_entry *ce = NULL;
 		zend_class_entry *dce;
@@ -354,7 +356,15 @@ static int php_runkit_import_classes(HashTable *class_table, long flags
 
 		if (key != NULL) {
 			zend_string *classname = ce->name;
-			zend_string *classname_lower = zend_string_tolower(classname);
+			zend_string *classname_lower;
+			if ((zend_hash_find_ptr(&processed_class_names, classname)) != NULL) {
+				// Only process a given classname once
+				// (There are multiple redundant entries. One value of `key` is "\0filename\0...function", another is the plain classname)
+				// Could also use `ce` as the unique key.
+				continue;
+			}
+			zend_hash_add_ptr(&processed_class_names, classname, ce);
+			classname_lower = zend_string_tolower(classname);
 
 			if (!zend_hash_exists(EG(class_table), classname_lower)) {
 				php_runkit_class_copy(ce, ce->name TSRMLS_CC);
@@ -383,12 +393,13 @@ static int php_runkit_import_classes(HashTable *class_table, long flags
 			}
 
 			if (flags & PHP_RUNKIT_IMPORT_CLASS_METHODS) {
-				php_runkit_import_class_methods(dce, ce, (flags & PHP_RUNKIT_IMPORT_OVERRIDE)
+				php_runkit_import_class_methods(dce, ce, flags & (PHP_RUNKIT_IMPORT_OVERRIDE)
 				                                , clear_cache
 				                                TSRMLS_CC);
 			}
 		}
 	} ZEND_HASH_FOREACH_END();
+	zend_hash_destroy(&processed_class_names);
 
 	// TODO: blindly assuming that temporary classes are cleaned up properly in zend_hash_destroy.
 	// See if this is wrong.
@@ -484,8 +495,11 @@ PHP_FUNCTION(runkit_import)
 		RETURN_FALSE;
 	}
 	if (flags & PHP_RUNKIT_IMPORT_OVERRIDE) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "support for PHP_RUNKIT_IMPORT_OVERRIDE is not implemented yet.");
-		RETURN_FALSE;
+		if (flags & (PHP_RUNKIT_IMPORT_CLASS_PROPS | PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS)) {
+			/* TODO: Investigate if static props are possible. https://github.com/runkit7/runkit7/issues/73 */
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Using PHP_RUNKIT_IMPORT_OVERRIDE in combination with PHP_RUNKIT_IMPORT_CLASS_PROPS/PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS is not supported.");
+			RETURN_FALSE;
+		}
 	}
 	convert_to_string(filename);
 
@@ -539,21 +553,30 @@ PHP_FUNCTION(runkit_import)
 	// However, the superclasses will be found in the original class table,
 	// but the new classes are found in a separate, temporary class table.
 	if (new_op_array->early_binding != (uint32_t)-1) {
+		// For emitting errors about inheritance, PHP expects the compiled filename to be set.
+		// Allows emitting reasonable error messages for "Cannot make static method X::foo() non static"
+		zend_string * const original_filename = zend_get_compiled_filename();
+
 		zend_bool orig_in_compilation = CG(in_compilation);
 		uint32_t opline_num = new_op_array->early_binding;
-		zend_class_entry *pce;
+		zend_set_compiled_filename(Z_STR_P(filename));
 
 		CG(in_compilation) = 1;
 		while (opline_num != (uint32_t)-1) {
 			// TODO: Check if it's still op2, figure out the set of expected opcodes
-			zval *op2_zv = RT_CONSTANT_EX(new_op_array->literals, new_op_array->opcodes[opline_num - 1].op2);
+			zval *parent_name = RT_CONSTANT(new_op_array, new_op_array->opcodes[opline_num - 1].op2);
+			zval *key = parent_name + 1;
+			zend_class_entry *pce;
+			ZEND_ASSERT(Z_TYPE_P(parent_name) == IS_STRING);
 
-			if (Z_TYPE_P(op2_zv) == IS_STRING && (pce = php_runkit_fetch_class_int(Z_STR_P(op2_zv))) != NULL) {
-				do_bind_inherited_class(new_op_array, &new_op_array->opcodes[opline_num], tmp_class_table, pce, 0 TSRMLS_CC);
-			}
+			// TODO: Check if this is the same in php 7.0
+            if ((pce = zend_lookup_class_ex(Z_STR_P(parent_name), key, 0)) != NULL) {
+                do_bind_inherited_class(new_op_array, &new_op_array->opcodes[opline_num], tmp_class_table, pce, 0);
+            }
 			opline_num = new_op_array->opcodes[opline_num].result.opline_num;
 		}
 		CG(in_compilation) = orig_in_compilation;
+		zend_restore_compiled_filename(original_filename);
 	}
 
 	/* We never really needed the main loop opcodes to begin with */
