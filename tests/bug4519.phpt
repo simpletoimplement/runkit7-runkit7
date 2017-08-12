@@ -15,7 +15,7 @@ class Bar {
 
 $test = new Foo();
 print($test->b());
-runkit_import(dirname(__FILE__) . '/bug4519.inc', RUNKIT_IMPORT_OVERRIDE | RUNKIT_IMPORT_CLASSES);
+runkit_import(dirname(__FILE__) . '/bug4519.inc', RUNKIT_IMPORT_OVERRIDE | RUNKIT_IMPORT_CLASS_METHODS);
 $test2 = new Foo();
 print($test2->b());
 ?>

@@ -16,7 +16,7 @@ $reflClass = new ReflectionClass('RunkitClass');
 $reflObject = new ReflectionObject($obj);
 $reflMethod = new ReflectionMethod('RunkitClass', 'runkitMethod');
 
-runkit_import('runkit_import_method_and_reflection.inc', RUNKIT_IMPORT_CLASSES | RUNKIT_IMPORT_OVERRIDE);
+runkit_import('runkit_import_method_and_reflection.inc', RUNKIT_IMPORT_CLASS_METHODS | RUNKIT_IMPORT_OVERRIDE);
 
 var_dump($reflMethod);
 $reflMethod->invoke($obj);

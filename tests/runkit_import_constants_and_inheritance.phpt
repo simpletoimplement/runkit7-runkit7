@@ -14,7 +14,7 @@ class Test {
 }
 class Test1 extends Test {
 }
-runkit_import(dirname(__FILE__) . '/runkit_import_constants_and_inheritance.inc', RUNKIT_IMPORT_CLASSES | RUNKIT_IMPORT_OVERRIDE);
+runkit_import(dirname(__FILE__) . '/runkit_import_constants_and_inheritance.inc', RUNKIT_IMPORT_CLASS_METHODS | RUNKIT_IMPORT_CLASS_CONSTS | RUNKIT_IMPORT_OVERRIDE);
 var_dump(Test::C);
 var_dump(Test::D);
 var_dump(Test::E);

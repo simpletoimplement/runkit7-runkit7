@@ -72,4 +72,5 @@ array(1) {
   ["property"]=>
   NULL
 }
-
+--XFAIL--
+Using PHP_RUNKIT_IMPORT_OVERRIDE in combination with PHP_RUNKIT_IMPORT_CLASS_PROPS/PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS is not supported.

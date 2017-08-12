@@ -43,3 +43,5 @@ array(3) {
   [2]=>
   int(6)
 }
+--XFAIL--
+Using PHP_RUNKIT_IMPORT_OVERRIDE in combination with PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS is not supported.
