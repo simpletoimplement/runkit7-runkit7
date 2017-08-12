@@ -449,9 +449,11 @@ static zend_op_array *php_runkit_compile_filename(int type, zval *filename TSRML
 
 static HashTable *current_class_table, *tmp_class_table, *tmp_eg_class_table, *current_eg_class_table, *current_function_table, *tmp_function_table;
 static uint32_t php_runkit_old_compiler_options;
-void (*php_runkit_old_error_cb)(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args);
+/* void (*php_runkit_old_error_cb)(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args); */
 
 /* {{{ php_runkit_error_cb */
+/* Disabled because php deprecation notices were causing EG(class_table) to be restored too early */
+/*
 void php_runkit_error_cb(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args) {
 	TSRMLS_FETCH();
 
@@ -463,6 +465,7 @@ void php_runkit_error_cb(int type, const char *error_filename, const uint error_
 
 	php_runkit_old_error_cb(type, error_filename, error_lineno, format, args);
 }
+*/
 /* }}} */
 
 /* {{{ array runkit_import(string filename[, long flags])
@@ -472,7 +475,7 @@ PHP_FUNCTION(runkit_import)
 {
 	zend_op_array *new_op_array;
 	zval *filename;
-	long flags = PHP_RUNKIT_IMPORT_CLASS_METHODS;
+	zend_long flags = PHP_RUNKIT_IMPORT_CLASS_METHODS;
 	zend_bool clear_cache = 0;
 
 	zend_op_array *(*local_compile_filename)(int type, zval *filename TSRMLS_DC) = compile_filename;
@@ -494,7 +497,7 @@ PHP_FUNCTION(runkit_import)
 	}
 
 	tmp_class_table = (HashTable *) emalloc(sizeof(HashTable));
-	zend_hash_init_ex(tmp_class_table, 10, NULL, ZEND_CLASS_DTOR, 0, 0);
+	zend_hash_init_ex(tmp_class_table, 64, NULL, ZEND_CLASS_DTOR, 0, 0);
 	tmp_eg_class_table = (HashTable *) emalloc(sizeof(HashTable));
 	zend_hash_init_ex(tmp_eg_class_table, 10, NULL, ZEND_CLASS_DTOR, 0, 0);
 	tmp_function_table = (HashTable *) emalloc(sizeof(HashTable));
@@ -506,14 +509,14 @@ PHP_FUNCTION(runkit_import)
 	EG(class_table) = tmp_eg_class_table;
 	current_function_table = CG(function_table);
 	CG(function_table) = tmp_function_table;
-	php_runkit_old_error_cb = zend_error_cb;
-	zend_error_cb = php_runkit_error_cb;
+	/* php_runkit_old_error_cb = zend_error_cb; */
+	/* zend_error_cb = php_runkit_error_cb; */
 	php_runkit_old_compiler_options = CG(compiler_options);
 	CG(compiler_options) |= ZEND_COMPILE_DELAYED_BINDING;
 
 	new_op_array = local_compile_filename(ZEND_INCLUDE, filename TSRMLS_CC);
 
-	zend_error_cb = php_runkit_old_error_cb;
+	/* zend_error_cb = php_runkit_old_error_cb; */
 	CG(class_table) = current_class_table;
 	EG(class_table) = current_eg_class_table;
 	CG(function_table) = current_function_table;
@@ -526,7 +529,9 @@ PHP_FUNCTION(runkit_import)
 		efree(tmp_eg_class_table);
 		zend_hash_destroy(tmp_function_table);
 		efree(tmp_function_table);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Import Failure");
+		if (!EG(exception)) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Import Failure");
+		}
 		RETURN_FALSE;
 	}
 

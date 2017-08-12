@@ -8,7 +8,7 @@ runkit_import() Importing and overriding class methods
 error_reporting(E_ALL & ~E_STRICT);
 
 class ParentClass {
-  function foo() {
+  public static function foo() {
     echo "Parent::foo\n";
   }
 }
