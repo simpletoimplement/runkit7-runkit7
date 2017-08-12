@@ -16,7 +16,7 @@
   | Author: Sara Golemon <pollita@php.net>                               |
   | Modified by Dmitry Zenovich <dzenovich@gmail.com>                    |
   +----------------------------------------------------------------------+
-Note: This file is no longer being compiled due to changes to the internals in property manipulation.
+FIXME: Check that all applicable flags, member variables, etc. are manipulated appropriately for classes, etc.
 runkit_property_modify() may be implemented in the future.
 */
 

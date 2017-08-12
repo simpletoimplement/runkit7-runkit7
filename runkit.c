@@ -232,10 +232,13 @@ zend_function_entry runkit_functions[] = {
 	PHP_FE(runkit_constant_remove,									arginfo_runkit_constant_remove)
 	PHP_FE(runkit_constant_add,										arginfo_runkit_constant_add)
 
+/*
+// We support this **partially** just so that runkit_import will compile, but it's in progress.
 #ifdef PHP_RUNKIT_MANIPULATION_PROPERTIES
 	PHP_FE(runkit_default_property_add,								NULL)
 	PHP_FE(runkit_default_property_remove,								NULL)
 #endif
+*/
 #endif /* PHP_RUNKIT_MANIPULATION */
 
 #ifdef PHP_RUNKIT_SANDBOX

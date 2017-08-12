@@ -56,6 +56,7 @@ runkit_constants.c \
 runkit_object_id.c \
 runkit_common.c \
 runkit_zend_execute_API.c \
+runkit_classes.c \
 runkit_props.c \
 , $ext_shared,, -Wdeclaration-after-statement -Werror -Wall -Wno-deprecated-declarations -Wno-pedantic)
 fi

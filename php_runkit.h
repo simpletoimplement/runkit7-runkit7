@@ -87,7 +87,7 @@ static inline void* _debug_emalloc(void* data, int bytes, char* file, int line) 
 // TODO: Clean up these macros once the corresponding functions/files are 100% correct.
 #define PHP_RUNKIT_MANIPULATION_IMPORT
 #define PHP_RUNKIT_MANIPULATION_PROPERTIES
-// #define PHP_RUNKIT_MANIPULATION_CLASSES
+#define PHP_RUNKIT_MANIPULATION_CLASSES
 #endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
@@ -242,7 +242,7 @@ void php_runkit_clear_all_functions_runtime_cache(TSRMLS_D);
 void php_runkit_fix_all_hardcoded_stack_sizes(zend_string *called_name_lower, zend_function *called_f TSRMLS_DC);
 
 void php_runkit_remove_function_from_reflection_objects(zend_function *fe TSRMLS_DC);
-// void php_runkit_function_copy_ctor(zend_function *fe, zend_string *newname TSRMLS_DC);
+// void php_runkit_function_copy_ctor(zend_function *fe, zend_string *newname, char orig_fe_type TSRMLS_DC);
 zend_function* php_runkit_function_clone(zend_function *fe, zend_string *newname, char orig_fe_type TSRMLS_DC);
 void php_runkit_function_dtor(zend_function *fe);
 int php_runkit_remove_from_function_table(HashTable *function_table, zend_string *func_lower);

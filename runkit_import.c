@@ -43,46 +43,63 @@ static int php_runkit_import_functions(HashTable *function_table, long flags
 		zend_string *new_key;
 		zend_bool add_function = 1;
 		zend_bool exists = 0;
+		zend_bool create_as_internal = 0;
 
 		new_key = fe->common.function_name;
 
-		if (fe && fe->type == ZEND_USER_FUNCTION) {
+		if (!fe || fe->type != ZEND_USER_FUNCTION) {
+			continue;
+		}
 
-			if (key != NULL) {
-				new_key = key;
-				exists = ((orig_fe = zend_hash_find_ptr(EG(function_table), new_key)) != NULL);
-			} else {
-				exists = ((orig_fe = zend_hash_index_find_ptr(EG(function_table), idx)) != NULL);
+		if (key != NULL) {
+			new_key = key;
+			exists = ((orig_fe = zend_hash_find_ptr(EG(function_table), new_key)) != NULL);
+		} else {
+			exists = ((orig_fe = zend_hash_index_find_ptr(EG(function_table), idx)) != NULL);
+		}
+
+		if (exists) {
+			create_as_internal = orig_fe->type == ZEND_INTERNAL_FUNCTION;
+			if (create_as_internal && !RUNKIT_G(internal_override)) {
+				php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s() is an internal function and runkit.internal_override is disabled", ZSTR_VAL(new_key));
+				continue;
 			}
-
-			if (exists) {
-				php_runkit_remove_function_from_reflection_objects(orig_fe TSRMLS_CC);
-				if (flags & PHP_RUNKIT_IMPORT_OVERRIDE) {
-					if (key != NULL) {
-						if (zend_hash_del(EG(function_table), new_key) == FAILURE) {
-							php_error_docref(NULL TSRMLS_CC, E_WARNING, "Inconsistency cleaning up import environment");
-							return FAILURE;
-						}
-					} else {
-						if (zend_hash_index_del(EG(function_table), idx) == FAILURE) {
-							php_error_docref(NULL TSRMLS_CC, E_WARNING, "Inconsistency cleaning up import environment");
-							return FAILURE;
-						}
+			php_runkit_remove_function_from_reflection_objects(orig_fe TSRMLS_CC);
+			if (flags & PHP_RUNKIT_IMPORT_OVERRIDE) {
+				if (key != NULL) {
+					if (zend_hash_del(EG(function_table), new_key) == FAILURE) {
+						php_error_docref(NULL TSRMLS_CC, E_WARNING, "Inconsistency cleaning up import environment");
+						return FAILURE;
 					}
-					*clear_cache = 1;
 				} else {
-					add_function = 0;
+					if (zend_hash_index_del(EG(function_table), idx) == FAILURE) {
+						php_error_docref(NULL TSRMLS_CC, E_WARNING, "Inconsistency cleaning up import environment");
+						return FAILURE;
+					}
 				}
+				*clear_cache = 1;
+			} else {
+				add_function = 0;
 			}
 		}
 
 		if (add_function) {
-			if (zend_hash_add_ptr(EG(function_table), new_key, fe) == NULL) {
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failure importing %s()", ZSTR_VAL(fe->common.function_name));
+			zend_function *add_fe = fe;
+			if (create_as_internal) {
+				add_fe = php_runkit_function_clone(fe, new_key, ZEND_INTERNAL_FUNCTION);
+			}
+			if (zend_hash_add_ptr(EG(function_table), new_key, add_fe) == NULL) {
+				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failure importing %s()", ZSTR_VAL(add_fe->common.function_name));
+				if (add_fe != fe) {
+					PHP_RUNKIT_DESTROY_FUNCTION(add_fe);
+				}
 				PHP_RUNKIT_DESTROY_FUNCTION(fe);
 				return FAILURE;
 			} else {
 				PHP_RUNKIT_FUNCTION_ADD_REF(fe);
+				if (add_fe != fe) {
+					PHP_RUNKIT_FUNCTION_ADD_REF(add_fe);
+				}
 			}
 		}
 	} ZEND_HASH_FOREACH_END();
