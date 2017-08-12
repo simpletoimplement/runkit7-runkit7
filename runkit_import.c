@@ -196,7 +196,7 @@ static int php_runkit_import_class_consts(zend_class_entry *dce, zend_class_entr
 #if PHP_VERSION_ID >= 70100
 	ZEND_HASH_FOREACH_STR_KEY_PTR(&ce->constants_table, key, c) { /* } */
 #else
-	ZEND_HASH_FOREACH_STR_KEY_PTR(&ce->constants_table, key, c_zval) {
+	ZEND_HASH_FOREACH_STR_KEY_VAL(&ce->constants_table, key, c_zval) {
 #endif
 		long action = HASH_ADD;
 #if PHP_VERSION_ID >= 70100
