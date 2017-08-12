@@ -14,7 +14,7 @@ class FOO_test extends test {
 class FOO_test_Child extends FOO_test {
 }
 
-runkit_import("runkit_add_old_style_ctor_by_importing.inc", RUNKIT_IMPORT_CLASSES);
+runkit_import("runkit_add_old_style_ctor_by_importing.inc", RUNKIT_IMPORT_CLASS_METHODS);
 $a = new test;
 $a = new foo_test;
 $a = new FOO_test_Child;

@@ -40,3 +40,5 @@ IMPORTED: v
 IMPORTED: s
 v
 IMPORTED: v
+--XFAIL--
+Property manipulation isn't supported, including in runkit_import.

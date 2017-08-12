@@ -84,6 +84,7 @@ for ($i = 0; $i < 10; $i++) {
   $result = e($result);
 }
 echo $result;
+echo "\n";
 --EXPECT--
 100
 200

@@ -58,3 +58,5 @@ IMPORTED: v
 IMPORTED: foo()
 IMPORTED: myFoo()
 IMPORTED: myStaticFoo()
+--XFAIL--
+Overriding properties in runkit_import is not supported
