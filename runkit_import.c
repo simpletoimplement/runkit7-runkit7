@@ -224,7 +224,7 @@ static int php_runkit_import_class_consts(zend_class_entry *dce, zend_class_entr
 
 /* {{{ php_runkit_import_class_static_props
  */
-static int php_runkit_import_class_static_props(zend_class_entry *dce, zend_class_entry *ce, int override, int remove_from_objects TSRMLS_DC)
+static int php_runkit_import_class_static_props(zend_class_entry *dce, zend_class_entry *ce, const int override, int remove_from_objects TSRMLS_DC)
 {
 	zend_string *key;
 	zend_property_info *property_info_ptr;
@@ -254,6 +254,7 @@ static int php_runkit_import_class_static_props(zend_class_entry *dce, zend_clas
 					php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to import %s::$%s (cannot add new member)", ZSTR_VAL(dce->name), ZSTR_VAL(key));
 					continue;
 				}
+				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Attempting to override definition of %s::$%s , runkit doesn't support that.", ZSTR_VAL(dce->name), ZSTR_VAL(key));
 				continue;
 			} else {
 				php_error_docref(NULL TSRMLS_CC, E_NOTICE, "%s::$%s already exists, not importing", ZSTR_VAL(dce->name), ZSTR_VAL(key));
@@ -500,6 +501,11 @@ PHP_FUNCTION(runkit_import)
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Using PHP_RUNKIT_IMPORT_OVERRIDE in combination with PHP_RUNKIT_IMPORT_CLASS_PROPS/PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS is not supported.");
 			RETURN_FALSE;
 		}
+	}
+	if (flags & (PHP_RUNKIT_IMPORT_CLASS_PROPS | PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS)) {
+		/* TODO: Investigate if static props are possible. https://github.com/runkit7/runkit7/issues/73 */
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "PHP_RUNKIT_IMPORT_CLASS_PROPS/PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS are not supported yet, runkit_props.c has not been fully ported.");
+		RETURN_FALSE;
 	}
 	convert_to_string(filename);
 

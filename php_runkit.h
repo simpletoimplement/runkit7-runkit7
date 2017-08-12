@@ -86,7 +86,7 @@ static inline void* _debug_emalloc(void* data, int bytes, char* file, int line) 
 // TODO: Enable these macros once the corresponding functions/files compile and pass some of the tests.
 // TODO: Clean up these macros once the corresponding functions/files are 100% correct.
 #define PHP_RUNKIT_MANIPULATION_IMPORT
-// #define PHP_RUNKIT_MANIPULATION_PROPERTIES
+#define PHP_RUNKIT_MANIPULATION_PROPERTIES
 // #define PHP_RUNKIT_MANIPULATION_CLASSES
 #endif
 
@@ -290,7 +290,6 @@ int php_runkit_def_prop_add_int(zend_class_entry *ce, zend_string* propname, zva
                                 int override_in_objects TSRMLS_DC);
 int php_runkit_def_prop_remove_int(zend_class_entry *ce, zend_string* propname, zend_class_entry *definer_class,
                                    zend_bool was_static, zend_bool remove_from_objects, zend_property_info *parent_property TSRMLS_DC);
-void php_runkit_remove_property_from_reflection_objects(zend_class_entry *ce, zend_string *prop_name TSRMLS_DC);
 
 typedef struct _zend_closure {
     zend_object    std;
