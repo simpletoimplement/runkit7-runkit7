@@ -10,6 +10,10 @@ PHP_ARG_ENABLE(runkit-modify, whether to enable runtime manipulation of function
 PHP_ARG_ENABLE(runkit-super, whether to enable registration of user-defined autoglobals,
 [  --enable-runkit-super     Enable registration of user-defined autoglobals], inherit, no)
 
+PHP_ARG_ENABLE(runkit_spl_object_id, whether to enable spl_object_id in PHP <= 7.1,
+[  --enable-runkit-spl_object_id    Enable spl_object_id support], no, no)
+
+
 if test "$PHP_RUNKIT" != "no"; then
   if test "$PHP_RUNKIT_MODIFY" = "inherit"; then
     PHP_RUNKIT_MODIFY=yes
@@ -42,6 +46,9 @@ if test "$PHP_RUNKIT" != "no"; then
   fi
   if test "$PHP_RUNKIT_SUPER" != "no"; then
     AC_DEFINE(PHP_RUNKIT_FEATURE_SUPER, 1, [Whether to export custom autoglobal registration feature])
+  fi
+  if test "$PHP_RUNKIT_SPL_OBJECT_ID" != "no"; then
+    AC_DEFINE(PHP_RUNKIT_SPL_OBJECT_ID, 1, [Whether to define spl_object_id in php <= 7.1])
   fi
   PHP_NEW_EXTENSION(runkit, runkit.c runkit_functions.c runkit_methods.c \
 runkit_constants.c \

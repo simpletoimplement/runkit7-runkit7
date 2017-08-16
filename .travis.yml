@@ -42,7 +42,7 @@ php:
 
 before_script:
  - $CC --version && ci/print_php_int_max.php
- - (export CC; phpize && ./configure && make)
+ - (export CC; phpize && ./configure --enable-runkit-spl_object-id && make)
 
 script:
  - phpenv config-rm xdebug.ini || true

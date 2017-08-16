@@ -244,12 +244,26 @@ function runkit_method_rename(string $classname, string $methodname, string $new
 
 /**
  * Gets a unique integer identifier (Will be reused when the object is garbage collected) for an object.
+ * This is identical to `spl_object_id`, which will be built into PHP 7.2+.
+ * Similar to `spl_object_hash`, but returns an int instead of a string.
+ *
+ * @param object $obj - The object
+ * @return int|false - Returns false if given a non-object.
+ */
+function runkit_object_id($obj) : int {
+}
+
+/**
+ * Gets a unique integer identifier (Will be reused when the object is garbage collected) for an object.
  * This is similar to `spl_object_hash`, but returns an int instead of a string.
+ *
+ * NOTE: runkit can provide an optional native implementation, but that is currently disabled by default by `./configure`.
+ *       spl_object_id is built into PHP 7.2+.
  *
  * @param object $obj - The object
  * @return int|null - Returns null if given a non-object.
  */
-function runkit_object_id($obj) : int {
+function spl_object_id($obj) : int {
 }
 
 /**

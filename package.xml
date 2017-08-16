@@ -227,6 +227,7 @@ Define customized superglobal variables for general purpose use.
     <file name="runkit_superglobals_obj.phpt" role="test" />
     <file name="runkit_user_functions_on_shutdown.phpt" role="test" />
     <file name="runkit_zval_inspect.phpt" role="test" />
+    <file name="spl_object_id.phpt" role="test" />
    </dir> <!-- //tests -->
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
