@@ -402,23 +402,48 @@ inline static zend_string* php_runkit_parse_doc_comment_arg(int argc, zval *args
 /* {{{ php_runkit_is_valid_return_type */
 inline static zend_bool php_runkit_is_valid_return_type(const zend_string *return_type) {
 	const char *it = ZSTR_VAL(return_type);
-	unsigned char c;
+	const char * const end = it + ZSTR_LEN(return_type);
 #if PHP_VERSION_ID >= 70100
+	if (it >= end) {
+		return 0;
+	}
 	if (*it == '?') {
 		it++;
 	}
 #endif
-	c = (unsigned char)*it;
-	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c >= 128) {
-		for (c = *++it; c != '\0'; c = *++it) {
-			if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c >= 128) {
+	if (it >= end) {
+		return 0;
+	}
+	if (*it == '\\') {
+		it++;
+	}
+	if (it >= end) {
+		return 0;
+	}
+	while (1) {
+		unsigned char c = *it;
+		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c >= 128) {
+			for (++it; it < end; ++it) {
+				c = *it;
+				if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c >= 128) {
+					continue;
+				}
+				if (c == '\\') {
+					break;
+				}
+				return 0;
+			}
+			if (c == '\\') {
+				if (it + 1 == end) {  // "\A\" is invalid
+					return 0;
+				}
+				++it;
 				continue;
 			}
-			return 0;
+			return 1;
 		}
-		return 1;
+		return 0;
 	}
-	return 0;
 	// The format of a valid class identifier is documented at https://secure.php.net/manual/en/language.oop5.basic.php
 }
 /* }}} */
@@ -443,9 +468,9 @@ inline static parsed_return_type php_runkit_parse_return_type_arg(int argc, zval
 			return retval;
 		}
 #if PHP_VERSION_ID >= 70100
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Return type should match regex ^\\??[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*$");
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Return type should match regex ^\\??[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*(\\\\[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*)*$");
 #else
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Return type should match regex ^[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*$");
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Return type should match regex ^[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*(\\\\[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*)$");
 #endif
 		retval.valid = 0;
 		return retval;
