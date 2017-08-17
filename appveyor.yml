@@ -5,13 +5,12 @@
 version: '{branch}.{build}'
 install:
 - cmd: choco feature enable -n=allowGlobalConfirmation
-- cmd: cinst wget
 - cmd: mkdir %APPVEYOR_BUILD_FOLDER%\bin
 build_script:
 - cmd: >-
     "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\vcvars32.bat"
 
-    wget http://windows.php.net/downloads/php-sdk/php-sdk-binary-tools-20110915.zip
+    appveyor DownloadFile http://windows.php.net/downloads/php-sdk/php-sdk-binary-tools-20110915.zip
 
     7z x -y php-sdk-binary-tools-20110915.zip -oC:\projects\php-sdk
 
@@ -23,7 +22,7 @@ build_script:
 
     xcopy %APPVEYOR_BUILD_FOLDER% C:\projects\php-src\ext\runkit /s /e /y
 
-    wget http://windows.php.net/downloads/php-sdk/deps-7.1-vc14-x86.7z
+    appveyor DownloadFile http://windows.php.net/downloads/php-sdk/deps-7.1-vc14-x86.7z
 
     7z x -y deps-7.1-vc14-x86.7z -oC:\projects\php-src
 
@@ -31,7 +30,7 @@ build_script:
 
     buildconf.bat
 
-    configure.bat --disable-all --enable-session --enable-debug --enable-cli --enable-cgi --enable-runkit --enable-json --with-config-file-scan-dir=%APPVEYOR_BUILD_FOLDER%\bin\modules.d --with-prefix=%APPVEYOR_BUILD_FOLDER%\bin --with-php-build=deps
+    configure.bat --disable-all --enable-session --enable-debug --enable-cli --enable-cgi --enable-runkit --enable-runkit-spl_object_id --enable-json --with-config-file-scan-dir=%APPVEYOR_BUILD_FOLDER%\bin\modules.d --with-prefix=%APPVEYOR_BUILD_FOLDER%\bin --with-php-build=deps
 
     nmake
 

@@ -35,6 +35,22 @@ PHP_FUNCTION(runkit_object_id)
 }
 /* }}} */
 
+#ifdef PHP_RUNKIT_PROVIDES_SPL_OBJECT_ID
+/* {{{ proto int spl_object_id(object instance)
+Fetch the Object Handle ID from an instance */
+PHP_FUNCTION(spl_object_id)
+{
+	zval *obj;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_OBJECT(obj)
+	ZEND_PARSE_PARAMETERS_END_EX(RETURN_NULL());
+
+	RETURN_LONG(Z_OBJ_HANDLE_P(obj));
+}
+/* }}} */
+#endif
+
 /*
  * Local variables:
  * tab-width: 4

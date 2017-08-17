@@ -75,6 +75,12 @@ static inline void* _debug_emalloc(void* data, int bytes, char* file, int line) 
 /* Hardcoded. TODO should not be. */
 #define PHP_RUNKIT_SUPERGLOBALS
 
+#ifdef PHP_RUNKIT_SPL_OBJECT_ID
+#if PHP_VERSION_ID < 70200
+#define PHP_RUNKIT_PROVIDES_SPL_OBJECT_ID
+#endif
+#endif
+
 #ifdef PHP_RUNKIT_FEATURE_MODIFY
 #define PHP_RUNKIT_MANIPULATION
 #endif
@@ -103,6 +109,9 @@ PHP_RSHUTDOWN_FUNCTION(runkit);
 PHP_MINFO_FUNCTION(runkit);
 
 PHP_FUNCTION(runkit_object_id);
+#ifdef PHP_RUNKIT_PROVIDES_SPL_OBJECT_ID
+PHP_FUNCTION(spl_object_id);
+#endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
 PHP_FUNCTION(runkit_function_add);

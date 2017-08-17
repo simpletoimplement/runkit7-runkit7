@@ -194,6 +194,9 @@ zend_function_entry runkit_functions[] = {
 
 	PHP_FE(runkit_zval_inspect,										arginfo_runkit_zval_inspect)
 	PHP_FE(runkit_object_id,										arginfo_runkit_object_id)
+#ifdef PHP_RUNKIT_PROVIDES_SPL_OBJECT_ID
+	PHP_FE(spl_object_id,											arginfo_runkit_object_id)
+#endif
 
 #ifdef PHP_RUNKIT_SUPERGLOBALS
 	PHP_FE(runkit_superglobals,										arginfo_runkit_superglobals)
@@ -600,6 +603,16 @@ PHP_MINFO_FUNCTION(runkit)
 #else
 	php_info_print_table_header(2, "Runtime Manipulation", "disabled or unavailable");
 #endif /* PHP_RUNKIT_MANIPULATION */
+
+	php_info_print_table_header(2, "spl_object_id alias support",
+#ifdef PHP_RUNKIT_PROVIDES_SPL_OBJECT_ID
+			"enabled"
+#elif PHP_VERSION_ID >= 70200
+			"unnecessary in php 7.2+"
+#else
+			"disabled"
+#endif
+	);
 
 	php_info_print_table_end();
 
