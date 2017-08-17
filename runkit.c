@@ -82,6 +82,16 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_object_id, 0, 0, 1)
 	ZEND_ARG_INFO(0, obj)
 ZEND_END_ARG_INFO()
 
+#if PHP_RUNKIT_SANDBOX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_lint, 0, 0, 1)
+	ZEND_ARG_INFO(0, contents)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_lint_file, 0, 0, 1)
+	ZEND_ARG_INFO(0, file_name)
+ZEND_END_ARG_INFO()
+#endif
+
 #ifdef PHP_RUNKIT_SUPERGLOBALS
 ZEND_BEGIN_ARG_INFO(arginfo_runkit_superglobals, 0)
 ZEND_END_ARG_INFO()
@@ -242,9 +252,10 @@ zend_function_entry runkit_functions[] = {
 #endif /* PHP_RUNKIT_MANIPULATION */
 
 #ifdef PHP_RUNKIT_SANDBOX
-	PHP_FE(runkit_sandbox_output_handler,							NULL)
-	PHP_FE(runkit_lint,												NULL)
-	PHP_FE(runkit_lint_file,										NULL)
+	// FIXME re-enable for sandbox
+	// PHP_FE(runkit_sandbox_output_handler,							NULL)
+	PHP_FE(runkit_lint,												arginfo_runkit_lint)
+	PHP_FE(runkit_lint_file,										arginfo_runkit_lint_file)
 #endif
 
 	{NULL, NULL, NULL}
@@ -402,8 +413,9 @@ PHP_MINIT_FUNCTION(runkit)
 
 	return (1)
 #ifdef PHP_RUNKIT_SANDBOX
-		&& (php_runkit_init_sandbox(INIT_FUNC_ARGS_PASSTHRU) == SUCCESS)
-		&& (php_runkit_init_sandbox_parent(INIT_FUNC_ARGS_PASSTHRU) == SUCCESS)
+		// FIXME re-enable sandbox
+		// && (php_runkit_init_sandbox(INIT_FUNC_ARGS_PASSTHRU) == SUCCESS)
+		// && (php_runkit_init_sandbox_parent(INIT_FUNC_ARGS_PASSTHRU) == SUCCESS)
 #endif
 				? SUCCESS : FAILURE;
 }
@@ -423,8 +435,9 @@ PHP_MSHUTDOWN_FUNCTION(runkit)
 
 	return (1)
 #ifdef PHP_RUNKIT_SANDBOX
-		&& (php_runkit_shutdown_sandbox(SHUTDOWN_FUNC_ARGS_PASSTHRU) == SUCCESS)
-		&& (php_runkit_shutdown_sandbox_parent(SHUTDOWN_FUNC_ARGS_PASSTHRU) == SUCCESS)
+		// FIXME re-enable sandbox
+		// && (php_runkit_shutdown_sandbox(SHUTDOWN_FUNC_ARGS_PASSTHRU) == SUCCESS)
+		// && (php_runkit_shutdown_sandbox_parent(SHUTDOWN_FUNC_ARGS_PASSTHRU) == SUCCESS)
 #endif
 				? SUCCESS : FAILURE;
 }

@@ -3,6 +3,7 @@
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | (c) 2008-2015 Dmitry Zenovich                                        |
+  | "runkit7" patches (c) 2015-2017 Tyson Andre                          |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -10,24 +11,22 @@
   | http://www.opensource.org/licenses/BSD-3-Clause                      |
   | If you did not receive a copy of the license and are unable to       |
   | obtain it through the world-wide-web, please send a note to          |
-  | dzenovich@gmail.com so we can mail you a copy immediately.           |
+  | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Author: Dmitry Zenovich <dzenovich@gmail.com>                        |
+  | Modified for php7 by Tyson Andre <tysonandre775@hotmail.com>         |
   +----------------------------------------------------------------------+
 */
 
 #ifndef PHP_RUNKIT_SANDBOX_H
 #define PHP_RUNKIT_SANDBOX_H
 
+// FIXME reintroduce and fix compilation errors
+#if 0
 /* {{{ php_runkit_sandbox_has_property_int */
 inline static int php_runkit_sandbox_has_property_int(int has_set_exists, zval *member TSRMLS_DC) {
 	zval **tmpzval;
 	int result = 0;
-
-#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 1
-	/* Map PHP 5.0 has_property flag to PHP 5.1+ flag */
-	has_set_exists = (has_set_exists == 0) ? 2 : 1;
-#endif
 
 	if (zend_hash_find(&EG(symbol_table), Z_STRVAL_P(member), Z_STRLEN_P(member) + 1, (void*)&tmpzval) == SUCCESS) {
 		switch (has_set_exists) {
@@ -36,7 +35,7 @@ inline static int php_runkit_sandbox_has_property_int(int has_set_exists, zval *
 				break;
 			case 1:
 				switch (Z_TYPE_PP(tmpzval)) {
-					case IS_BOOL: case IS_LONG: case IS_RESOURCE:
+					case IS_FALSE: case IS_TRUE: case IS_LONG: case IS_RESOURCE:
 						result = (Z_LVAL_PP(tmpzval) != 0);
 						break;
 					case IS_DOUBLE:
@@ -183,6 +182,7 @@ inline static zval *php_runkit_sandbox_return_property_value(int prop_found, zva
 	}
 }
 /* }}} */
+#endif // #if 0
 
 #endif
 

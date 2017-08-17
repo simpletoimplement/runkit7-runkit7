@@ -3,6 +3,7 @@
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
+  | "runkit7" patches (c) 2015-2017 Tyson Andre                          |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -14,6 +15,7 @@
   +----------------------------------------------------------------------+
   | Author: Sara Golemon <pollita@php.net>                               |
   | Modified by Dmitry Zenovich <dzenovich@gmail.com>                    |
+  | Modified for php7 by Tyson Andre <tysonandre775@hotmail.com>         |
   +----------------------------------------------------------------------+
 */
 
@@ -25,6 +27,8 @@
 #include "php_runkit_sandbox.h"
 #include "php_runkit_zval.h"
 
+// FIXME reintroduce and fix compilation errors
+#if 0
 static zend_object_handlers php_runkit_sandbox_parent_handlers;
 static zend_class_entry *php_runkit_sandbox_parent_entry;
 
@@ -656,6 +660,7 @@ int php_runkit_shutdown_sandbox_parent(SHUTDOWN_FUNC_ARGS)
 {
 	return SUCCESS;
 }
+#endif
 
 #endif /* PHP_RUNKIT_SANDBOX */
 

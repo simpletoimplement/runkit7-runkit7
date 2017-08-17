@@ -3,6 +3,7 @@
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
+  | "runkit7" patches (c) 2015-2017 Tyson Andre                          |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -10,11 +11,12 @@
   | http://www.opensource.org/licenses/BSD-3-Clause                      |
   | If you did not receive a copy of the license and are unable to       |
   | obtain it through the world-wide-web, please send a note to          |
-  | dzenovich@gmail.com so we can mail you a copy immediately.           |
+  | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Author: Sara Golemon <pollita@php.net>                               |
   | Props:  Wez Furlong                                                  |
   | Modified by Dmitry Zenovich <dzenovich@gmail.com>                    |
+  | Modified for php7 by Tyson Andre <tysonandre775@hotmail.com>         |
   +----------------------------------------------------------------------+
 */
 
@@ -24,11 +26,19 @@
 #include "ext/standard/php_smart_string.h"
 
 #ifdef PHP_RUNKIT_SANDBOX
+
+#include "Zend/zend.h"  // debugging, tsrm_ls_cache
+// TODO: ifdef compile_dl_runkit, which is always?
+
 #include "SAPI.h"
 #include "php_main.h"
 #include "php_runkit_sandbox.h"
 #include "php_runkit_zval.h"
+#include "Zend/zend_language_scanner.h"
 
+#include <ext/standard/php_var.h>  // debug
+
+#if 0
 static zend_object_handlers php_runkit_sandbox_object_handlers;
 static zend_class_entry *php_runkit_sandbox_class_entry;
 
@@ -1781,10 +1791,12 @@ int php_runkit_shutdown_sandbox(SHUTDOWN_FUNC_ARGS)
 
 	return SUCCESS;
 }
+#endif // #if 0
 
 /* ***********************
    * Lint Implementation *
    *********************** */
+
 
 /* {{{ php_runkit_lint_compile
 	Central helper function for runkit_lint() and runkit_lint_file() */
@@ -1792,51 +1804,135 @@ static void php_runkit_lint_compile(INTERNAL_FUNCTION_PARAMETERS, int filemode)
 {
 	void *context, *prior_context;
 	zval *zcode;
+	zend_execute_data *old_execute_data;
+	zend_execute_data *old_current_execute_data;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &zcode) == FAILURE) {
 		RETURN_FALSE;
 	}
 
+	old_execute_data = EX(call);
+	old_current_execute_data = EG(current_execute_data);
+	printf("EX(call)=%llx\n", (long long)old_execute_data);
+	if (EX(call)) {
+	printf("EX(call)->prev_execute_data=%llx\n", (long long)EX(call)->prev_execute_data);
+	}
+	printf("EG(current_execute_data)=%llx\n", (long long)old_current_execute_data);
+	EG(current_execute_data) = NULL;
+
 	convert_to_string(zcode);
+	printf("vm_stack_top=%llx\n", (long long)(EG(vm_stack_top)));
+	printf("vm_stack_end=%llx\n", (long long)(EG(vm_stack_end)));
+	printf("vm_stack    =%llx\n", (long long)(EG(vm_stack)));
+	printf("exception   =%llx\n", (long long)(EG(exception)));
+	printf("&exception  =%llx\n", (long long)(&EG(exception)));
+	printf("_tsrm_ls_cache=%llx\n", (long long)tsrm_get_ls_cache());
+	printf("_tsrm_ls_cache[globals_id-1]=%llx\n", (long long)((*((void ***) tsrm_get_ls_cache()))[executor_globals_id-1]));
+	printf("_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)((((zend_executor_globals *) (*((void ***) tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
+	printf("&_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)&((((zend_executor_globals *) (*((void ***) tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
 
 	context = tsrm_new_interpreter_context();
 	prior_context = tsrm_set_interpreter_context(context);
-	{
-		TSRMLS_FETCH();
+	// {
+	// 	TSRMLS_FETCH();
 
-		php_request_startup(TSRMLS_C);
-		PG(during_request_startup) = 0;
+	// 	php_request_startup(TSRMLS_C);
+	// 	PG(during_request_startup) = 0;  // TODO find reason for workaround
+	// 	printf("######## Switched to another stack\n");
+	// 	printf("vm_stack_top=%llx\n", (long long)(EG(vm_stack_top))); fflush(stdout);
+	// 	printf("vm_stack_end=%llx\n", (long long)(EG(vm_stack_end))); fflush(stdout);
+	// 	printf("vm_stack    =%llx\n", (long long)(EG(vm_stack))); fflush(stdout);
+	// 	printf("exception   =%llx\n", (long long)(EG(exception))); fflush(stdout);
+	// 	printf("&exception  =%llx\n", (long long)(&EG(exception))); fflush(stdout);
+	// 	printf("_tsrm_ls_cache=%llx\n", (long long)tsrm_get_ls_cache());
+	// 	printf("_tsrm_ls_cache[globals_id-1]=%llx\n", (long long)((*((void ***) tsrm_get_ls_cache()))[executor_globals_id-1]));
+	// 	printf("_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)((((zend_executor_globals *) (*((void ***) tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
+	// 	printf("&_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)&((((zend_executor_globals *) (*((void ***) tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
+	// 	printf("######## end stack info\n");
 
-		zend_first_try {
-			char *eval_desc;
-			zend_op_array *op_array;
+	// 	zend_first_try {
+	// 		char *eval_desc;
+	// 		zend_op_array *op_array;
+	// 		zend_object *exception = EG(exception);
+	// 		printf("before try\nexception    =%llx\n", (long long)(exception));
+	// 		printf("msg    ='''%s'''\n", ZSTR_VAL(Z_STR(*zcode)));
 
-			if (filemode) {
-				op_array = compile_filename(ZEND_INCLUDE, zcode TSRMLS_CC);
-			} else {
-				eval_desc = zend_make_compiled_string_description("runkit_lint test compile" TSRMLS_CC);
-				op_array = compile_string(zcode, eval_desc TSRMLS_CC);
-				efree(eval_desc);
-			}
+	// 		if (filemode) {
+	// 			op_array = compile_filename(ZEND_INCLUDE, zcode TSRMLS_CC);
+	// 		} else {
+	// 			// TODO: prepend `?>` to emulate the old runkit behavior.
+	// 			eval_desc = zend_make_compiled_string_description("runkit_lint test compile" TSRMLS_CC);
+	// 			op_array = compile_string(zcode, eval_desc TSRMLS_CC);
+	// 			exception = EG(exception);
+	// 			if (exception) {
+	// 				zval tmp_obj;
+	// 				printf("after try\nexception    =%llx\n", (long long)(exception));
+	// 				ZVAL_OBJ(&tmp_obj, exception);
+	// 				php_var_dump(&tmp_obj, 1);
+	// 				printf("In zend_catch, freeing object\n");
+	// 				fflush(stdout);
+	// 				EG(exception) = 0;
+	// 				zend_object_release(exception);
+	// 			}
+	// 			efree(eval_desc);
+	// 		}
 
-			if (op_array)  {
-				RETVAL_TRUE;
-				destroy_op_array(op_array TSRMLS_CC);
-				efree(op_array);
-			} else {
-				RETVAL_FALSE;
-			}
-		} zend_catch {
-			RETVAL_FALSE;
-		} zend_end_try();
+	// 		if (op_array)  {
+	// 			RETVAL_TRUE;
+	// 			destroy_op_array(op_array TSRMLS_CC);
+	// 			efree(op_array);
+	// 		} else {
+	// 			RETVAL_FALSE;
+	// 		}
+	// 	} zend_catch {
+	// 		// TODO: is this right?
+	// 		// TODO: free the object?
+	// 		RETVAL_FALSE;
+	// 	} zend_end_try();
 
-		php_request_shutdown(NULL);
-	}
+	// 	// TODO: catch the exception, destroy it before calling shutdown?
+	// 	php_request_shutdown(NULL);
+	// }
+
+	// printf("After exception\n");
+	// printf("vm_stack_top=%llx\n", (long long)(EG(vm_stack_top)));
+	// printf("vm_stack_end=%llx\n", (long long)(EG(vm_stack_end)));
+	// printf("vm_stack    =%llx\n", (long long)(EG(vm_stack)));
+	// printf("exception   =%llx\n", (long long)(EG(exception)));
+	// printf("&exception  =%llx\n", (long long)(&EG(exception)));
+	// fflush(stdout);
 	tsrm_set_interpreter_context(NULL);
 	tsrm_free_interpreter_context(context);
 	tsrm_set_interpreter_context(prior_context);
+	// TODO: Mock the sapi as well? I'm not familiar with thread safe code
+	printf("after\n");
+	printf("vm_stack_top=%llx\n", (long long)(EG(vm_stack_top)));
+	printf("vm_stack_end=%llx\n", (long long)(EG(vm_stack_end)));
+	printf("vm_stack    =%llx\n", (long long)(EG(vm_stack)));
+	printf("exception    =%llx\n", (long long)(EG(exception)));
+	printf("&exception  =%llx\n", (long long)(&EG(exception)));
+	// Should this invalidate it?
+	printf("_tsrm_ls_cache=%llx\n", (long long)tsrm_get_ls_cache());
+	printf("_tsrm_ls_cache[globals_id-1]=%llx\n", (long long)((*((void ***) tsrm_get_ls_cache()))[executor_globals_id-1]));
+	printf("_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)((((zend_executor_globals *) (*((void ***) tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
+	printf("&_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)&((((zend_executor_globals *) (*((void ***) tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
+	fflush(stdout);
+
+	EX(call) = old_execute_data;
+	EG(current_execute_data) = old_current_execute_data;
+	printf("EX(call)=%llx\n", (long long)EX(call));
+	if (EX(call)) {
+	printf("EX(call)->prev_execute_data=%llx\n", (long long)EX(call)->prev_execute_data);
+	}
+	printf("EG(current_execute_data)=%llx\n", (long long)EG(current_execute_data));
+	printf("EG(vm_stack_top)=%llx\n", (long long)EG(vm_stack_top));
+	printf("&exception  =%llx\n", (long long)(&EG(exception)));
+	printf("exception  =%llx\n", (long long)(EG(exception)));
 }
 /* }}} */
+
+// The implementation of compile_string changed. It expects raw PHP without tags instead of PHP contents of tags.
+// zend_language_scanner.c doesn't expose enough to create a stable implementation, unless one were to duplicate it.
 
 /* {{{ proto bool runkit_lint(string code)
 	Attempts to compile a string of code within a sub-interpreter */

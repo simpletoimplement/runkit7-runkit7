@@ -86,8 +86,13 @@ static inline void* _debug_emalloc(void* data, int bytes, char* file, int line) 
 /* The TSRM interpreter patch required by runkit_sandbox was added in 5.1, but this package includes diffs for older versions
  * Those diffs include an additional #define to indicate that they've been applied
  */
-#if defined(ZTS) && defined(PHP_RUNKIT_FEATURE_SANDBOX)
+#ifdef PHP_RUNKIT_FEATURE_SANDBOX
+#if (defined ZTS) && (defined PHP_RUNKIT_FEATURE_SANDBOX)
 #define PHP_RUNKIT_SANDBOX
+#else
+// debugging code
+#error Feature not enabled
+#endif
 #endif
 
 #ifdef PHP_RUNKIT_FEATURE_MODIFY
