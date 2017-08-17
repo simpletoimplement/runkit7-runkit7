@@ -13,6 +13,8 @@ PHP_ARG_ENABLE(runkit-super, whether to enable registration of user-defined auto
 PHP_ARG_ENABLE(runkit_spl_object_id, whether to enable spl_object_id in PHP <= 7.1,
 [  --enable-runkit-spl_object_id    Enable spl_object_id support], no, no)
 
+PHP_ARG_ENABLE(runkit-sandbox, whether to enable Sandbox support,
+[  --enable-runkit-sandbox   Enable Runkit_Sandbox (Requires ZTS)], inherit, no)
 
 if test "$PHP_RUNKIT" != "no"; then
   if test "$PHP_RUNKIT_MODIFY" = "inherit"; then
@@ -21,6 +23,9 @@ if test "$PHP_RUNKIT" != "no"; then
   if test "$PHP_RUNKIT_SUPER" = "inherit"; then
     PHP_RUNKIT_SUPER=yes
   fi
+  if test "$PHP_RUNKIT_SANDBOX" = "inherit"; then
+    PHP_RUNKIT_SANDBOX=yes
+  fi
 else
   if test "$PHP_RUNKIT_MODIFY" = "inherit"; then
     PHP_RUNKIT_MODIFY=no
@@ -28,10 +33,14 @@ else
   if test "$PHP_RUNKIT_SUPER" = "inherit"; then
     PHP_RUNKIT_SUPER=no
   fi
+  if test "$PHP_RUNKIT_SANDBOX" = "inherit"; then
+    PHP_RUNKIT_SANDBOX=no
+  fi
 fi
 
 if test "$PHP_RUNKIT_MODIFY" = "yes" ||
-   test "$PHP_RUNKIT_SUPER" = "yes"; then
+   test "$PHP_RUNKIT_SUPER" = "yes" ||
+   test "$PHP_RUNKIT_SANDBOX" = "yes"; then
   if test "$PHP_RUNKIT" != "classkit"; then
     PHP_RUNKIT=yes
   fi
@@ -47,12 +56,16 @@ if test "$PHP_RUNKIT" != "no"; then
   if test "$PHP_RUNKIT_SUPER" != "no"; then
     AC_DEFINE(PHP_RUNKIT_FEATURE_SUPER, 1, [Whether to export custom autoglobal registration feature])
   fi
+  if test "$PHP_RUNKIT_SANDBOX" != "no"; then
+    AC_DEFINE(PHP_RUNKIT_FEATURE_SANDBOX, 1, [Whether to export Sandbox feature])
+  fi
   if test "$PHP_RUNKIT_SPL_OBJECT_ID" != "no"; then
     AC_DEFINE(PHP_RUNKIT_SPL_OBJECT_ID, 1, [Whether to define spl_object_id in php <= 7.1])
   fi
   PHP_NEW_EXTENSION(runkit, runkit.c runkit_functions.c runkit_methods.c \
 runkit_import.c \
 runkit_constants.c \
+runkit_sandbox.c runkit_sandbox_parent.c \
 runkit_object_id.c \
 runkit_common.c \
 runkit_zend_execute_API.c \
