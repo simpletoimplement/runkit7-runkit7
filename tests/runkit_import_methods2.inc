@@ -1,7 +1,7 @@
 <?php
 
 class Child extends ParentClass {
-  function foo() {
+  public static function foo() {
     echo "Child2::foo\n";
   }
 }

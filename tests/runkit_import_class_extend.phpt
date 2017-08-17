@@ -12,12 +12,12 @@ class ext{
 	}
 }
 
-runkit_import(dirname(__FILE__) . '/runkit_import_class_extend.inc', RUNKIT_IMPORT_CLASSES | RUNKIT_IMPORT_OVERRIDE);
+runkit_import(dirname(__FILE__) . '/runkit_import_class_extend.inc', RUNKIT_IMPORT_CLASS_METHODS | RUNKIT_IMPORT_OVERRIDE);
 $Test = new Test;
 $Test->ver();
 unset($Test);
 //load it once more to override
-runkit_import(dirname(__FILE__) . '/runkit_import_class_extend.inc', RUNKIT_IMPORT_CLASSES | RUNKIT_IMPORT_OVERRIDE);
+runkit_import(dirname(__FILE__) . '/runkit_import_class_extend.inc', RUNKIT_IMPORT_CLASS_METHODS | RUNKIT_IMPORT_OVERRIDE);
 $Test = new Test;
 $Test->ver();
 $Test->aaa();

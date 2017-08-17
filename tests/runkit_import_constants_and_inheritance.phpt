@@ -7,6 +7,8 @@ runkit_import() Importing and overriding constants with inheritance
 ?>
 --FILE--
 <?php
+// Hacky workaround so that runkit won't inline constants within opcodes of this file.
+if (!class_exists('Test')) {
 class Test {
     const C = 1;
     const D = "aaa";
@@ -14,7 +16,8 @@ class Test {
 }
 class Test1 extends Test {
 }
-runkit_import(dirname(__FILE__) . '/runkit_import_constants_and_inheritance.inc', RUNKIT_IMPORT_CLASSES | RUNKIT_IMPORT_OVERRIDE);
+}
+runkit_import(dirname(__FILE__) . '/runkit_import_constants_and_inheritance.inc', RUNKIT_IMPORT_CLASS_METHODS | RUNKIT_IMPORT_CLASS_CONSTS | RUNKIT_IMPORT_OVERRIDE);
 var_dump(Test::C);
 var_dump(Test::D);
 var_dump(Test::E);

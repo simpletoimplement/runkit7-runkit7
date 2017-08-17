@@ -11,7 +11,7 @@
   | http://www.opensource.org/licenses/BSD-3-Clause                      |
   | If you did not receive a copy of the license and are unable to       |
   | obtain it through the world-wide-web, please send a note to          |
-  | dzenovich@gmail.com so we can mail you a copy immediately.           |
+  | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Author: Sara Golemon <pollita@php.net>                               |
   | Modified by Dmitry Zenovich <dzenovich@gmail.com>                    |
@@ -203,11 +203,9 @@ zend_function_entry runkit_functions[] = {
 #endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
-#ifdef PHP_RUNKIT_MANIPULATION_CLASSES
-	// PHP_FE(runkit_class_emancipate,									NULL)
-	// PHP_FE(runkit_class_adopt,										NULL)
+#ifdef PHP_RUNKIT_MANIPULATION_IMPORT
+	PHP_FE(runkit_import,											NULL)
 #endif
-	// PHP_FE(runkit_import,											NULL)
 
 	PHP_FE(runkit_function_add,										arginfo_runkit_function_add)
 	PHP_FE(runkit_function_remove,									arginfo_runkit_function_remove)
@@ -227,15 +225,27 @@ zend_function_entry runkit_functions[] = {
 	PHP_FALIAS(classkit_method_remove,		runkit_method_remove,	arginfo_runkit_method_remove)
 	PHP_FALIAS(classkit_method_rename,		runkit_method_rename,	arginfo_runkit_method_rename)
 	PHP_FALIAS(classkit_method_copy,		runkit_method_copy,		arginfo_runkit_method_copy)
+	PHP_FALIAS(classkit_import,				runkit_import,			arginfo_runkit_import)
 #endif
 
 	PHP_FE(runkit_constant_redefine,								arginfo_runkit_constant_redefine)
 	PHP_FE(runkit_constant_remove,									arginfo_runkit_constant_remove)
 	PHP_FE(runkit_constant_add,										arginfo_runkit_constant_add)
 
-	// PHP_FE(runkit_default_property_add,								NULL)
-	// PHP_FE(runkit_default_property_remove,							NULL)
+/*
+// We support this **partially** just so that runkit_import will compile, but it's in progress.
+#ifdef PHP_RUNKIT_MANIPULATION_PROPERTIES
+	PHP_FE(runkit_default_property_add,								NULL)
+	PHP_FE(runkit_default_property_remove,								NULL)
+#endif
+*/
 #endif /* PHP_RUNKIT_MANIPULATION */
+
+#ifdef PHP_RUNKIT_SANDBOX
+	PHP_FE(runkit_sandbox_output_handler,							NULL)
+	PHP_FE(runkit_lint,												NULL)
+	PHP_FE(runkit_lint_file,										NULL)
+#endif
 
 	{NULL, NULL, NULL}
 };
@@ -433,7 +443,8 @@ static void php_runkit_register_auto_global(char *s, int len TSRMLS_DC)
 			ALLOC_HASHTABLE(RUNKIT_G(superglobals));
 			zend_hash_init(RUNKIT_G(superglobals), 2, NULL, NULL, 0);
 		}
-		// Insert a different but equivalent zend_string into the map for function runkit_superglobals(),
+		// Insert a different but equivalent zend_string (superglobal name)
+		// into the list for function runkit_superglobals(),
 		// to make reasoning about reference tracking easier.
 		ZVAL_NEW_STR(&z, zend_string_init(s, len, 1));
 		zend_hash_next_index_insert(RUNKIT_G(superglobals), &z);
@@ -508,9 +519,9 @@ static int php_runkit_superglobal_dtor(zval *zv TSRMLS_DC)
  */
 PHP_RSHUTDOWN_FUNCTION(runkit)
 {
-#ifdef PHP_RUNKIT_MANIPULATION
+	// #ifdef PHP_RUNKIT_MANIPULATION
 	// php_runkit_default_class_members_list_element *el;
-#endif
+	// #endif
 
 #ifdef PHP_RUNKIT_SUPERGLOBALS
 	if (RUNKIT_G(superglobals)) {

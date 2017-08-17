@@ -15,7 +15,7 @@ unset($oTestReload);
 class TestReload{
 	private $refClass;
 
-	public function TestReload($sClass) {
+	public function __construct($sClass) {
 		$this->refClass = new ReflectionClass($sClass);
 
 		// Verify default property values
@@ -54,7 +54,7 @@ class TestReload{
 }
 
 class Reload {
-	public function Reload($sClassPath) {
+	public function __construct($sClassPath) {
 		runkit_import($sClassPath, (RUNKIT_IMPORT_OVERRIDE|RUNKIT_IMPORT_CLASS_STATIC_PROPS));
 	}
 }
@@ -72,4 +72,5 @@ array(1) {
   ["property"]=>
   NULL
 }
-
+--XFAIL--
+Using PHP_RUNKIT_IMPORT_OVERRIDE in combination with PHP_RUNKIT_IMPORT_CLASS_PROPS/PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS is not supported.

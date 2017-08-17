@@ -6,8 +6,13 @@ runkit_import() Importing file with syntax error in it
 ?>
 --FILE--
 <?php
-runkit_import(dirname(__FILE__) . '/runkit_import_with_syntax_error.inc');
+try {
+    runkit_import(dirname(__FILE__) . '/runkit_import_with_syntax_error.inc');
+} catch (ParseError $e) {
+    printf("Caught ParseError at %s:%d: %s\n", $e->getFile(), $e->getLine(), $e->getMessage());
+}
 echo "After syntax error";
 ?>
 --EXPECTF--
-Parse error: %s in %s on line 2
+Caught ParseError at %srunkit_import_with_syntax_error.inc:2: syntax error, unexpected ')'
+After syntax error

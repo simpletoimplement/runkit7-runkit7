@@ -36,7 +36,7 @@ class Test {
 
   function c($result) {
     for ($i = 0; $i < 10; $i++) {
-      runkit_import('runkit_methods_redefining_and_cache.inc', RUNKIT_IMPORT_CLASSES | RUNKIT_IMPORT_OVERRIDE);
+      runkit_import('runkit_methods_redefining_and_cache.inc', RUNKIT_IMPORT_CLASS_METHODS | RUNKIT_IMPORT_OVERRIDE);
       $result = $this->obj->a($result);
     }
     return $result;

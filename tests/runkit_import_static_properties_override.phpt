@@ -44,3 +44,5 @@ int(3)
 int(4)
 int(5)
 int(6)
+--XFAIL--
+Using PHP_RUNKIT_IMPORT_OVERRIDE in combination with PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS is not supported, may be supported in the future.
