@@ -499,9 +499,10 @@ void php_runkit_free_inner_if_aliased_function(zend_function *fe) {
 		zval zv_inner;
 		zend_function *fe_inner;
 		fe_inner = (zend_function*) RUNKIT_ALIASED_USER_FUNCTION(fe);
-		debug_printf("Freeing internal function %llx of %llx", (long long)(uintptr_t)(fe_inner), (long long)(uintptr_t)fe);
+		// TODO: Free these earlier if possible.
+		debug_printf("Freeing internal function %llx of %llx: %s\n", (long long)(uintptr_t)(fe_inner), (long long)(uintptr_t)fe, (char*)ZSTR_VAL(fe_inner->common.function_name));
 #if ZEND_DEBUG
-		ZEND_ASSERT(fe_inner->type == ZEND_INTERNAL_FUNCTION);
+		ZEND_ASSERT(fe_inner->type == ZEND_USER_FUNCTION);
 #endif
 		ZVAL_FUNC(&zv_inner, fe_inner);
 		zend_function_dtor(&zv_inner);
