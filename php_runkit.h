@@ -61,6 +61,8 @@ static inline void* _debug_emalloc(void* data, int bytes, char* file, int line) 
 #endif
 
 #define PHP_RUNKIT_VERSION					"1.0.5b1"
+#define PHP_RUNKIT_SANDBOX_CLASSNAME		"Runkit_Sandbox"
+#define PHP_RUNKIT_SANDBOX_PARENT_CLASSNAME	"Runkit_Sandbox_Parent"
 
 #define PHP_RUNKIT_IMPORT_FUNCTIONS                         0x0001
 #define PHP_RUNKIT_IMPORT_CLASS_METHODS                     0x0002
@@ -78,6 +80,18 @@ static inline void* _debug_emalloc(void* data, int bytes, char* file, int line) 
 #ifdef PHP_RUNKIT_SPL_OBJECT_ID
 #if PHP_VERSION_ID < 70200
 #define PHP_RUNKIT_PROVIDES_SPL_OBJECT_ID
+#endif
+#endif
+
+/* The TSRM interpreter patch required by runkit_sandbox was added in 5.1, but this package includes diffs for older versions
+ * Those diffs include an additional #define to indicate that they've been applied
+ */
+#ifdef PHP_RUNKIT_FEATURE_SANDBOX
+#if (defined ZTS) && (defined PHP_RUNKIT_FEATURE_SANDBOX)
+#define PHP_RUNKIT_SANDBOX
+#else
+// debugging code
+#error Feature not enabled
 #endif
 #endif
 
@@ -161,14 +175,25 @@ PHP_FUNCTION(runkit_import);
 #endif /* PHP_RUNKIT_MANIPULATION_IMPORT */
 #endif /* PHP_RUNKIT_MANIPULATION */
 
+#ifdef PHP_RUNKIT_SANDBOX
+PHP_FUNCTION(runkit_sandbox_output_handler);
+PHP_FUNCTION(runkit_lint);
+PHP_FUNCTION(runkit_lint_file);
+
+typedef struct _php_runkit_sandbox_object php_runkit_sandbox_object;
+#endif /* PHP_RUNKIT_SANDBOX */
+
 #ifdef PHP_RUNKIT_MANIPULATION
 // typedef struct _php_runkit_default_class_members_list_element php_runkit_default_class_members_list_element;
 #endif
 
-#if defined(PHP_RUNKIT_SUPERGLOBALS) || defined(PHP_RUNKIT_MANIPULATION)
+#if defined(PHP_RUNKIT_SUPERGLOBALS) || defined(PHP_RUNKIT_SANDBOX) || defined(PHP_RUNKIT_MANIPULATION)
 ZEND_BEGIN_MODULE_GLOBALS(runkit)
 #ifdef PHP_RUNKIT_SUPERGLOBALS
 	HashTable *superglobals;
+#endif
+#ifdef PHP_RUNKIT_SANDBOX
+	php_runkit_sandbox_object *current_sandbox;
 #endif
 #ifdef PHP_RUNKIT_MANIPULATION
 	HashTable *misplaced_internal_functions;
@@ -373,6 +398,69 @@ static inline void php_runkit_modify_function_doc_comment(zend_function *fe, zen
 	}
 
 #endif /* PHP_RUNKIT_MANIPULATION */
+
+#ifdef PHP_RUNKIT_SANDBOX
+/* runkit_sandbox.c */
+int php_runkit_init_sandbox(INIT_FUNC_ARGS);
+int php_runkit_shutdown_sandbox(SHUTDOWN_FUNC_ARGS);
+
+/* runkit_sandbox_parent.c */
+int php_runkit_init_sandbox_parent(INIT_FUNC_ARGS);
+int php_runkit_shutdown_sandbox_parent(SHUTDOWN_FUNC_ARGS);
+int php_runkit_sandbox_array_deep_copy(RUNKIT_53_TSRMLS_ARG(zval **value), int num_args, va_list args, zend_hash_key *hash_key);
+
+struct _php_runkit_sandbox_object {
+	zend_object obj;
+
+	void *context, *parent_context;
+
+	char *disable_functions;
+	char *disable_classes;
+	zval *output_handler;					/* points to function which lives in the parent_context */
+
+	unsigned char bailed_out_in_eval;		/* Patricide is an ugly thing.  Especially when it leaves bailout address mis-set */
+
+	unsigned char active;					/* A bailout will set this to 0 */
+	unsigned char parent_access;			/* May Runkit_Sandbox_Parent be instantiated/used? */
+	unsigned char parent_read;				/* May parent vars be read? */
+	unsigned char parent_write;				/* May parent vars be written to? */
+	unsigned char parent_eval;				/* May arbitrary code be run in the parent? */
+	unsigned char parent_include;			/* May arbitrary code be included in the parent? (includes require(), and *_once()) */
+	unsigned char parent_echo;				/* May content be echoed from the parent scope? */
+	unsigned char parent_call;				/* May functions in the parent scope be called? */
+	unsigned char parent_die;				/* Are $PARENT->die() / $PARENT->exit() enabled? */
+	unsigned long parent_scope;				/* 0 == Global, 1 == Active, 2 == Active->prior, 3 == Active->prior->prior, etc... */
+
+	char *parent_scope_name;				/* Combines with parent_scope to refer to a named array as a symbol table */
+	int parent_scope_namelen;
+};
+
+
+/* TODO: It'd be nice if objects and resources could make it across... */
+#define PHP_SANDBOX_CROSS_SCOPE_ZVAL_COPY_CTOR(pzv) \
+{ \
+	switch (Z_TYPE_P(pzv)) { \
+		case IS_RESOURCE: \
+		case IS_OBJECT: \
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to translate resource, or object variable to current context."); \
+			ZVAL_NULL(pzv); \
+			break; \
+		case IS_ARRAY: \
+		{ \
+			HashTable *original_hashtable = Z_ARRVAL_P(pzv); \
+			array_init(pzv); \
+			zend_hash_apply_with_arguments(RUNKIT_53_TSRMLS_PARAM(original_hashtable), (apply_func_args_t)php_runkit_sandbox_array_deep_copy, 1, Z_ARRVAL_P(pzv) TSRMLS_CC); \
+			break; \
+		} \
+		default: \
+			zval_copy_ctor(pzv); \
+	} \
+	if (Z_REFCOUNTED_P(pzf)) \
+		Z_SET_REFCOUNT(pzv, 1); \
+		/*(pzv)->RUNKIT_IS_REF = 0; // I think I can get rid of that, since IS_REFERENCE is now part of Z_TYPE?*/ \
+	} \
+}
+#endif /* PHP_RUNKIT_SANDBOX */
 
 #ifdef PHP_RUNKIT_MANIPULATION
 
@@ -622,6 +710,18 @@ void php_runkit_update_reflection_object_name(zend_object* object, int handle, c
 		zend_object zo;
 	} reflection_object;
 #endif /* PHP_RUNKIT_MANIPULATION */
+
+#ifdef PHP_RUNKIT_SANDBOX
+// TODO: Figure out what the php7 equivalent of zend_object_store_bucket and zend_object_handle are.
+/* {{{ php_runkit_zend_object_store_get_obj */
+inline static zend_object *php_runkit_zend_object_store_get(const zval *zobject TSRMLS_DC)
+{
+	// Note: Object handle may be removed from _zend_resource in the future.
+	int handle = Z_OBJ_HANDLE_P(zobject);
+	return EG(objects_store).object_buckets[handle];
+}
+/* }}} */
+#endif
 
 #endif	/* PHP_RUNKIT_H */
 
