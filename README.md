@@ -2,7 +2,7 @@
 ============================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
-__Now with partial support for PHP7.0 and PHP7.1!__ and PHP 7.2.0beta2 (function/method manipulation is recommended only for unit testing).
+__Now with partial support for PHP7.0, 7.1, and 7.2!__ (function/method manipulation is recommended only for unit testing).
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/3jwsf76ge0yo8v74/branch/master?svg=true)](https://ci.appveyor.com/project/TysonAndre/runkit7/branch/master)
@@ -14,10 +14,10 @@ __Now with partial support for PHP7.0 and PHP7.1!__ and PHP 7.2.0beta2 (function
 Current Build Status
 --------------------
 
-In 7.0.x and 7.1.x and 7.2.0beta2: 0 failing tests, 4 expected failures (constant manipulation in same file), 61 skipped tests(for disabled property and import), and 95 passing tests.
+In 7.0.x and 7.1.x and 7.2.0: 0 failing tests, 4 expected failures (constant manipulation in same file), 61 skipped tests(for disabled property and import), and 95 passing tests.
 
-Compatability: PHP7.0 and PHP7.1 and PHP7.2beta2(Partial)
------------------------------------------
+Compatability: PHP7.0 to PHP 7.2
+--------------------------------
 
 **See [runkit-api.php](./runkit-api.php) for the implemented functionality and method signatures.** New functionality was added to support usage with PHP7.
 
@@ -27,8 +27,7 @@ Compatability: PHP7.0 and PHP7.1 and PHP7.2beta2(Partial)
 Superglobals work reliably when tested on web servers and tests.
 Class and function manipulation is recommended only for unit tests.
 
-- `runkit-superglobal` works reliably in 7.0.x and 7.1.x.
-  Haven't gotten around to extensively testing superglobals with 7.2.0beta2 yet.
+- `runkit-superglobal` works reliably in PHP 7.
 - Manipulating user-defined (i.e. not builtin or part of extensions) functions and methods via `runkit_method_*` and `runkit_function_*` generally works, **but is recommended only in unit tests** (unlikely to crash, but will cause memory leaks)
 - Manipulating built in functions may cause segmentation faults in rare cases.
   File a bug report if you see this.
@@ -84,7 +83,7 @@ The following mocking libraries work with the runkit7 fork
 	2 calls to `emalloc` have been temporarily replaced with calls to `pemalloc`
 	so that I could execute tests.
 -	There may be a few remaining logic errors after migrating the code to PHP7.
--	The zend VM bytecode may change in 7.2 or future releases, so some opcodes may not work with each new minor php version release.
+-	The zend VM bytecode may change in 7.3 or future releases, so some opcodes may not work with each new minor php version release.
 
 ### APIs for PHP7
 #### Implemented APIs for PHP7 (buggy internal function manipulation):
@@ -96,7 +95,7 @@ The following mocking libraries work with the runkit7 fork
 -	Runkit superglobals.
 
 #### Unsupported APIs for PHP7:
-(These functions will be missing)
+(These functions will be missing. Some of these should be possible to implement.)
 
 -	`runkit_import`
 	Disabled because of bugs related to properties
@@ -104,11 +103,12 @@ The following mocking libraries work with the runkit7 fork
 -	`runkit_class_adopt` and `runkit_class_emancipate`
 	Disabled because of [bugs related to properties](./PROPERTY_MANIPULATION.md).
 -	`runkit_lint*`
+    Might be possible if this is rewritten to use actual threading: See [issue #114](https://github.com/runkit7/runkit7/issues/114)
 -	`runkit_constant_*` : `runkit_constant_add` works reliably, other methods don't.
 	This works better when the constants are declared in a different file.
 -	`runkit_default_property_*`
 	Disabled because of [bugs related to properties](./PROPERTY_MANIPULATION.md)
-	See https://github.com/runkit7/runkit7/issues/30
+	See [issue #30](https://github.com/runkit7/runkit7/issues/30) (implement function to modify only) and [issue #113](https://github.com/runkit7/runkit7/issues/113) (Manipulate static properties)
 
 	`runkit_default_property_add` has been removed in php7 - it requires `realloc`ing a different zval to add a property to the property table
 	That would break a lot of things.
@@ -133,6 +133,10 @@ Things to do after that:
 
 -   Replace property manipulation with `runkit_default_property_modify` (https://github.com/runkit7/runkit7/issues/30)
 -	Fix FPM
+
+### Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on issues and pull requests, as well as links to resources that are useful for php7 module and runkit7 development.
 
 UPSTREAM DOCUMENTATION
 ======================
