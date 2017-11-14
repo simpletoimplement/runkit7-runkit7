@@ -212,7 +212,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 		param = ZEND_CALL_ARG(call, i+1);
 #if PHP_VERSION_ID < 70100
 		ZVAL_COPY_VALUE(param, arg);
-#else 
+#else
 		ZVAL_COPY(param, arg);
 #endif
 	}
@@ -227,7 +227,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 
 	if (UNEXPECTED(func->op_array.fn_flags & ZEND_ACC_CLOSURE)) {
 		ZEND_ASSERT(GC_TYPE((zend_object*)func->op_array.prototype) == IS_OBJECT);
-		GC_REFCOUNT((zend_object*)func->op_array.prototype)++;
+		GC_ADDREF((zend_object*)func->op_array.prototype);
 		ZEND_ADD_CALL_FLAG(call, ZEND_CALL_CLOSURE);
 	}
 

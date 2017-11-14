@@ -25,23 +25,39 @@
 
 #ifdef PHP_RUNKIT_MANIPULATION
 
-// validate_constant_array copied from Zend/zend_builtin_functions.c
-static int validate_constant_array(HashTable *ht) /* {{{ */
+// validate_constant_array copied from Zend/zend_builtin_functions.c. This accepts IS_ARRAY
+static int validate_constant_array(zval * const z) /* {{{ */
 {
 	int ret = 1;
+	HashTable *ht;
 	zval *val;
+	ZEND_ASSERT(Z_TYPE_P(z) == IS_ARRAY);
+	ht = Z_ARRVAL_P(z);
 
+	if (Z_IMMUTABLE_P(z)) {
+		return 1;
+	}
+#ifdef Z_PROTECT_RECURSION_P
+	if (Z_REFCOUNTED_P(z)) {
+		if (Z_IS_RECURSIVE_P(z)) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Constants cannot be recursive arrays");
+			return 0;
+		}
+		Z_PROTECT_RECURSION_P(z);
+	}
+#else
+	if (ht->u.v.nApplyCount > 0) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Constants cannot be recursive arrays");
+		return 0;
+	}
 	ht->u.v.nApplyCount++;
+#endif
 	ZEND_HASH_FOREACH_VAL_IND(ht, val) {
 		ZVAL_DEREF(val);
 		if (Z_REFCOUNTED_P(val)) {
 			if (Z_TYPE_P(val) == IS_ARRAY) {
 				if (!Z_IMMUTABLE_P(val)) {
-					if (Z_ARRVAL_P(val)->u.v.nApplyCount > 0) {
-						php_error_docref(NULL TSRMLS_CC, E_WARNING, "Constants cannot be recursive arrays");
-						ret = 0;
-						break;
-					} else if (!validate_constant_array(Z_ARRVAL_P(val))) {
+					if (!validate_constant_array(val)) {
 						ret = 0;
 						break;
 					}
@@ -53,7 +69,13 @@ static int validate_constant_array(HashTable *ht) /* {{{ */
 			}
 		}
 	} ZEND_HASH_FOREACH_END();
+#ifdef Z_PROTECT_RECURSION_P
+	if (Z_REFCOUNTED_P(z)) {
+		Z_UNPROTECT_RECURSION_P(z);
+	}
+#else
 	ht->u.v.nApplyCount--;
+#endif
 	return ret;
 }
 /* }}} */
@@ -107,7 +129,7 @@ static zend_bool runkit_copy_constant_zval(zval *dst, zval *src TSRMLS_DC) /* {{
 		return 1;
 	case IS_ARRAY:
 		if (!Z_IMMUTABLE_P(src)) {
-			if (!validate_constant_array(Z_ARRVAL_P(src))) {
+			if (!validate_constant_array(src)) {
 				return 0;
 			} else {
 				copy_constant_array(dst, src);
@@ -372,7 +394,7 @@ static zend_bool php_runkit_check_has_constant_type(const zval *value) {
 		case IS_NULL:
 			return 1;
 		case IS_ARRAY:
-			return validate_constant_array(Z_ARRVAL_P(value));
+			return validate_constant_array((zval*) value);
 		default:
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Constants may only evaluate to scalar values or arrays");
 			return 0;

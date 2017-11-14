@@ -179,6 +179,7 @@ static inline void php_runkit_destroy_misplaced_internal_function(zend_function 
 }
 /* }}} */
 
+#ifdef RT_CONSTANT_EX
 /* {{{ php_runkit_set_opcode_constant
 		for absolute constant addresses, creates a local copy of that literal.
 		Modifies op's contents. */
@@ -194,6 +195,24 @@ static void php_runkit_set_opcode_constant(const zval* literals, znode_op* op, z
 #endif
 }
 /* }}} */
+#else
+/* {{{ php_runkit_set_opcode_constant_relative
+		for absolute constant addresses, creates a local copy of that literal.
+		Modifies op's contents. */
+static void php_runkit_set_opcode_constant_relative(const zend_op* opline, znode_op* op, zval* literalI) {
+	debug_printf("php_runkit_set_opcode_constant(%llx, %llx, %d), USE_ABS=%d", (long long)literals, (long long)literalI, (int)sizeof(zval), ZEND_USE_ABS_CONST_ADDR);
+	// TODO: ZEND_PASS_TWO_UPDATE_CONSTANT???
+#if ZEND_USE_ABS_CONST_ADDR
+	RT_CONSTANT(opline, *op) = literalI;
+#else
+	// TODO: Assert that this is in a meaningful range.
+	// TODO: is this ever necessary for relative constant addresses?
+	// Opposite of ((zval*)(((char*)(opline)) + (int32_t)(node).constant))
+	op->constant = ((char*)literalI) - ((char*)opline);
+#endif
+}
+/* }}} */
+#endif
 
 /* {{{ php_runkit_function_alias_handler
     Used when an internal function is replaced by a user-defined/runkit function. Converts the ICALL to a UCALL.
@@ -400,21 +419,31 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 				// TODO: Check if constants are being replaced properly.
 				// TODO: This may no longer do anything on 64-bit builds of PHP.
 				for (k=0; k < fe->op_array.last; k++) {
-					debug_printf("%d(%s)\ttype=%d %d\n", k, zend_get_opcode_name(opcode_copy[k].opcode), (int)opcode_copy[k].op1_type, (int)opcode_copy[k].op2_type);
-					if (opcode_copy[k].op1_type == IS_CONST) {
+					zend_op* const new_op = &opcode_copy[k];
+					debug_printf("%d(%s)\ttype=%d %d\n", k, zend_get_opcode_name(new_op->opcode), (int)new_op->op1_type, (int)new_op->op2_type);
+					/*if (opcode_copy[k].OP1_type == IS_CONST) {
 						debug_printf("op1: %llx, %llx\n", (long long)RT_CONSTANT_EX(literals, opcode_copy[k].op1), (long long)&(fe->op_array.literals[i]));
 					}
 					if (opcode_copy[k].op2_type == IS_CONST) {
 						debug_printf("op2: %llx, %llx\n", (long long)RT_CONSTANT_EX(literals, opcode_copy[k].op2), (long long)&(fe->op_array.literals[i]));
-					}
-					debug_printf("old constant = %d\n", opcode_copy[k].op1.constant);
+					}*/
+					debug_printf("old constant = %d\n", new_op->op1.constant);
 					// TODO: This may be completely unnecessary on 64-bit systems. This may be broken on 32-bit systems.
-					if (opcode_copy[k].op1_type == IS_CONST && RT_CONSTANT_EX(literals, opcode_copy[k].op1) == &fe->op_array.literals[i]) {
-						php_runkit_set_opcode_constant(literals, &(opcode_copy[k].op1), &literals[i]);
+#ifdef RT_CONSTANT_EX
+					if (.op1_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op1) == &fe->op_array.literals[i]) {
+						php_runkit_set_opcode_constant(literals, &(new_op->op1), &literals[i]);
 					}
-					if (opcode_copy[k].op2_type == IS_CONST && RT_CONSTANT_EX(literals, opcode_copy[k].op2) == &fe->op_array.literals[i]) {
-						php_runkit_set_opcode_constant(literals, &(opcode_copy[k].op2), &literals[i]);
+					if (new_op->op2_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op2) == &fe->op_array.literals[i]) {
+						php_runkit_set_opcode_constant(literals, &(new_op->op2), &literals[i]);
 					}
+#else
+					if (new_op->op1_type == IS_CONST && RT_CONSTANT(new_op, new_op->op1) == &fe->op_array.literals[i]) {
+						php_runkit_set_opcode_constant_relative(new_op, &(new_op->op1), &literals[i]);
+					}
+					if (new_op->op2_type == IS_CONST && RT_CONSTANT(new_op, new_op->op2) == &fe->op_array.literals[i]) {
+						php_runkit_set_opcode_constant_relative(new_op, &(new_op->op2), &literals[i]);
+					}
+#endif
 				}
 			}
 			fe->op_array.literals = literals;
