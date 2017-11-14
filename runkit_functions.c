@@ -430,7 +430,7 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 					debug_printf("old constant = %d\n", new_op->op1.constant);
 					// TODO: This may be completely unnecessary on 64-bit systems. This may be broken on 32-bit systems.
 #ifdef RT_CONSTANT_EX
-					if (.op1_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op1) == &fe->op_array.literals[i]) {
+					if (new_op->op1_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op1) == &fe->op_array.literals[i]) {
 						php_runkit_set_opcode_constant(literals, &(new_op->op1), &literals[i]);
 					}
 					if (new_op->op2_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op2) == &fe->op_array.literals[i]) {

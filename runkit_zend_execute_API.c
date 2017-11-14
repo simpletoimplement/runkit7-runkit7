@@ -8,6 +8,10 @@
 #include "Zend/zend_globals_macros.h"
 #include "Zend/zend_types.h"
 
+#ifndef GC_ADDREF
+#define GC_ADDREF(x) GC_REFCOUNT((x))++
+#endif
+
 /**
  * Copies of internal methods from Zend/zend_execute_API.c
  * These are used to call internal methods (not in the function table) from the external method.
