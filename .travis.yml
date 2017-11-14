@@ -41,6 +41,10 @@ php:
   - '7.1'
   - '7.0'
 
+matrix:
+  allow_failures:
+    - env: master
+
 before_script:
  - $CC --version && ci/print_php_int_max.php
  - (export CC; phpize && ./configure --enable-runkit-spl_object-id && make)
