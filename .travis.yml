@@ -36,6 +36,7 @@ install:
 
 # Defined at https://github.com/php-build/php-build/tree/master/share/php-build/definitions
 php:
+  - master
   - '7.2'
   - '7.1'
   - '7.0'
