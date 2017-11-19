@@ -73,6 +73,34 @@ PHP_FUNCTION(runkit_zval_inspect)
 }
 /* }}} */
 
+/* {{{ proto array runkit_count_objects(mized var)
+ */
+PHP_FUNCTION(runkit_count_objects)
+{
+	// TODO: Specify what this should do for php7 (e.g. primitives are no longer refcounted)
+	HashTable *ht;
+	uint32_t i;
+	zend_class_entry *ce;
+	zval* it;
+	zval one;
+	ZVAL_LONG(&one, 1);
+
+	array_init(return_value);
+	ht = Z_ARRVAL_P(return_value);
+
+	PHP_RUNKIT_ITERATE_THROUGH_OBJECTS_STORE_BEGIN(i) {
+		ce = object->ce;
+		it = zend_hash_find(ht, ce->name);
+		if (it) {
+			ZEND_ASSERT(Z_TYPE_P(it) == IS_STRING);
+			++Z_LVAL_P(it);
+		} else {
+			zend_hash_add_new(ht, ce->name, &one);
+		}
+	} PHP_RUNKIT_ITERATE_THROUGH_OBJECTS_STORE_END
+}
+/* }}} */
+
 /* {{{ arginfo */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_zval_inspect, 0, 0, 1)
 	ZEND_ARG_INFO(0, value)
@@ -80,6 +108,9 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_object_id, 0, 0, 1)
 	ZEND_ARG_INFO(0, obj)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_count_objects, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 #if PHP_RUNKIT_SANDBOX
@@ -204,6 +235,7 @@ zend_function_entry runkit_functions[] = {
 
 	PHP_FE(runkit_zval_inspect,										arginfo_runkit_zval_inspect)
 	PHP_FE(runkit_object_id,										arginfo_runkit_object_id)
+	PHP_FE(runkit_count_objects,									arginfo_runkit_count_objects)
 #ifdef PHP_RUNKIT_PROVIDES_SPL_OBJECT_ID
 	PHP_FE(spl_object_id,											arginfo_runkit_object_id)
 #endif
