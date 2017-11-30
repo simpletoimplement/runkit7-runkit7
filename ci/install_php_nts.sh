@@ -33,12 +33,7 @@ if [ "$PHP_NTS_NORMAL_VERSION" == "7.3.0" ] ; then
 	./buildconf --force
 	popd
 else
-	if [ "$PHP_NTS_NORMAL_VERSION" == "7.2.0" ] ; then
-		curl --verbose https://downloads.php.net/~pollita/php-7.2.0RC6.tar.bz2 -o $PHP_TAR_FILE
-		PHP_FOLDER="php-7.2.0RC6"
-	else
-		curl --verbose https://secure.php.net/distributions/$PHP_TAR_FILE -o $PHP_TAR_FILE
-	fi
+	curl --verbose https://secure.php.net/distributions/$PHP_TAR_FILE -o $PHP_TAR_FILE
 	tar xjf $PHP_TAR_FILE
 fi
 
