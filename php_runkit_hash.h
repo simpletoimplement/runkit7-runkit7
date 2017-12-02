@@ -78,15 +78,15 @@ inline static void php_runkit_hash_move_runkit_to_front() {
 	runkit_str = zend_string_init("runkit", sizeof("runkit") - 1, 0);
 	// 1. If runkit is not part of the module registry, warn and do nothing.
 	if (!zend_hash_exists(&module_registry, runkit_str)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to find \"runkit\" module when attempting to change module unloading order - The lifetime of internal function overrides will be unexpected");
+		php_error_docref(NULL, E_WARNING, "Failed to find \"runkit\" module when attempting to change module unloading order - The lifetime of internal function overrides will be unexpected");
 		zend_string_release(runkit_str);
 		return;
 	}
-	// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front size=%d", (int)zend_hash_num_elements(&module_registry));
+	// php_error_docref(NULL, E_WARNING, "In php_runkit_hash_move_to_front size=%d", (int)zend_hash_num_elements(&module_registry));
 
 	// 2. Create a temporary table with "runkit" at the front.
 	ZEND_HASH_FOREACH_KEY_PTR(&module_registry, numkey, strkey, module) {
-		// php_error_docref(NULL TSRMLS_CC, E_WARNING, "In php_runkit_hash_move_to_front numkey=%d strkey=%s refcount=%d zv=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (int)(strkey != NULL ? zend_string_refcount(strkey) : 0), (long long) (uintptr_t)module);
+		// php_error_docref(NULL, E_WARNING, "In php_runkit_hash_move_to_front numkey=%d strkey=%s refcount=%d zv=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (int)(strkey != NULL ? zend_string_refcount(strkey) : 0), (long long) (uintptr_t)module);
 		if (num++ == 0) {
 			zend_bool first_is_core = 0;
 			Bucket *b;
@@ -97,7 +97,7 @@ inline static void php_runkit_hash_move_runkit_to_front() {
 			if (first_is_core) {
 				zend_hash_add_ptr(&tmp, strkey, module);
 			} else {
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "unexpected module order: \"core\" isn't first");
+				php_error_docref(NULL, E_WARNING, "unexpected module order: \"core\" isn't first");
 			}
 			// Otherwise, initialize the temporary table (with no destructor function)
 			b = php_runkit_zend_hash_find_bucket(&module_registry, runkit_str);
