@@ -330,7 +330,7 @@ static int php_runkit_class_constant_remove(zend_string *classname, zend_string 
 		php_error_docref(NULL, E_WARNING, "Unable to remove constant %s::%s", ZSTR_VAL(classname), ZSTR_VAL(constname));
 		return FAILURE;
 	}
-	php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+	php_runkit_clear_all_functions_runtime_cache();
 	return SUCCESS;
 }
 /* }}}*/
@@ -356,7 +356,7 @@ static int php_runkit_global_constant_remove(zend_string *constname) {
 	}
 	efree(found_constname);
 
-	php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+	php_runkit_clear_all_functions_runtime_cache();
 
 	return SUCCESS;
 }
@@ -368,7 +368,6 @@ static int php_runkit_constant_remove(zend_string* classname, zend_string* const
 #if PHP_VERSION_ID >= 70100
 		, zend_long *old_access_type
 #endif
-		TSRMLS_DC
 		)
 {
 	if (classname && ZSTR_LEN(classname) > 0) {

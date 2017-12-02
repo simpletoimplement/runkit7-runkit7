@@ -192,7 +192,7 @@ int php_runkit_def_prop_add_int(zend_class_entry *ce, zend_string* propname, zva
 			return FAILURE;
 		} else {
 			php_runkit_def_prop_remove_int(ce, propname, NULL, (zend_bool) 0, override_in_objects, (zend_property_info*) NULL);
-			php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+			php_runkit_clear_all_functions_runtime_cache();
 		}
 	}
 	prop_info_ptr = NULL;
@@ -462,7 +462,7 @@ int php_runkit_def_prop_remove_int(zend_class_entry *ce, zend_string *propname, 
 		}
 
 		// php_runkit_remove_property_from_reflection_objects(ce, propname);
-		php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+		php_runkit_clear_all_functions_runtime_cache();
 	} else {
 		if (parent_property) {
 			return SUCCESS;
@@ -521,7 +521,7 @@ static int php_runkit_def_prop_remove(zend_string *classname, zend_string *propn
 		return FAILURE;
 	}
 
-	php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+	php_runkit_clear_all_functions_runtime_cache();
 	return php_runkit_def_prop_remove_int(ce, propname, NULL, 0, remove_from_objects, NULL);
 }
 /* }}} */

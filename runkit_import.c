@@ -31,8 +31,7 @@
 /* {{{ php_runkit_import_functions
  */
 static int php_runkit_import_functions(HashTable *function_table, long flags
-                                       , zend_bool *clear_cache
-                                       TSRMLS_DC)
+                                       , zend_bool *clear_cache)
 {
 	zend_function *fe;
 	zend_ulong idx;
@@ -111,8 +110,7 @@ static int php_runkit_import_functions(HashTable *function_table, long flags
 /* {{{ php_runkit_import_class_methods
  */
 static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_entry *ce, int override
-                                           , zend_bool *clear_cache
-                                           TSRMLS_DC)
+                                           , zend_bool *clear_cache)
 {
 	zend_function *fe;
 
@@ -342,8 +340,7 @@ static int php_runkit_import_class_props(zend_class_entry *dce, zend_class_entry
 /* {{{ php_runkit_import_classes
  */
 static int php_runkit_import_classes(HashTable *class_table, const long flags
-                                     , zend_bool *clear_cache
-                                     TSRMLS_DC)
+                                     , zend_bool *clear_cache)
 {
 	zval *ce_zv;
 	zend_string *key;
@@ -400,20 +397,17 @@ static int php_runkit_import_classes(HashTable *class_table, const long flags
 			}
 			if (flags & PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS) {
 				php_runkit_import_class_static_props(dce, ce, (flags & PHP_RUNKIT_IMPORT_OVERRIDE) != 0,
-				                                     (flags & PHP_RUNKIT_OVERRIDE_OBJECTS) != 0
-				                                     TSRMLS_CC);
+				                                     (flags & PHP_RUNKIT_OVERRIDE_OBJECTS) != 0);
 			}
 
 			if (flags & PHP_RUNKIT_IMPORT_CLASS_PROPS) {
 				php_runkit_import_class_props(dce, ce, (flags & PHP_RUNKIT_IMPORT_OVERRIDE) != 0,
-				                              (flags & PHP_RUNKIT_OVERRIDE_OBJECTS) != 0
-				                              TSRMLS_CC);
+				                              (flags & PHP_RUNKIT_OVERRIDE_OBJECTS) != 0);
 			}
 
 			if (flags & PHP_RUNKIT_IMPORT_CLASS_METHODS) {
 				php_runkit_import_class_methods(dce, ce, flags & (PHP_RUNKIT_IMPORT_OVERRIDE)
-				                                , clear_cache
-				                                TSRMLS_CC);
+				                                , clear_cache);
 			}
 		}
 	} ZEND_HASH_FOREACH_END();
@@ -622,7 +616,7 @@ PHP_FUNCTION(runkit_import)
 	efree(tmp_function_table);
 
 	if (clear_cache) {
-		php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+		php_runkit_clear_all_functions_runtime_cache();
 	}
 
 	RETURN_TRUE;

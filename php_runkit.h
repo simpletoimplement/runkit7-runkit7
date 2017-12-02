@@ -211,10 +211,8 @@ extern ZEND_DECLARE_MODULE_GLOBALS(runkit)
 
 #ifdef ZTS
 #define		RUNKIT_G(v)		TSRMG(runkit_globals_id, zend_runkit_globals *, v)
-#define RUNKIT_TSRMLS_C		TSRMLS_C
 #else
 #define		RUNKIT_G(v)		(runkit_globals.v)
-#define RUNKIT_TSRMLS_C		, NULL
 #endif
 
 #define RUNKIT_IS_CALLABLE(cb_zv, flags, cb_sp) zend_is_callable((cb_zv), (flags), (cb_sp))
@@ -263,7 +261,7 @@ static inline void *runkit_zend_hash_add_or_update_ptr(HashTable *ht, zend_strin
 /* runkit_functions.c */
 #define RUNKIT_TEMP_FUNCNAME  "__runkit_temporary_function__"
 int php_runkit_check_call_stack(zend_op_array *op_array);
-void php_runkit_clear_all_functions_runtime_cache(TSRMLS_D);
+void php_runkit_clear_all_functions_runtime_cache();
 void php_runkit_fix_all_hardcoded_stack_sizes(zend_string *called_name_lower, zend_function *called_f);
 
 void php_runkit_remove_function_from_reflection_objects(zend_function *fe);

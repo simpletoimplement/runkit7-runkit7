@@ -106,7 +106,7 @@ PHP_FUNCTION(runkit_class_emancipate)
 		RETURN_TRUE;
 	}
 
-	php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+	php_runkit_clear_all_functions_runtime_cache();
 
 	php_runkit_remove_inherited_methods_foreach(&ce->function_table, ce);
 
@@ -288,7 +288,7 @@ PHP_FUNCTION(runkit_class_adopt)
 		}
 	} ZEND_HASH_FOREACH_END();
 
-	php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+	php_runkit_clear_all_functions_runtime_cache();
 
 	php_runkit_inherit_methods_foreach(&parent->function_table, ce);
 

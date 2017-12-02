@@ -665,7 +665,7 @@ static void php_runkit_clear_function_runtime_cache_for_function_table(HashTable
 /* }}} */
 
 /* {{{ php_runkit_clear_all_functions_runtime_cache */
-void php_runkit_clear_all_functions_runtime_cache(TSRMLS_D)
+void php_runkit_clear_all_functions_runtime_cache()
 {
 	uint32_t i;
 	zend_execute_data *ptr;
@@ -1196,7 +1196,7 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
 		php_runkit_remove_function_from_reflection_objects(orig_fe);
 		php_runkit_destroy_misplaced_internal_function(orig_fe, funcname_lower);
 
-		php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+		php_runkit_clear_all_functions_runtime_cache();
 	}
 
 	if (runkit_zend_hash_add_or_update_function_table_ptr(EG(function_table), funcname_lower, func, add_or_update) == NULL) {
@@ -1267,7 +1267,7 @@ PHP_FUNCTION(runkit_function_remove)
 	result = (zend_hash_del(EG(function_table), fname_lower) == SUCCESS);
 	zend_string_release(fname_lower);
 
-	php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+	php_runkit_clear_all_functions_runtime_cache();
 
 	RETURN_BOOL(result);
 }
@@ -1417,7 +1417,7 @@ PHP_FUNCTION(runkit_function_rename)
 
 	zend_string_release(dfunc_lower);
 
-	php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+	php_runkit_clear_all_functions_runtime_cache();
 
 	RETURN_TRUE;
 }

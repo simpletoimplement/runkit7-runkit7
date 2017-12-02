@@ -379,8 +379,7 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 	if (!source_fe) {
 		if (php_runkit_generate_lambda_method(arguments, return_type.return_type, is_strict.is_strict, phpcode, &source_fe,
 						     (flags & PHP_RUNKIT_ACC_RETURN_REFERENCE) == PHP_RUNKIT_ACC_RETURN_REFERENCE,
-							 ((flags & ZEND_ACC_STATIC) != 0)
-						     TSRMLS_CC) == FAILURE) {
+							 ((flags & ZEND_ACC_STATIC) != 0)) == FAILURE) {
 			zend_string_release(methodname_lower);
 			RETURN_FALSE;
 		}
@@ -413,7 +412,7 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 	php_runkit_modify_function_doc_comment(func, doc_comment);
 
 	// TODO: Seeing if this broke it.
-	php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+	php_runkit_clear_all_functions_runtime_cache();
 
 	if(orig_fe) {
 		php_runkit_remove_function_from_reflection_objects(orig_fe);
@@ -479,7 +478,7 @@ static int php_runkit_method_copy(zend_string *dclass, zend_string* dfunc, zend_
 		} else {
 			php_runkit_remove_function_from_reflection_objects(fe);
 			zend_hash_del(&dce->function_table, dfunc_lower);
-			php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+			php_runkit_clear_all_functions_runtime_cache();
 		}
 	}
 	/* Postcondition: Method does not already exist in dce's function table (Would return FAILURE if it did) */
@@ -559,7 +558,7 @@ PHP_FUNCTION(runkit_method_remove)
 
 	php_runkit_clean_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ancestor_class, ce, methodname_lower, fe);
 
-	php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+	php_runkit_clear_all_functions_runtime_cache();
 
 	php_runkit_remove_function_from_reflection_objects(fe);
 
@@ -621,7 +620,7 @@ PHP_FUNCTION(runkit_method_rename)
 	ancestor_class = php_runkit_locate_scope(ce, fe, methodname_lower);
 	php_runkit_clean_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ancestor_class, ce, methodname_lower, fe);
 
-	php_runkit_clear_all_functions_runtime_cache(TSRMLS_C);
+	php_runkit_clear_all_functions_runtime_cache();
 
 	/* TODO: Figure out how to find the original function type. */
 	func = php_runkit_function_clone(fe, newname, fe->type);

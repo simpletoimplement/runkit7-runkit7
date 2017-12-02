@@ -87,7 +87,7 @@ static HashTable *php_runkit_sandbox_parent_resolve_symbol_table(php_runkit_sand
 	zend_execute_data *ex = EG(current_execute_data);
 
 	if (!EG(active_symbol_table)) {
-		zend_rebuild_symbol_table(TSRMLS_C);
+		zend_rebuild_symbol_table();
 	}
 
 	if (objval->self->parent_scope <= 0) {
@@ -155,7 +155,7 @@ static HashTable *php_runkit_sandbox_parent_resolve_symbol_table(php_runkit_sand
 	EG(active_symbol_table) = NULL;
 	oldCurExData = EG(current_execute_data);
 	EG(current_execute_data) = ex;
-	zend_rebuild_symbol_table(TSRMLS_C);
+	zend_rebuild_symbol_table();
 	result = EG(active_symbol_table);
 	EG(active_symbol_table) = oldActiveSymbolTable;
 	EG(current_execute_data) = oldCurExData;
@@ -444,8 +444,7 @@ PHP_METHOD(Runkit_Sandbox_Parent,die)
 /* {{{ php_runkit_sandbox_parent_read_property
 	read_property handler */
 static zval *php_runkit_sandbox_parent_read_property(zval *object, zval *member, int type
-	, const zend_literal *key
-	TSRMLS_DC)
+	, const zend_literal *key)
 {
 	php_runkit_sandbox_parent_object *objval = PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX(object);
 	zval tmp_member;
@@ -482,8 +481,7 @@ static zval *php_runkit_sandbox_parent_read_property(zval *object, zval *member,
 /* {{{ php_runkit_sandbox_parent_write_property
 	write_property handler */
 static void php_runkit_sandbox_parent_write_property(zval *object, zval *member, zval *value
-	, const zend_literal *key
-	TSRMLS_DC)
+	, const zend_literal *key)
 {
 	php_runkit_sandbox_parent_object *objval = PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX(object);
 	zval tmp_member;
@@ -516,8 +514,7 @@ static void php_runkit_sandbox_parent_write_property(zval *object, zval *member,
 /* {{{ php_runkit_sandbox_parent_has_property
 	has_property handler */
 static int php_runkit_sandbox_parent_has_property(zval *object, zval *member, int has_set_exists
-	, const zend_literal *key
-	TSRMLS_DC)
+	, const zend_literal *key)
 {
 	php_runkit_sandbox_parent_object* objval = PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX(object);
 	zval member_copy;
@@ -545,8 +542,7 @@ static int php_runkit_sandbox_parent_has_property(zval *object, zval *member, in
 /* {{{ php_runkit_sandbox_parent_unset_property
 	unset_property handler */
 static void php_runkit_sandbox_parent_unset_property(zval *object, zval *member
-	, const zend_literal *key
-	TSRMLS_DC)
+	, const zend_literal *key)
 {
 	php_runkit_sandbox_parent_object *objval = PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX(object);
 	zval member_copy;

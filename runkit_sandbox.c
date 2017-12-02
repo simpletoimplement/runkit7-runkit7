@@ -342,7 +342,7 @@ child_open_basedir_set:
 			if (p - s) {
 				*p = '\0';
 				zend_register_auto_global(zend_string_init(s, p - s, 0), 0, NULL);
-				zend_activate_auto_globals(TSRMLS_C);
+				zend_activate_auto_globals();
 				*p = ',';
 			}
 			s = p + 1;
@@ -410,7 +410,7 @@ PHP_METHOD(Runkit_Sandbox,__construct)
 		SG(request_info).no_headers = 1;
 		SG(options) = SAPI_OPTION_NO_CHDIR;
 		RUNKIT_G(current_sandbox) = objval; /* Needs to be set before RINIT */
-		php_request_startup(TSRMLS_C);
+		php_request_startup();
 		RUNKIT_G(current_sandbox) = objval; /* But gets reset during RINIT -- Bad design on my part */
 		PG(during_request_startup) = 0;
 	PHP_RUNKIT_SANDBOX_END(objval)
@@ -471,7 +471,6 @@ PHP_METHOD(Runkit_Sandbox,__call)
 
 	if (retval) {
 		PHP_RUNKIT_SANDBOX_BEGIN(objval)
-		(void)(TSRMLS_C);
 		zval_ptr_dtor(&retval);
 		PHP_RUNKIT_SANDBOX_END(objval)
 	}
@@ -546,7 +545,6 @@ static void php_runkit_sandbox_include_or_eval(INTERNAL_FUNCTION_PARAMETERS, int
 	/* Don't confuse the memory manager */
 	if (retval) {
 		PHP_RUNKIT_SANDBOX_BEGIN(objval)
-		(void)(TSRMLS_C);
 		zval_ptr_dtor(&retval);
 		PHP_RUNKIT_SANDBOX_END(objval)
 	}
@@ -719,8 +717,7 @@ PHP_METHOD(Runkit_Sandbox,die)
 /* {{{ php_runkit_sandbox_read_property
 	read_property handler */
 static zval *php_runkit_sandbox_read_property(zval *object, zval *member, int type
-	, const zend_literal *key
-	TSRMLS_DC)
+	, const zend_literal *key)
 {
 	php_runkit_sandbox_object *objval = PHP_RUNKIT_SANDBOX_FETCHBOX(object);
 	zval tmp_member;
@@ -759,8 +756,7 @@ static zval *php_runkit_sandbox_read_property(zval *object, zval *member, int ty
 /* {{{ php_runkit_sandbox_write_property
 	write_property handler */
 static void php_runkit_sandbox_write_property(zval *object, zval *member, zval *value
-	, const zend_literal *key
-	TSRMLS_DC)
+	, const zend_literal *key)
 {
 	php_runkit_sandbox_object *objval = PHP_RUNKIT_SANDBOX_FETCHBOX(object);
 	zval tmp_member;
@@ -795,8 +791,7 @@ static void php_runkit_sandbox_write_property(zval *object, zval *member, zval *
 /* {{{ php_runkit_sandbox_has_property
 	has_property handler */
 static int php_runkit_sandbox_has_property(zval *object, zval *member, int has_set_exists
-	, const zend_literal *key
-	TSRMLS_DC)
+	, const zend_literal *key)
 {
 	php_runkit_sandbox_object* objval = PHP_RUNKIT_SANDBOX_FETCHBOX(object);
 	zval member_copy;
@@ -824,8 +819,7 @@ static int php_runkit_sandbox_has_property(zval *object, zval *member, int has_s
 /* {{{ php_runkit_sandbox_unset_property
 	unset_property handler */
 static void php_runkit_sandbox_unset_property(zval *object, zval *member
-	, const zend_literal *key
-	TSRMLS_DC)
+	, const zend_literal *key)
 {
 	php_runkit_sandbox_object *objval;
 	zval member_copy;
@@ -978,7 +972,7 @@ static void php_runkit_sandbox_sapi_flush(void *server_context)
 
 /* {{{ php_runkit_sandbox_sapi_get_stat
  */
-static struct stat *php_runkit_sandbox_sapi_get_stat(TSRMLS_D)
+static struct stat *php_runkit_sandbox_sapi_get_stat()
 {
 	php_runkit_sandbox_object *objval = RUNKIT_G(current_sandbox);
 	struct stat *ret;
@@ -988,11 +982,11 @@ static struct stat *php_runkit_sandbox_sapi_get_stat(TSRMLS_D)
 		{
 			TSRMLS_FETCH();
 
-			ret = php_runkit_sandbox_original_sapi.get_stat(TSRMLS_C);
+			ret = php_runkit_sandbox_original_sapi.get_stat();
 		}
 		tsrm_set_interpreter_context(objval->context);
 	} else {
-		ret = php_runkit_sandbox_original_sapi.get_stat(TSRMLS_C);
+		ret = php_runkit_sandbox_original_sapi.get_stat();
 	}
 
 	return ret;
@@ -1041,7 +1035,6 @@ static void php_runkit_sandbox_sapi_sapi_error(int type, const char *error_msg, 
 		tsrm_set_interpreter_context(objval->parent_context);
 		{
 			TSRMLS_FETCH();
-			(void)(TSRMLS_C);
 
 			php_runkit_sandbox_original_sapi.sapi_error(type, "%s", message);
 		}
@@ -1122,11 +1115,11 @@ static int php_runkit_sandbox_sapi_read_post(char *buffer, uint count_bytes)
 /* {{( php_runkit_sandbox_sapi_read_cookies
  * Pretend to read cookies
  */
-static char *php_runkit_sandbox_sapi_read_cookies(TSRMLS_D)
+static char *php_runkit_sandbox_sapi_read_cookies()
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		return php_runkit_sandbox_original_sapi.read_cookies(TSRMLS_C);
+		return php_runkit_sandbox_original_sapi.read_cookies();
 	}
 
 	/* Do nothing */
@@ -1150,16 +1143,12 @@ static void php_runkit_sandbox_sapi_register_server_variables(zval *track_vars_a
 
 /* {{{ php_runkit_sandbox_sapi_log_message
  */
-static void php_runkit_sandbox_sapi_log_message(char *message
-	TSRMLS_DC
-	)
+static void php_runkit_sandbox_sapi_log_message(char *message)
 {
 
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		php_runkit_sandbox_original_sapi.log_message(message
-								TSRMLS_CC
-			);
+		php_runkit_sandbox_original_sapi.log_message(message);
 		return;
 	}
 
@@ -1170,11 +1159,11 @@ static void php_runkit_sandbox_sapi_log_message(char *message
 
 /* {{{ php_runkit_sandbox_sapi_get_request_time
  */
-static double php_runkit_sandbox_sapi_get_request_time(TSRMLS_D)
+static double php_runkit_sandbox_sapi_get_request_time()
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		return php_runkit_sandbox_original_sapi.get_request_time(TSRMLS_C);
+		return php_runkit_sandbox_original_sapi.get_request_time();
 	}
 
 	/* Parrot what main/SAPI.c does */
@@ -1221,11 +1210,11 @@ static void php_runkit_sandbox_sapi_unblock_interruptions(void)
 
 /* {{{ php_runkit_sandbox_sapi_default_post_reader
  */
-static void php_runkit_sandbox_sapi_default_post_reader(TSRMLS_D)
+static void php_runkit_sandbox_sapi_default_post_reader()
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		php_runkit_sandbox_original_sapi.default_post_reader(TSRMLS_C);
+		php_runkit_sandbox_original_sapi.default_post_reader();
 		return;
 	}
 
@@ -1250,11 +1239,11 @@ static int php_runkit_sandbox_sapi_get_fd(int *fd)
 
 /* {{{ php_runkit_sandbox_sapi_force_http_10
  */
-static int php_runkit_sandbox_sapi_force_http_10(TSRMLS_D)
+static int php_runkit_sandbox_sapi_force_http_10()
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		return php_runkit_sandbox_original_sapi.force_http_10(TSRMLS_C);
+		return php_runkit_sandbox_original_sapi.force_http_10();
 	}
 
 	/* Do nothing */
@@ -1689,7 +1678,7 @@ static void php_runkit_sandbox_dtor(php_runkit_sandbox_object *objval)
 			efree(objval->disable_classes);
 		}
 
-		php_request_shutdown(TSRMLS_C);
+		php_request_shutdown();
 	}
 	tsrm_set_interpreter_context(NULL);
 	tsrm_free_interpreter_context(objval->context);
@@ -1836,7 +1825,7 @@ static void php_runkit_lint_compile(INTERNAL_FUNCTION_PARAMETERS, int filemode)
 	// {
 	// 	TSRMLS_FETCH();
 
-	// 	php_request_startup(TSRMLS_C);
+	// 	php_request_startup();
 	// 	PG(during_request_startup) = 0;  // TODO find reason for workaround
 	// 	printf("######## Switched to another stack\n");
 	// 	printf("vm_stack_top=%llx\n", (long long)(EG(vm_stack_top))); fflush(stdout);
