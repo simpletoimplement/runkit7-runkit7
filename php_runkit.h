@@ -217,10 +217,10 @@ extern ZEND_DECLARE_MODULE_GLOBALS(runkit)
 #define RUNKIT_TSRMLS_C		, NULL
 #endif
 
-#define RUNKIT_IS_CALLABLE(cb_zv, flags, cb_sp) zend_is_callable((cb_zv), (flags), (cb_sp) TSRMLS_CC)
-#define RUNKIT_FILE_HANDLE_DTOR(pHandle)        zend_file_handle_dtor((pHandle) TSRMLS_CC)
-#define RUNKIT_53_TSRMLS_PARAM(param)           (param) TSRMLS_CC
-#define RUNKIT_53_TSRMLS_ARG(arg)               arg TSRMLS_DC
+#define RUNKIT_IS_CALLABLE(cb_zv, flags, cb_sp) zend_is_callable((cb_zv), (flags), (cb_sp))
+#define RUNKIT_FILE_HANDLE_DTOR(pHandle)        zend_file_handle_dtor((pHandle))
+#define RUNKIT_53_TSRMLS_PARAM(param)           (param)
+#define RUNKIT_53_TSRMLS_ARG(arg)               arg
 
 #ifdef ZEND_ACC_RETURN_REFERENCE
 #     define PHP_RUNKIT_ACC_RETURN_REFERENCE         ZEND_ACC_RETURN_REFERENCE
@@ -262,23 +262,23 @@ static inline void *runkit_zend_hash_add_or_update_ptr(HashTable *ht, zend_strin
 
 /* runkit_functions.c */
 #define RUNKIT_TEMP_FUNCNAME  "__runkit_temporary_function__"
-int php_runkit_check_call_stack(zend_op_array *op_array TSRMLS_DC);
+int php_runkit_check_call_stack(zend_op_array *op_array);
 void php_runkit_clear_all_functions_runtime_cache(TSRMLS_D);
-void php_runkit_fix_all_hardcoded_stack_sizes(zend_string *called_name_lower, zend_function *called_f TSRMLS_DC);
+void php_runkit_fix_all_hardcoded_stack_sizes(zend_string *called_name_lower, zend_function *called_f);
 
-void php_runkit_remove_function_from_reflection_objects(zend_function *fe TSRMLS_DC);
-// void php_runkit_function_copy_ctor(zend_function *fe, zend_string *newname, char orig_fe_type TSRMLS_DC);
-zend_function* php_runkit_function_clone(zend_function *fe, zend_string *newname, char orig_fe_type TSRMLS_DC);
+void php_runkit_remove_function_from_reflection_objects(zend_function *fe);
+// void php_runkit_function_copy_ctor(zend_function *fe, zend_string *newname, char orig_fe_type);
+zend_function* php_runkit_function_clone(zend_function *fe, zend_string *newname, char orig_fe_type);
 void php_runkit_function_dtor(zend_function *fe);
 int php_runkit_remove_from_function_table(HashTable *function_table, zend_string *func_lower);
 void* php_runkit_update_function_table(HashTable *function_table, zend_string *func_lower, zend_function *f);
 int php_runkit_generate_lambda_method(const zend_string *arguments, const zend_string *return_type, const zend_bool is_strict, const zend_string *phpcode,
-                                      zend_function **pfe, zend_bool return_ref, zend_bool is_static TSRMLS_DC);
+                                      zend_function **pfe, zend_bool return_ref, zend_bool is_static);
 int php_runkit_generate_lambda_function(const zend_string *arguments, const zend_string *return_type, const zend_bool is_strict, const zend_string *phpcode,
-                                      zend_function **pfe, zend_bool return_ref TSRMLS_DC);
+                                      zend_function **pfe, zend_bool return_ref);
 int php_runkit_cleanup_lambda_method();
 int php_runkit_cleanup_lambda_function();
-int php_runkit_destroy_misplaced_functions(zval *pDest TSRMLS_DC);
+int php_runkit_destroy_misplaced_functions(zval *pDest);
 void php_runkit_restore_internal_function(zend_string *fname_lower, zend_function *f);
 
 /* runkit_methods.c */
@@ -288,10 +288,10 @@ void php_runkit_clean_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *ce
 void php_runkit_clean_children_methods_foreach(RUNKIT_53_TSRMLS_ARG(HashTable *ht), zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_string *fname_lower, zend_function *orig_cfe);
 void php_runkit_update_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *ce), zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe);
 void php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_ARG(HashTable *ht), zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe);
-int php_runkit_fetch_interface(zend_string *classname, zend_class_entry **pce TSRMLS_DC);
+int php_runkit_fetch_interface(zend_string *classname, zend_class_entry **pce);
 
 /* Redundant unless 7.1 changes - string may no longer apply */
-#define PHP_RUNKIT_FUNCTION_ADD_REF(f)	function_add_ref(f TSRMLS_CC)
+#define PHP_RUNKIT_FUNCTION_ADD_REF(f)	function_add_ref(f)
 #define php_runkit_locate_scope(ce, fe, methodname_lower)   fe->common.scope
 #define PHP_RUNKIT_STRTOLOWER(param)			php_u_strtolower(param, &param##_len, UG(default_locale))
 #define PHP_RUNKIT_STRING_LEN(param,addtl)		(param##_type == IS_UNICODE ? UBYTES(param##_len + (addtl)) : (param##_len + (addtl)))
@@ -299,22 +299,22 @@ int php_runkit_fetch_interface(zend_string *classname, zend_class_entry **pce TS
 #define PHP_RUNKIT_HASH_FIND(hash,param,ppvar)		zend_u_hash_find(hash, param##_type, (UChar *)param, param##_len + 1, (void*)ppvar)
 #define PHP_RUNKIT_HASH_EXISTS(hash,param)		zend_u_hash_exists(hash, param##_type, (UChar *)param, param##_len + 1)
 
-#define PHP_RUNKIT_NOT_ENOUGH_MEMORY_ERROR php_error_docref(NULL TSRMLS_CC, E_ERROR, "Not enough memory")
+#define PHP_RUNKIT_NOT_ENOUGH_MEMORY_ERROR php_error_docref(NULL, E_ERROR, "Not enough memory")
 
 /* runkit_constants.c */
 void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *parent_class, zval *c, zend_string *cname RUNKIT_CONST_FLAGS_DC(access_type));
 void php_runkit_update_children_consts_foreach(HashTable *ht, zend_class_entry *parent_class, zval *c, zend_string *cname RUNKIT_CONST_FLAGS_DC(access_type));
 
 /* runkit_classes.c */
-int php_runkit_class_copy(zend_class_entry *src, zend_string *classname TSRMLS_DC);
+int php_runkit_class_copy(zend_class_entry *src, zend_string *classname);
 
 /* runkit_props.c */
 void php_runkit_update_children_def_props(zend_class_entry *ce, zend_class_entry *parent_class, zval *p, zend_string *pname, int access_type, zend_class_entry *definer_class, int override, int override_in_objects);
 int php_runkit_def_prop_add_int(zend_class_entry *ce, zend_string* propname, zval *copyval, long visibility,
                                 zend_string* doc_comment, zend_class_entry *definer_class, int override,
-                                int override_in_objects TSRMLS_DC);
+                                int override_in_objects);
 int php_runkit_def_prop_remove_int(zend_class_entry *ce, zend_string* propname, zend_class_entry *definer_class,
-                                   zend_bool was_static, zend_bool remove_from_objects, zend_property_info *parent_property TSRMLS_DC);
+                                   zend_bool was_static, zend_bool remove_from_objects, zend_property_info *parent_property);
 
 typedef struct _zend_closure {
     zend_object    std;
@@ -442,14 +442,14 @@ struct _php_runkit_sandbox_object {
 	switch (Z_TYPE_P(pzv)) { \
 		case IS_RESOURCE: \
 		case IS_OBJECT: \
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to translate resource, or object variable to current context."); \
+			php_error_docref(NULL, E_WARNING, "Unable to translate resource, or object variable to current context."); \
 			ZVAL_NULL(pzv); \
 			break; \
 		case IS_ARRAY: \
 		{ \
 			HashTable *original_hashtable = Z_ARRVAL_P(pzv); \
 			array_init(pzv); \
-			zend_hash_apply_with_arguments(RUNKIT_53_TSRMLS_PARAM(original_hashtable), (apply_func_args_t)php_runkit_sandbox_array_deep_copy, 1, Z_ARRVAL_P(pzv) TSRMLS_CC); \
+			zend_hash_apply_with_arguments(RUNKIT_53_TSRMLS_PARAM(original_hashtable), (apply_func_args_t)php_runkit_sandbox_array_deep_copy, 1, Z_ARRVAL_P(pzv)); \
 			break; \
 		} \
 		default: \
@@ -484,11 +484,11 @@ struct _php_runkit_sandbox_object {
 	}
 
 // If lcmname is one of the magic method names(e.g. __get, __construct), then override the magic method function entry for the class entry ce (And its subclasses)
-void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string* lcmname, zend_function *fe, const zend_function *orig_fe TSRMLS_DC);
+void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string* lcmname, zend_function *fe, const zend_function *orig_fe);
 
 // If lcmname is one of the magic method names(e.g. __get, __construct), and being removed,
 // then override the magic method function entry for the class entry ce (And its subclasses)
-void PHP_RUNKIT_DEL_MAGIC_METHOD(zend_class_entry *ce, const zend_function *fe TSRMLS_DC);
+void PHP_RUNKIT_DEL_MAGIC_METHOD(zend_class_entry *ce, const zend_function *fe);
 
 // Sets type flags for ce and its subclasses' class entries so that the VM knows to check for magic methods.
 void ensure_all_objects_of_class_have_magic_methods(zend_class_entry *ce);
@@ -501,7 +501,7 @@ inline static zend_string* php_runkit_parse_doc_comment_arg(int argc, zval *args
 			/* Return doc comment without increasing reference count. */
 			return Z_STR(args[arg_pos]);
 		} else if (Z_TYPE(args[arg_pos]) != IS_NULL) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Doc comment should be a string or NULL");
+			php_error_docref(NULL, E_WARNING, "Doc comment should be a string or NULL");
 		}
 	}
 	return NULL;
@@ -577,14 +577,14 @@ inline static parsed_return_type php_runkit_parse_return_type_arg(int argc, zval
 			return retval;
 		}
 #if PHP_VERSION_ID >= 70100
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Return type should match regex ^\\??[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*(\\\\[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*)*$");
+		php_error_docref(NULL, E_WARNING, "Return type should match regex ^\\??[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*(\\\\[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*)*$");
 #else
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Return type should match regex ^[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*(\\\\[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*)$");
+		php_error_docref(NULL, E_WARNING, "Return type should match regex ^[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*(\\\\[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*)$");
 #endif
 		retval.valid = 0;
 		return retval;
 	} else if (Z_TYPE(args[arg_pos]) != IS_NULL) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Return type should be a string or NULL");
+		php_error_docref(NULL, E_WARNING, "Return type should be a string or NULL");
 		retval.valid = 0;
 	}
 	return retval;
@@ -606,21 +606,21 @@ inline static parsed_is_strict php_runkit_parse_is_strict_arg(int argc, zval *ar
 		retval.overridden = 1;
 		return retval;
 	} else if (Z_TYPE(args[arg_pos]) != IS_NULL) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "is_strict should be a boolean or NULL");
+		php_error_docref(NULL, E_WARNING, "is_strict should be a boolean or NULL");
 		retval.valid = 0;
 	}
 	return retval;
 }
 
 /* {{{ php_runkit_parse_args_to_zvals */
-inline static zend_bool php_runkit_parse_args_to_zvals(int argc, zval **pargs TSRMLS_DC) {
+inline static zend_bool php_runkit_parse_args_to_zvals(int argc, zval **pargs) {
 	*pargs = (zval *) emalloc(argc * sizeof(zval));
 	if (*pargs == NULL) {
 		PHP_RUNKIT_NOT_ENOUGH_MEMORY_ERROR;
 		return 0;
 	}
 	if (zend_get_parameters_array_ex(argc, *pargs) == FAILURE) {
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Internal error occured while parsing arguments");
+		php_error_docref(NULL, E_ERROR, "Internal error occured while parsing arguments");
 		efree(*pargs);
 		return 0;
 	}
@@ -645,22 +645,22 @@ inline static zend_string* zend_string_to_interned(zend_string* original) {
 
 /* {{{ zend_bool php_runkit_parse_function_arg */
 /** Parses either multiple strings (1. function args, 2. body 3. (optional) return type), or a Closure. */
-inline static zend_bool php_runkit_parse_function_arg(int argc, zval *args, int arg_pos, zend_function **fe, zend_string** arguments, zend_string** phpcode, long *opt_arg_pos, char *type TSRMLS_DC) {
+inline static zend_bool php_runkit_parse_function_arg(int argc, zval *args, int arg_pos, zend_function **fe, zend_string** arguments, zend_string** phpcode, long *opt_arg_pos, char *type) {
 	// If is successful, it returns true, advances opt_arg_pos. There are two was this could succeed
 	// 1. *fe = zend_function extracted from a closure.
 	// 2. *arguments, *phpcode = strings extracted from arguments
 	if (Z_TYPE(args[arg_pos]) == IS_OBJECT && Z_OBJCE(args[arg_pos]) == zend_ce_closure) {
-		*fe = (zend_function *) zend_get_closure_method_def(&(args[arg_pos]) TSRMLS_CC);
+		*fe = (zend_function *) zend_get_closure_method_def(&(args[arg_pos]));
 	} else if (Z_TYPE(args[arg_pos]) == IS_STRING) {
 		(*opt_arg_pos)++;
 		*arguments = Z_STR(args[arg_pos]);
 		if (argc < arg_pos+2 || Z_TYPE(args[arg_pos+1]) != IS_STRING) {
-			php_error_docref(NULL TSRMLS_CC, E_ERROR, PHP_RUNKIT_BODY_ERROR_MSG, type);
+			php_error_docref(NULL, E_ERROR, PHP_RUNKIT_BODY_ERROR_MSG, type);
 			return 0;
 		}
 		*phpcode = Z_STR(args[arg_pos+1]);
 	} else {
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, PHP_RUNKIT_BODY_ERROR_MSG, type);
+		php_error_docref(NULL, E_ERROR, PHP_RUNKIT_BODY_ERROR_MSG, type);
 		return 0;
 	}
 	return 1;
@@ -668,7 +668,7 @@ inline static zend_bool php_runkit_parse_function_arg(int argc, zval *args, int 
 /* }}} */
 
 // TODO: redundant and part of an unsupported feature
-#	define PHP_RUNKIT_DESTROY_FUNCTION(fe) 	destroy_zend_function(fe TSRMLS_CC);
+#	define PHP_RUNKIT_DESTROY_FUNCTION(fe) 	destroy_zend_function(fe);
 
 // TODO: move to a separate file.
 void php_runkit_update_reflection_object_name(zend_object* object, int handle, const char* name);
@@ -714,7 +714,7 @@ void php_runkit_update_reflection_object_name(zend_object* object, int handle, c
 #ifdef PHP_RUNKIT_SANDBOX
 // TODO: Figure out what the php7 equivalent of zend_object_store_bucket and zend_object_handle are.
 /* {{{ php_runkit_zend_object_store_get_obj */
-inline static zend_object *php_runkit_zend_object_store_get(const zval *zobject TSRMLS_DC)
+inline static zend_object *php_runkit_zend_object_store_get(const zval *zobject)
 {
 	// Note: Object handle may be removed from _zend_resource in the future.
 	int handle = Z_OBJ_HANDLE_P(zobject);

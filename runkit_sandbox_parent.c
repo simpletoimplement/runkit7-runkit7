@@ -62,24 +62,24 @@ typedef struct _php_runkit_sandbox_parent_object {
 	} \
 }
 
-#define PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX(zval_p) (php_runkit_sandbox_parent_object*)zend_objects_get_address(zval_p TSRMLS_CC)
+#define PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX(zval_p) (php_runkit_sandbox_parent_object*)zend_objects_get_address(zval_p)
 #define PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX_VERIFY_ACCESS(objval, pzv) \
 { \
 	objval = PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX(pzv); \
 \
 	if (!objval) { \
 		/* Should never ever happen.... */ \
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "HELP! HELP! MY PARENT HAS ABANDONED ME!"); \
+		php_error_docref(NULL, E_WARNING, "HELP! HELP! MY PARENT HAS ABANDONED ME!"); \
 		RETURN_FALSE; \
 	} \
 \
 	if (!objval->self->parent_access) { \
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Access to the parent has been suspended"); \
+		php_error_docref(NULL, E_WARNING, "Access to the parent has been suspended"); \
 		RETURN_FALSE; \
 	} \
 }
 
-static HashTable *php_runkit_sandbox_parent_resolve_symbol_table(php_runkit_sandbox_parent_object *objval TSRMLS_DC)
+static HashTable *php_runkit_sandbox_parent_resolve_symbol_table(php_runkit_sandbox_parent_object *objval)
 {
 	int i;
 	HashTable *oldActiveSymbolTable, *result;
@@ -169,13 +169,13 @@ PHP_METHOD(Runkit_Sandbox_Parent,__call)
 	zval *func_name, *args, *retval = NULL;
 	php_runkit_sandbox_parent_object *objval;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "za", &func_name, &args) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "za", &func_name, &args) == FAILURE) {
 		RETURN_NULL();
 	}
 
 	PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX_VERIFY_ACCESS(objval, this_ptr);
 	if (!objval->self->parent_call) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Access to call functions in the parent context is not enabled");
+		php_error_docref(NULL, E_WARNING, "Access to call functions in the parent context is not enabled");
 		RETURN_FALSE;
 	}
 
@@ -184,7 +184,7 @@ PHP_METHOD(Runkit_Sandbox_Parent,__call)
 		char *name = NULL;
 
 		if (!RUNKIT_IS_CALLABLE(func_name, IS_CALLABLE_CHECK_NO_ACCESS, &name)) {
-			php_error_docref1(NULL TSRMLS_CC, name, E_WARNING, "Function not defined");
+			php_error_docref1(NULL, name, E_WARNING, "Function not defined");
 			if (name) {
 				efree(name);
 			}
@@ -192,7 +192,7 @@ PHP_METHOD(Runkit_Sandbox_Parent,__call)
 			RETURN_FALSE;
 		}
 
-		php_runkit_sandbox_call_int(func_name, &name, &retval, args, return_value, prior_context TSRMLS_CC);
+		php_runkit_sandbox_call_int(func_name, &name, &retval, args, return_value, prior_context);
 	}
 	PHP_RUNKIT_SANDBOX_PARENT_END(objval)
 
@@ -216,7 +216,7 @@ static void php_runkit_sandbox_parent_include_or_eval(INTERNAL_FUNCTION_PARAMETE
 	int bailed_out = 0;
 	zval *retval = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &zcode) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &zcode) == FAILURE) {
 		RETURN_FALSE;
 	}
 
@@ -224,11 +224,11 @@ static void php_runkit_sandbox_parent_include_or_eval(INTERNAL_FUNCTION_PARAMETE
 
 	PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX_VERIFY_ACCESS(objval, this_ptr);
 	if (type == ZEND_EVAL && !objval->self->parent_eval) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Access to eval() code in the parent context is not enabled");
+		php_error_docref(NULL, E_WARNING, "Access to eval() code in the parent context is not enabled");
 		RETURN_FALSE;
 	}
 	if (type != ZEND_EVAL && !objval->self->parent_include) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Access to include()/include_once()/require()/require_once() in the parent context is not enabled");
+		php_error_docref(NULL, E_WARNING, "Access to include()/include_once()/require()/require_once() in the parent context is not enabled");
 		RETURN_FALSE;
 	}
 
@@ -238,7 +238,7 @@ static void php_runkit_sandbox_parent_include_or_eval(INTERNAL_FUNCTION_PARAMETE
 		zend_op_array *op_array = NULL;
 		int already_included = 0;
 
-		op_array = php_runkit_sandbox_include_or_eval_int(return_value, zcode, type, once, &already_included TSRMLS_CC);
+		op_array = php_runkit_sandbox_include_or_eval_int(return_value, zcode, type, once, &already_included);
 
 		if (op_array) {
 			HashTable *old_symbol_table = EG(active_symbol_table);
@@ -247,9 +247,9 @@ static void php_runkit_sandbox_parent_include_or_eval(INTERNAL_FUNCTION_PARAMETE
 
 			EG(return_value_ptr_ptr) = &retval;
 			EG(active_op_array) = op_array;
-			EG(active_symbol_table) = php_runkit_sandbox_parent_resolve_symbol_table(objval TSRMLS_CC);
+			EG(active_symbol_table) = php_runkit_sandbox_parent_resolve_symbol_table(objval);
 
-			zend_execute(op_array TSRMLS_CC);
+			zend_execute(op_array);
 
 			if (retval) {
 				*return_value = *retval;
@@ -257,7 +257,7 @@ static void php_runkit_sandbox_parent_include_or_eval(INTERNAL_FUNCTION_PARAMETE
 				RETVAL_TRUE;
 			}
 
-			destroy_op_array(op_array TSRMLS_CC);
+			destroy_op_array(op_array);
 			efree(op_array);
 
 			EG(return_value_ptr_ptr) = orig_retvalpp;
@@ -352,7 +352,7 @@ PHP_METHOD(Runkit_Sandbox_Parent,echo)
 
 	PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX_VERIFY_ACCESS(objval, this_ptr);
 	if (!objval->self->parent_echo) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Access to echo data in the parent context is not enabled");
+		php_error_docref(NULL, E_WARNING, "Access to echo data in the parent context is not enabled");
 		RETURN_FALSE;
 	}
 
@@ -375,13 +375,13 @@ PHP_METHOD(Runkit_Sandbox_Parent,print)
 	char *str;
 	int len;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &str, &len) == FAILURE) {
 		RETURN_FALSE;
 	}
 
 	PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX_VERIFY_ACCESS(objval, this_ptr);
 	if (!objval->self->parent_echo) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Access to echo data in the parent context is not enabled");
+		php_error_docref(NULL, E_WARNING, "Access to echo data in the parent context is not enabled");
 		RETURN_FALSE;
 	}
 
@@ -401,7 +401,7 @@ PHP_METHOD(Runkit_Sandbox_Parent,die)
 	php_runkit_sandbox_parent_object *objval;
 	zval *message = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|z", &message) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|z", &message) == FAILURE) {
 		RETURN_FALSE;
 	}
 
@@ -413,7 +413,7 @@ PHP_METHOD(Runkit_Sandbox_Parent,die)
 
 	PHP_RUNKIT_SANDBOX_PARENT_FETCHBOX_VERIFY_ACCESS(objval, this_ptr);
 	if (!objval->self->parent_die) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Patricide is disabled.  Shame on you Oedipus.");
+		php_error_docref(NULL, E_WARNING, "Patricide is disabled.  Shame on you Oedipus.");
 		/* Sent as a warning, but we'll really implement it as an E_ERROR */
 		objval->self->active = 0;
 		RETURN_FALSE;
@@ -456,7 +456,7 @@ static zval *php_runkit_sandbox_parent_read_property(zval *object, zval *member,
 		return EG(uninitialized_zval_ptr);
 	}
 	if (!objval->self->parent_access || !objval->self->parent_read) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Access to read parent's symbol table is disallowed");
+		php_error_docref(NULL, E_WARNING, "Access to read parent's symbol table is disallowed");
 		return EG(uninitialized_zval_ptr);
 	}
 
@@ -465,7 +465,7 @@ static zval *php_runkit_sandbox_parent_read_property(zval *object, zval *member,
 	PHP_RUNKIT_SANDBOX_PARENT_BEGIN(objval)
 		zval **value;
 
-		if ((value = zend_hash_str_find(php_runkit_sandbox_parent_resolve_symbol_table(objval TSRMLS_CC), Z_STRVAL_P(member), Z_STRLEN_P(member) + 1)) != NULL) {
+		if ((value = zend_hash_str_find(php_runkit_sandbox_parent_resolve_symbol_table(objval), Z_STRVAL_P(member), Z_STRLEN_P(member) + 1)) != NULL) {
 			retval = **value;
 			prop_found = 1;
 		}
@@ -475,7 +475,7 @@ static zval *php_runkit_sandbox_parent_read_property(zval *object, zval *member,
 		zval_dtor(member);
 	}
 
-	return php_runkit_sandbox_return_property_value(prop_found, &retval TSRMLS_CC);
+	return php_runkit_sandbox_return_property_value(prop_found, &retval);
 }
 /* }}} */
 
@@ -492,7 +492,7 @@ static void php_runkit_sandbox_parent_write_property(zval *object, zval *member,
 		return;
 	}
 	if (!objval->self->parent_access || !objval->self->parent_write) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Access to modify parent's symbol table is disallowed");
+		php_error_docref(NULL, E_WARNING, "Access to modify parent's symbol table is disallowed");
 		return;
 	}
 
@@ -504,7 +504,7 @@ static void php_runkit_sandbox_parent_write_property(zval *object, zval *member,
 		MAKE_STD_ZVAL(copyval);
 		*copyval = *value;
 		PHP_SANDBOX_CROSS_SCOPE_ZVAL_COPY_CTOR(copyval);
-		ZEND_SET_SYMBOL(php_runkit_sandbox_parent_resolve_symbol_table(objval TSRMLS_CC), Z_STRVAL_P(member), copyval);
+		ZEND_SET_SYMBOL(php_runkit_sandbox_parent_resolve_symbol_table(objval), Z_STRVAL_P(member), copyval);
 	PHP_RUNKIT_SANDBOX_PARENT_END(objval)
 
 	if (member == &tmp_member) {
@@ -524,14 +524,14 @@ static int php_runkit_sandbox_parent_has_property(zval *object, zval *member, in
 	int result = 0;
 
 	if (!objval || !objval->self->parent_access || !objval->self->parent_read) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Access to read parent's symbol table is disallowed");
+		php_error_docref(NULL, E_WARNING, "Access to read parent's symbol table is disallowed");
 		return 0;
 	}
 
 	PHP_RUNKIT_ZVAL_CONVERT_TO_STRING_IF_NEEDED(member, member_copy);
 
 	PHP_RUNKIT_SANDBOX_PARENT_BEGIN(objval)
-		php_runkit_sandbox_has_property_int(has_set_exists, member TSRMLS_CC);
+		php_runkit_sandbox_has_property_int(has_set_exists, member);
 	PHP_RUNKIT_SANDBOX_PARENT_END(objval)
 
 	if (member == &member_copy) {
@@ -555,16 +555,16 @@ static void php_runkit_sandbox_parent_unset_property(zval *object, zval *member
 		return;
 	}
 	if (!objval->self->parent_access || !objval->self->parent_write) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Access to modify parent's symbol table is disallowed");
+		php_error_docref(NULL, E_WARNING, "Access to modify parent's symbol table is disallowed");
 		return;
 	}
 
 	PHP_RUNKIT_ZVAL_CONVERT_TO_STRING_IF_NEEDED(member, member_copy);
 
 	PHP_RUNKIT_SANDBOX_PARENT_BEGIN(objval)
-		if (zend_hash_exists(php_runkit_sandbox_parent_resolve_symbol_table(objval TSRMLS_CC), Z_STRVAL_P(member), Z_STRLEN_P(member) + 1)) {
+		if (zend_hash_exists(php_runkit_sandbox_parent_resolve_symbol_table(objval), Z_STRVAL_P(member), Z_STRLEN_P(member) + 1)) {
 			/* Simply removing the zval* causes weirdness with CVs */
-			zend_hash_update(php_runkit_sandbox_parent_resolve_symbol_table(objval TSRMLS_CC), Z_STRVAL_P(member), Z_STRLEN_P(member) + 1, (void*)&EG(uninitialized_zval_ptr), sizeof(zval*), NULL);
+			zend_hash_update(php_runkit_sandbox_parent_resolve_symbol_table(objval), Z_STRVAL_P(member), Z_STRLEN_P(member) + 1, (void*)&EG(uninitialized_zval_ptr), sizeof(zval*), NULL);
 		}
 	PHP_RUNKIT_SANDBOX_PARENT_END(objval)
 
@@ -598,7 +598,7 @@ static zend_function_entry php_runkit_sandbox_parent_functions[] = {
 	{ NULL, NULL, NULL }
 };
 
-static void php_runkit_sandbox_parent_dtor(php_runkit_sandbox_parent_object *objval TSRMLS_DC)
+static void php_runkit_sandbox_parent_dtor(php_runkit_sandbox_parent_object *objval)
 {
 	zend_hash_destroy(objval->obj.properties);
 	FREE_HASHTABLE(objval->obj.properties);
@@ -606,7 +606,7 @@ static void php_runkit_sandbox_parent_dtor(php_runkit_sandbox_parent_object *obj
 	efree(objval);
 }
 
-static zend_object_value php_runkit_sandbox_parent_ctor(zend_class_entry *ce TSRMLS_DC)
+static zend_object_value php_runkit_sandbox_parent_ctor(zend_class_entry *ce)
 {
 	php_runkit_sandbox_parent_object *objval;
 	zend_object_value retval;
@@ -622,7 +622,7 @@ static zend_object_value php_runkit_sandbox_parent_ctor(zend_class_entry *ce TSR
 	}
 	ALLOC_HASHTABLE(objval->obj.properties);
 	zend_hash_init(objval->obj.properties, 0, NULL, ZVAL_PTR_DTOR, 0);
-	retval.handle = zend_objects_store_put(objval, NULL, (zend_objects_free_object_storage_t)php_runkit_sandbox_parent_dtor, NULL TSRMLS_CC);
+	retval.handle = zend_objects_store_put(objval, NULL, (zend_objects_free_object_storage_t)php_runkit_sandbox_parent_dtor, NULL);
 
 	retval.handlers = RUNKIT_G(current_sandbox) ? &php_runkit_sandbox_parent_handlers : zend_get_std_object_handlers();
 
@@ -634,7 +634,7 @@ int php_runkit_init_sandbox_parent(INIT_FUNC_ARGS)
 	zend_class_entry ce;
 
 	INIT_CLASS_ENTRY(ce, PHP_RUNKIT_SANDBOX_PARENT_CLASSNAME, php_runkit_sandbox_parent_functions);
-	php_runkit_sandbox_parent_entry = zend_register_internal_class(&ce TSRMLS_CC);
+	php_runkit_sandbox_parent_entry = zend_register_internal_class(&ce);
 	php_runkit_sandbox_parent_entry->create_object = php_runkit_sandbox_parent_ctor;
 
 	/* Make a new object handler struct with a couple minor changes */

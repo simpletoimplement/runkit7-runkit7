@@ -60,7 +60,7 @@ static zend_class_entry *php_runkit_sandbox_class_entry;
 	} \
 }
 
-#define PHP_RUNKIT_SANDBOX_FETCHBOX(zval_p) (php_runkit_sandbox_object*)zend_objects_get_address(zval_p TSRMLS_CC)
+#define PHP_RUNKIT_SANDBOX_FETCHBOX(zval_p) (php_runkit_sandbox_object*)zend_objects_get_address(zval_p)
 
 int php_runkit_sandbox_array_deep_copy(RUNKIT_53_TSRMLS_ARG(zval **value), int num_args, va_list args, zend_hash_key *hash_key)
 {
@@ -85,7 +85,7 @@ int php_runkit_sandbox_array_deep_copy(RUNKIT_53_TSRMLS_ARG(zval **value), int n
    * Runkit_Sandbox *
    ****************** */
 
-static HashTable *php_runkit_sandbox_parse_multipath(const char *paths TSRMLS_DC) {
+static HashTable *php_runkit_sandbox_parse_multipath(const char *paths) {
 	HashTable *ht;
 	int len = strlen(paths);
 	char *s, *colon, *pathcopy, tmppath[MAXPATHLEN] = {0};
@@ -128,14 +128,14 @@ static HashTable *php_runkit_sandbox_parse_multipath(const char *paths TSRMLS_DC
 	return ht;
 }
 
-static void php_runkit_sandbox_free_multipath(HashTable *ht TSRMLS_DC) {
+static void php_runkit_sandbox_free_multipath(HashTable *ht) {
 	if (ht) {
 		zend_hash_destroy(ht);
 		FREE_HASHTABLE(ht);
 	}
 }
 
-static char *php_runkit_sandbox_implode_stringht(HashTable *ht TSRMLS_DC) {
+static char *php_runkit_sandbox_implode_stringht(HashTable *ht) {
 	smart_str s = { 0 };
 	HashPosition pos;
 	char *str;
@@ -152,7 +152,7 @@ static char *php_runkit_sandbox_implode_stringht(HashTable *ht TSRMLS_DC) {
 	return s.c;
 }
 
-static char *php_runkit_sandbox_tighten_paths(HashTable *oldht, HashTable *newht TSRMLS_DC) {
+static char *php_runkit_sandbox_tighten_paths(HashTable *oldht, HashTable *newht) {
 	HashPosition newpos;
 	char *newstr;
 
@@ -161,7 +161,7 @@ static char *php_runkit_sandbox_tighten_paths(HashTable *oldht, HashTable *newht
 	}
 	if (!oldht) {
 		/* From nothing to something */
-		return php_runkit_sandbox_implode_stringht(newht TSRMLS_CC);
+		return php_runkit_sandbox_implode_stringht(newht);
 	}
 	if (!newht) {
 		/* From something to nothing */
@@ -202,7 +202,7 @@ static char *php_runkit_sandbox_tighten_paths(HashTable *oldht, HashTable *newht
 newstr_ok: ;
 	}
 
-	return php_runkit_sandbox_implode_stringht(newht TSRMLS_CC);
+	return php_runkit_sandbox_implode_stringht(newht);
 }
 
 /* Special .ini options (normally PHP_INI_SYSTEM) which can be overridden within a sandbox in the direction of tighter security
@@ -228,7 +228,7 @@ newstr_ok: ;
  * runkit.internal_override = false
  *		runkit.internal_override may be disabled (but not re-enabled) within sandboxes
  */
-static inline void php_runkit_sandbox_ini_override(php_runkit_sandbox_object *objval, HashTable *options TSRMLS_DC)
+static inline void php_runkit_sandbox_ini_override(php_runkit_sandbox_object *objval, HashTable *options)
 {
 	zend_bool allow_url_fopen;
 #ifdef ZEND_ENGINE_2_2
@@ -243,7 +243,7 @@ static inline void php_runkit_sandbox_ini_override(php_runkit_sandbox_object *ob
 		/* Check current settings in parent context */
 		TSRMLS_FETCH_FROM_CTX(objval->parent_context);
 		if (PG(open_basedir) && *PG(open_basedir)) {
-			open_basedirs = php_runkit_sandbox_parse_multipath(PG(open_basedir) TSRMLS_CC);
+			open_basedirs = php_runkit_sandbox_parse_multipath(PG(open_basedir));
 		}
 		allow_url_fopen = PG(allow_url_fopen);
 #ifdef ZEND_ENGINE_2_2
@@ -261,8 +261,8 @@ static inline void php_runkit_sandbox_ini_override(php_runkit_sandbox_object *ob
 			zend_alter_ini_entry("open_basedir", sizeof("open_basedir"), Z_STRVAL_PP(tmpzval), Z_STRLEN_PP(tmpzval), PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
 			goto child_open_basedir_set;
 		} else {
-			HashTable *new_open_basedirs = php_runkit_sandbox_parse_multipath(Z_STRVAL_PP(tmpzval) TSRMLS_CC);			char *new_open_basedir = php_runkit_sandbox_tighten_paths(open_basedirs, new_open_basedirs TSRMLS_CC);
-			php_runkit_sandbox_free_multipath(new_open_basedirs TSRMLS_CC);
+			HashTable *new_open_basedirs = php_runkit_sandbox_parse_multipath(Z_STRVAL_PP(tmpzval));			char *new_open_basedir = php_runkit_sandbox_tighten_paths(open_basedirs, new_open_basedirs);
+			php_runkit_sandbox_free_multipath(new_open_basedirs);
 
 			if (new_open_basedir) {
 				/* Tightening up of existing security level */
@@ -274,7 +274,7 @@ static inline void php_runkit_sandbox_ini_override(php_runkit_sandbox_object *ob
 	}
 	if (open_basedirs) {
 		/* Inherit parent's setting by default which may be PHP_INI_USER level setting */
-		char *parent_open_basedir = php_runkit_sandbox_implode_stringht(open_basedirs TSRMLS_CC);
+		char *parent_open_basedir = php_runkit_sandbox_implode_stringht(open_basedirs);
 		zend_alter_ini_entry("open_basedir", sizeof("open_basedir"), parent_open_basedir, strlen(parent_open_basedir), PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
 		efree(parent_open_basedir);
 	}
@@ -308,10 +308,10 @@ child_open_basedir_set:
 		s = objval->disable_functions;
 		while ((p = strchr(s, ','))) {
 			*p = '\0';
-			zend_disable_function(s, p - s TSRMLS_CC);
+			zend_disable_function(s, p - s);
 			s = p + 1;
 		}
-		zend_disable_function(s, strlen(s) TSRMLS_CC);
+		zend_disable_function(s, strlen(s));
 	}
 
 	/* Can only disable additional classes */
@@ -326,10 +326,10 @@ child_open_basedir_set:
 		s = objval->disable_classes;
 		while ((p = strchr(s, ','))) {
 			*p = '\0';
-			zend_disable_class(s, p - s TSRMLS_CC);
+			zend_disable_class(s, p - s);
 			s = p + 1;
 		}
-		zend_disable_class(s, strlen(s) TSRMLS_CC);
+		zend_disable_class(s, strlen(s));
 	}
 
 	/* Additional superglobals to define */
@@ -341,13 +341,13 @@ child_open_basedir_set:
 		while ((p = strchr(s, ','))) {
 			if (p - s) {
 				*p = '\0';
-				zend_register_auto_global(zend_string_init(s, p - s, 0), 0, NULL TSRMLS_CC);
+				zend_register_auto_global(zend_string_init(s, p - s, 0), 0, NULL);
 				zend_activate_auto_globals(TSRMLS_C);
 				*p = ',';
 			}
 			s = p + 1;
 		}
-		zend_register_auto_global(zend_string_init(s, strlen(s), 0), 0, NULL TSRMLS_CC);
+		zend_register_auto_global(zend_string_init(s, strlen(s), 0), 0, NULL);
 	}
 
 	/* May only turn off */
@@ -373,7 +373,7 @@ child_open_basedir_set:
 
 	if (open_basedirs) {
 		tsrm_set_interpreter_context(objval->parent_context);
-    php_runkit_sandbox_free_multipath(open_basedirs TSRMLS_CC);
+    php_runkit_sandbox_free_multipath(open_basedirs);
 		tsrm_set_interpreter_context(objval->context);
 	}
 }
@@ -387,7 +387,7 @@ PHP_METHOD(Runkit_Sandbox,__construct)
 	php_runkit_sandbox_object *objval = PHP_RUNKIT_SANDBOX_FETCHBOX(this_ptr);
 	zval *options = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &options) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|a", &options) == FAILURE) {
 		RETURN_NULL();
 	}
 
@@ -403,7 +403,7 @@ PHP_METHOD(Runkit_Sandbox,__construct)
 		zend_alter_ini_entry("max_execution_time", sizeof("max_execution_time") , "0", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
 		if (options) {
 			/* Override a select subset of .ini options for increased restriction in the sandbox */
-			php_runkit_sandbox_ini_override(objval, Z_ARRVAL_P(options) TSRMLS_CC);
+			php_runkit_sandbox_ini_override(objval, Z_ARRVAL_P(options));
 		}
 
 		SG(headers_sent) = 1;
@@ -430,13 +430,13 @@ PHP_METHOD(Runkit_Sandbox,__call)
 	php_runkit_sandbox_object *objval;
 	int bailed_out = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "za", &func_name, &args) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "za", &func_name, &args) == FAILURE) {
 		RETURN_NULL();
 	}
 
 	objval = PHP_RUNKIT_SANDBOX_FETCHBOX(this_ptr);
 	if (!objval->active) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Current sandbox is no longer active");
+		php_error_docref(NULL, E_WARNING, "Current sandbox is no longer active");
 		RETURN_NULL();
 	}
 
@@ -446,7 +446,7 @@ PHP_METHOD(Runkit_Sandbox,__call)
 
 		zend_first_try {
 			if (!RUNKIT_IS_CALLABLE(func_name, IS_CALLABLE_CHECK_NO_ACCESS, &name)) {
-				php_error_docref1(NULL TSRMLS_CC, name, E_WARNING, "Function not defined");
+				php_error_docref1(NULL, name, E_WARNING, "Function not defined");
 				if (name) {
 					efree(name);
 				}
@@ -454,7 +454,7 @@ PHP_METHOD(Runkit_Sandbox,__call)
 				RETURN_FALSE;
 			}
 
-			php_runkit_sandbox_call_int(func_name, &name, &retval, args, return_value, prior_context TSRMLS_CC);
+			php_runkit_sandbox_call_int(func_name, &name, &retval, args, return_value, prior_context);
 		} zend_catch {
 			bailed_out = 1;
 			objval->active = 0;
@@ -463,7 +463,7 @@ PHP_METHOD(Runkit_Sandbox,__call)
 	PHP_RUNKIT_SANDBOX_END(objval)
 
 	if (bailed_out) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed calling sandbox function");
+		php_error_docref(NULL, E_WARNING, "Failed calling sandbox function");
 		RETURN_FALSE;
 	}
 
@@ -487,7 +487,7 @@ static void php_runkit_sandbox_include_or_eval(INTERNAL_FUNCTION_PARAMETERS, int
 	int bailed_out = 0;
 	zval *retval = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &zcode) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &zcode) == FAILURE) {
 		RETURN_FALSE;
 	}
 
@@ -495,7 +495,7 @@ static void php_runkit_sandbox_include_or_eval(INTERNAL_FUNCTION_PARAMETERS, int
 
 	objval = PHP_RUNKIT_SANDBOX_FETCHBOX(this_ptr);
 	if (!objval->active) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Current sandbox is no longer active");
+		php_error_docref(NULL, E_WARNING, "Current sandbox is no longer active");
 		RETURN_NULL();
 	}
 
@@ -506,13 +506,13 @@ static void php_runkit_sandbox_include_or_eval(INTERNAL_FUNCTION_PARAMETERS, int
 			zend_op_array *op_array = NULL;
 			int already_included = 0;
 
-			op_array = php_runkit_sandbox_include_or_eval_int(return_value, zcode, type, once, &already_included TSRMLS_CC);
+			op_array = php_runkit_sandbox_include_or_eval_int(return_value, zcode, type, once, &already_included);
 
 			if (op_array) {
 				EG(return_value_ptr_ptr) = &retval;
 				EG(active_op_array) = op_array;
 
-				zend_execute(op_array TSRMLS_CC);
+				zend_execute(op_array);
 
 				if (retval) {
 					*return_value = *retval;
@@ -520,7 +520,7 @@ static void php_runkit_sandbox_include_or_eval(INTERNAL_FUNCTION_PARAMETERS, int
 					RETVAL_TRUE;
 				}
 
-				destroy_op_array(op_array TSRMLS_CC);
+				destroy_op_array(op_array);
 				efree(op_array);
 			} else if ((type != ZEND_INCLUDE) && !already_included) {
 				/* include can fail to parse peacefully,
@@ -537,7 +537,7 @@ static void php_runkit_sandbox_include_or_eval(INTERNAL_FUNCTION_PARAMETERS, int
 	PHP_RUNKIT_SANDBOX_END(objval)
 
 	if (bailed_out) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error executing sandbox code");
+		php_error_docref(NULL, E_WARNING, "Error executing sandbox code");
 		RETURN_FALSE;
 	}
 
@@ -618,7 +618,7 @@ PHP_METHOD(Runkit_Sandbox,echo)
 	objval = PHP_RUNKIT_SANDBOX_FETCHBOX(this_ptr);
 	if (!objval->active) {
 		efree(argv);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Current sandbox is no longer active");
+		php_error_docref(NULL, E_WARNING, "Current sandbox is no longer active");
 		RETURN_NULL();
 	}
 
@@ -648,13 +648,13 @@ PHP_METHOD(Runkit_Sandbox,print)
 	char *str;
 	int len;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &str, &len) == FAILURE) {
 		RETURN_FALSE;
 	}
 
 	objval = PHP_RUNKIT_SANDBOX_FETCHBOX(this_ptr);
 	if (!objval->active) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Current sandbox is no longer active");
+		php_error_docref(NULL, E_WARNING, "Current sandbox is no longer active");
 		RETURN_NULL();
 	}
 
@@ -678,7 +678,7 @@ PHP_METHOD(Runkit_Sandbox,die)
 	php_runkit_sandbox_object *objval;
 	zval *message = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|z", &message) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|z", &message) == FAILURE) {
 		RETURN_FALSE;
 	}
 
@@ -690,7 +690,7 @@ PHP_METHOD(Runkit_Sandbox,die)
 
 	objval = PHP_RUNKIT_SANDBOX_FETCHBOX(this_ptr);
 	if (!objval->active) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Current sandbox is no longer active");
+		php_error_docref(NULL, E_WARNING, "Current sandbox is no longer active");
 		return;
 	}
 
@@ -728,7 +728,7 @@ static zval *php_runkit_sandbox_read_property(zval *object, zval *member, int ty
 	int prop_found = 0;
 
 	if (!objval->active) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Current sandbox is no longer active");
+		php_error_docref(NULL, E_WARNING, "Current sandbox is no longer active");
 		return EG(uninitialized_zval_ptr);
 	}
 
@@ -752,7 +752,7 @@ static zval *php_runkit_sandbox_read_property(zval *object, zval *member, int ty
 		zval_dtor(member);
 	}
 
-	return php_runkit_sandbox_return_property_value(prop_found, &retval TSRMLS_CC);
+	return php_runkit_sandbox_return_property_value(prop_found, &retval);
 }
 /* }}} */
 
@@ -766,7 +766,7 @@ static void php_runkit_sandbox_write_property(zval *object, zval *member, zval *
 	zval tmp_member;
 
 	if (!objval->active) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Current sandbox is no longer active");
+		php_error_docref(NULL, E_WARNING, "Current sandbox is no longer active");
 		return;
 	}
 
@@ -810,7 +810,7 @@ static int php_runkit_sandbox_has_property(zval *object, zval *member, int has_s
 	PHP_RUNKIT_ZVAL_CONVERT_TO_STRING_IF_NEEDED(member, member_copy);
 
 	PHP_RUNKIT_SANDBOX_BEGIN(objval)
-		php_runkit_sandbox_has_property_int(has_set_exists, member TSRMLS_CC);
+		php_runkit_sandbox_has_property_int(has_set_exists, member);
 	PHP_RUNKIT_SANDBOX_END(objval)
 
 	if (member == &member_copy) {
@@ -835,7 +835,7 @@ static void php_runkit_sandbox_unset_property(zval *object, zval *member
 		return;
 	}
 	if (!objval->active) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Current sandbox is no longer active");
+		php_error_docref(NULL, E_WARNING, "Current sandbox is no longer active");
 		return;
 	}
 
@@ -860,7 +860,7 @@ static sapi_module_struct php_runkit_sandbox_original_sapi;
 /* {{{ php_runkit_sandbox_sapi_ub_write
  * Wrap the caller's output handler with a mechanism for switching contexts
  */
-static int php_runkit_sandbox_sapi_ub_write(const char *str, uint str_length TSRMLS_DC)
+static int php_runkit_sandbox_sapi_ub_write(const char *str, uint str_length)
 {
 	php_runkit_sandbox_object *objval = RUNKIT_G(current_sandbox);
 	int bytes_written;
@@ -872,7 +872,7 @@ static int php_runkit_sandbox_sapi_ub_write(const char *str, uint str_length TSR
 	if (!objval) {
 		/* Not in a sandbox -- Use genuine sapi.ub_write handler */
 		if (php_runkit_sandbox_original_sapi.ub_write) {
-			return php_runkit_sandbox_original_sapi.ub_write(str, str_length TSRMLS_CC);
+			return php_runkit_sandbox_original_sapi.ub_write(str, str_length);
 		} else {
 			/* Ignore data, no real SAPI handler to pass it to */
 			return str_length;
@@ -898,7 +898,7 @@ static int php_runkit_sandbox_sapi_ub_write(const char *str, uint str_length TSR
 		ZVAL_STRINGL(bufcopy, (char*)str, str_length, 1);
 		output_buffer[0] = &bufcopy;
 
-		if (call_user_function_ex(EG(function_table), NULL, objval->output_handler, &retval, 1, output_buffer, 0, NULL TSRMLS_CC) == SUCCESS) {
+		if (call_user_function_ex(EG(function_table), NULL, objval->output_handler, &retval, 1, output_buffer, 0, NULL) == SUCCESS) {
 			if (retval) {
 				if (Z_TYPE_P(retval) != IS_NULL) {
 					convert_to_string(retval);
@@ -910,7 +910,7 @@ static int php_runkit_sandbox_sapi_ub_write(const char *str, uint str_length TSR
 				bytes_written = 0;
 			}
 		} else {
-			php_error_docref("runkit.sandbox" TSRMLS_CC, E_WARNING, "Unable to call output buffer callback");
+			php_error_docref("runkit.sandbox", E_WARNING, "Unable to call output buffer callback");
 			bytes_written = 0;
 		}
 
@@ -958,7 +958,7 @@ static void php_runkit_sandbox_sapi_flush(void *server_context)
 
 		args[0] = &EG(uninitialized_zval_ptr);
 
-		if (call_user_function_ex(EG(function_table), NULL, objval->output_handler, &retval, 1, args, 0, NULL TSRMLS_CC) == SUCCESS) {
+		if (call_user_function_ex(EG(function_table), NULL, objval->output_handler, &retval, 1, args, 0, NULL) == SUCCESS) {
 			if (retval) {
 				if (Z_TYPE_P(retval) != IS_NULL) {
 					convert_to_string(retval);
@@ -967,7 +967,7 @@ static void php_runkit_sandbox_sapi_flush(void *server_context)
 				zval_ptr_dtor(&retval);
 			}
 		} else {
-			php_error_docref("runkit.sandbox" TSRMLS_CC, E_WARNING, "Unable to call output buffer callback");
+			php_error_docref("runkit.sandbox", E_WARNING, "Unable to call output buffer callback");
 		}
 	}
 	tsrm_set_interpreter_context(objval->context);
@@ -1001,7 +1001,7 @@ static struct stat *php_runkit_sandbox_sapi_get_stat(TSRMLS_D)
 
 /* {{{ php_runkit_sandbox_sapi_getenv
  */
-static char *php_runkit_sandbox_sapi_getenv(char *name, size_t name_len TSRMLS_DC)
+static char *php_runkit_sandbox_sapi_getenv(char *name, size_t name_len)
 {
 	php_runkit_sandbox_object *objval = RUNKIT_G(current_sandbox);
 	char *ret;
@@ -1011,11 +1011,11 @@ static char *php_runkit_sandbox_sapi_getenv(char *name, size_t name_len TSRMLS_D
 		{
 			TSRMLS_FETCH();
 
-			ret = php_runkit_sandbox_original_sapi.getenv(name, name_len TSRMLS_CC);
+			ret = php_runkit_sandbox_original_sapi.getenv(name, name_len);
 		}
 		tsrm_set_interpreter_context(objval->context);
 	} else {
-		ret = php_runkit_sandbox_original_sapi.getenv(name, name_len TSRMLS_CC);
+		ret = php_runkit_sandbox_original_sapi.getenv(name, name_len);
 	}
 
 	return ret;
@@ -1060,13 +1060,13 @@ static void php_runkit_sandbox_sapi_sapi_error(int type, const char *error_msg, 
  */
 static int php_runkit_sandbox_sapi_header_handler(sapi_header_struct *sapi_header,
                                                   sapi_header_op_enum op,
-                                                  sapi_headers_struct *sapi_headers TSRMLS_DC)
+                                                  sapi_headers_struct *sapi_headers)
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
 		return php_runkit_sandbox_original_sapi.header_handler(sapi_header,
                                                                op,
-                                                               sapi_headers TSRMLS_CC);
+                                                               sapi_headers);
 	}
 
 	/* Otherwise ignore headers -- TODO: Provide a way for the calling scope to receive these a la output handler */
@@ -1077,11 +1077,11 @@ static int php_runkit_sandbox_sapi_header_handler(sapi_header_struct *sapi_heade
 /* {{{ php_runkit_sandbox_sapi_send_headers
  * Pretend to send headers
  */
-static int php_runkit_sandbox_sapi_send_headers(sapi_headers_struct *sapi_headers TSRMLS_DC)
+static int php_runkit_sandbox_sapi_send_headers(sapi_headers_struct *sapi_headers)
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		return php_runkit_sandbox_original_sapi.send_headers(sapi_headers TSRMLS_CC);
+		return php_runkit_sandbox_original_sapi.send_headers(sapi_headers);
 	}
 
 	/* Do nothing */
@@ -1092,11 +1092,11 @@ static int php_runkit_sandbox_sapi_send_headers(sapi_headers_struct *sapi_header
 /* {{{ php_runkit_sandbox_sapi_send_header
  * Pretend to send header
  */
-static void php_runkit_sandbox_sapi_send_header(sapi_header_struct *sapi_header, void *server_context TSRMLS_DC)
+static void php_runkit_sandbox_sapi_send_header(sapi_header_struct *sapi_header, void *server_context)
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		php_runkit_sandbox_sapi_send_header(sapi_header, server_context TSRMLS_CC);
+		php_runkit_sandbox_sapi_send_header(sapi_header, server_context);
 		return;
 	}
 
@@ -1107,11 +1107,11 @@ static void php_runkit_sandbox_sapi_send_header(sapi_header_struct *sapi_header,
 
 /* {{{ php_runkit_sandbox_sapi_read_post
  */
-static int php_runkit_sandbox_sapi_read_post(char *buffer, uint count_bytes TSRMLS_DC)
+static int php_runkit_sandbox_sapi_read_post(char *buffer, uint count_bytes)
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		return php_runkit_sandbox_original_sapi.read_post(buffer, count_bytes TSRMLS_CC);
+		return php_runkit_sandbox_original_sapi.read_post(buffer, count_bytes);
 	}
 
 	/* return nothing */
@@ -1136,11 +1136,11 @@ static char *php_runkit_sandbox_sapi_read_cookies(TSRMLS_D)
 
 /* {{{ php_runkit_sandbox_sapi_register_server_variables
  */
-static void php_runkit_sandbox_sapi_register_server_variables(zval *track_vars_array TSRMLS_DC)
+static void php_runkit_sandbox_sapi_register_server_variables(zval *track_vars_array)
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		php_runkit_sandbox_original_sapi.register_server_variables(track_vars_array TSRMLS_CC);
+		php_runkit_sandbox_original_sapi.register_server_variables(track_vars_array);
 	}
 
 	/* Do nothing */
@@ -1236,11 +1236,11 @@ static void php_runkit_sandbox_sapi_default_post_reader(TSRMLS_D)
 
 /* {{{ php_runkit_sandbox_sapi_get_fd
  */
-static int php_runkit_sandbox_sapi_get_fd(int *fd TSRMLS_DC)
+static int php_runkit_sandbox_sapi_get_fd(int *fd)
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		return php_runkit_sandbox_original_sapi.get_fd(fd TSRMLS_CC);
+		return php_runkit_sandbox_original_sapi.get_fd(fd);
 	}
 
 	/* Do nothing */
@@ -1264,11 +1264,11 @@ static int php_runkit_sandbox_sapi_force_http_10(TSRMLS_D)
 
 /* {{{ php_runkit_sandbox_sapi_get_target_uid
  */
-static int php_runkit_sandbox_sapi_get_target_uid(uid_t *uid TSRMLS_DC)
+static int php_runkit_sandbox_sapi_get_target_uid(uid_t *uid)
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		return php_runkit_sandbox_original_sapi.get_target_uid(uid TSRMLS_CC);
+		return php_runkit_sandbox_original_sapi.get_target_uid(uid);
 	}
 
 	/* Do nothing */
@@ -1278,11 +1278,11 @@ static int php_runkit_sandbox_sapi_get_target_uid(uid_t *uid TSRMLS_DC)
 
 /* {{{ php_runkit_sandbox_sapi_get_target_gid
  */
-static int php_runkit_sandbox_sapi_get_target_gid(uid_t *gid TSRMLS_DC)
+static int php_runkit_sandbox_sapi_get_target_gid(uid_t *gid)
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		return php_runkit_sandbox_original_sapi.get_target_gid(gid TSRMLS_CC);
+		return php_runkit_sandbox_original_sapi.get_target_gid(gid);
 	}
 
 	/* Do nothing */
@@ -1292,11 +1292,11 @@ static int php_runkit_sandbox_sapi_get_target_gid(uid_t *gid TSRMLS_DC)
 
 /* {{{ php_runkit_sandbox_sapi_input_filter
  */
-static unsigned int php_runkit_sandbox_sapi_input_filter(int arg, char *var, char **val, unsigned int val_len, unsigned int *new_val_len TSRMLS_DC)
+static unsigned int php_runkit_sandbox_sapi_input_filter(int arg, char *var, char **val, unsigned int val_len, unsigned int *new_val_len)
 {
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
-		return php_runkit_sandbox_original_sapi.input_filter(arg, var, val, val_len, new_val_len TSRMLS_CC);
+		return php_runkit_sandbox_original_sapi.input_filter(arg, var, val, val_len, new_val_len);
 	}
 
 	/* Parrot php_default_input_filter */
@@ -1330,14 +1330,14 @@ PHP_FUNCTION(runkit_sandbox_output_handler)
 	char *name = NULL;
 	int callback_is_true = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O|z", &sandbox, php_runkit_sandbox_class_entry, &callback) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O|z", &sandbox, php_runkit_sandbox_class_entry, &callback) == FAILURE) {
 		RETURN_NULL();
 	}
-	php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Use of runkit_sandbox_output_handler() is deprecated.  Use $sandbox['output_handler'] instead.");
+	php_error_docref(NULL, E_NOTICE, "Use of runkit_sandbox_output_handler() is deprecated.  Use $sandbox['output_handler'] instead.");
 
 	objval = PHP_RUNKIT_SANDBOX_FETCHBOX(sandbox);
 	if (!objval->active) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Current sandbox is no longer active");
+		php_error_docref(NULL, E_WARNING, "Current sandbox is no longer active");
 		RETURN_NULL();
 	}
 
@@ -1353,7 +1353,7 @@ PHP_FUNCTION(runkit_sandbox_output_handler)
 
 	if (callback && callback_is_true &&
 		!RUNKIT_IS_CALLABLE(callback, IS_CALLABLE_CHECK_NO_ACCESS, &name)) {
-		php_error_docref1(NULL TSRMLS_CC, name, E_WARNING, "Second argument (%s) is expected to be a valid callback", name);
+		php_error_docref1(NULL, name, E_WARNING, "Second argument (%s) is expected to be a valid callback", name);
 		if (name) {
 			efree(name);
 		}
@@ -1400,12 +1400,12 @@ PHP_FUNCTION(runkit_sandbox_output_handler)
    * Dimension Handlers *
    ********************** */
 
-#define PHP_RUNKIT_SANDBOX_SETTING_ENTRY(name, get, set)	{ #name, sizeof(#name) - 1, (zval *(*)(php_runkit_sandbox_object *objval TSRMLS_DC)) get, (int (*)(php_runkit_sandbox_object *objval, zval *value TSRMLS_DC)) set },
-#define PHP_RUNKIT_SANDBOX_SETTING_ENTRY_RW(name)			{ #name, sizeof(#name) - 1, (zval *(*)(php_runkit_sandbox_object *objval TSRMLS_DC)) php_runkit_sandbox_ ## name ## _getter, (int (*)(php_runkit_sandbox_object *objval, zval *value TSRMLS_DC)) php_runkit_sandbox_ ## name ## _setter },
-#define PHP_RUNKIT_SANDBOX_SETTING_ENTRY_RD(name)	{ #name, sizeof(#name) - 1, (zval *(*)(php_runkit_sandbox_object *objval TSRMLS_DC)) php_runkit_sandbox_ ## name ## _getter, NULL },
-#define PHP_RUNKIT_SANDBOX_SETTING_ENTRY_WR(name)	{ #name, sizeof(#name) - 1, NULL, (int (*)(php_runkit_sandbox_object *objval, zval *value TSRMLS_DC)) php_runkit_sandbox_ ## name ## _setter },
-#define PHP_RUNKIT_SANDBOX_SETTING_SETTER(name)		static void php_runkit_sandbox_ ## name ## _setter(php_runkit_sandbox_object *objval, zval *value TSRMLS_DC)
-#define PHP_RUNKIT_SANDBOX_SETTING_GETTER(name)		static zval* php_runkit_sandbox_ ## name ## _getter(php_runkit_sandbox_object *objval TSRMLS_DC)
+#define PHP_RUNKIT_SANDBOX_SETTING_ENTRY(name, get, set)	{ #name, sizeof(#name) - 1, (zval *(*)(php_runkit_sandbox_object *objval)) get, (int (*)(php_runkit_sandbox_object *objval, zval *value)) set },
+#define PHP_RUNKIT_SANDBOX_SETTING_ENTRY_RW(name)			{ #name, sizeof(#name) - 1, (zval *(*)(php_runkit_sandbox_object *objval)) php_runkit_sandbox_ ## name ## _getter, (int (*)(php_runkit_sandbox_object *objval, zval *value)) php_runkit_sandbox_ ## name ## _setter },
+#define PHP_RUNKIT_SANDBOX_SETTING_ENTRY_RD(name)	{ #name, sizeof(#name) - 1, (zval *(*)(php_runkit_sandbox_object *objval)) php_runkit_sandbox_ ## name ## _getter, NULL },
+#define PHP_RUNKIT_SANDBOX_SETTING_ENTRY_WR(name)	{ #name, sizeof(#name) - 1, NULL, (int (*)(php_runkit_sandbox_object *objval, zval *value)) php_runkit_sandbox_ ## name ## _setter },
+#define PHP_RUNKIT_SANDBOX_SETTING_SETTER(name)		static void php_runkit_sandbox_ ## name ## _setter(php_runkit_sandbox_object *objval, zval *value)
+#define PHP_RUNKIT_SANDBOX_SETTING_GETTER(name)		static zval* php_runkit_sandbox_ ## name ## _getter(php_runkit_sandbox_object *objval)
 
 #define PHP_RUNKIT_SANDBOX_SETTING_BOOL_WR(name) \
 PHP_RUNKIT_SANDBOX_SETTING_SETTER(name) \
@@ -1445,7 +1445,7 @@ PHP_RUNKIT_SANDBOX_SETTING_GETTER(output_handler)
 PHP_RUNKIT_SANDBOX_SETTING_SETTER(output_handler)
 {
 	if (!RUNKIT_IS_CALLABLE(value, IS_CALLABLE_CHECK_NO_ACCESS, NULL)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "output_handler is not a valid callback is expected to be a valid callback");
+		php_error_docref(NULL, E_WARNING, "output_handler is not a valid callback is expected to be a valid callback");
 	}
 
 	if (objval->output_handler) {
@@ -1497,7 +1497,7 @@ PHP_RUNKIT_SANDBOX_SETTING_SETTER(parent_scope)
 	zval_copy_ctor(&copyval);
 	convert_to_long(&copyval);
 	if (Z_LVAL(copyval) < 0) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid scope, assuming 0");
+		php_error_docref(NULL, E_WARNING, "Invalid scope, assuming 0");
 		objval->parent_scope = 0;
 		return;
 	}
@@ -1522,8 +1522,8 @@ PHP_RUNKIT_SANDBOX_SETTING_BOOL_RW(parent_die)
 struct _php_runkit_sandbox_settings {
 	char *name;
 	int name_len;
-	zval *(*getter)(php_runkit_sandbox_object *objval TSRMLS_DC);
-	int (*setter)(php_runkit_sandbox_object *objval, zval *value TSRMLS_DC);
+	zval *(*getter)(php_runkit_sandbox_object *objval);
+	int (*setter)(php_runkit_sandbox_object *objval, zval *value);
 };
 
 struct _php_runkit_sandbox_settings php_runkit_sandbox_settings[] = {
@@ -1558,7 +1558,7 @@ static int php_runkit_sandbox_setting_lookup(char *setting, int setting_len) {
 
 /* {{{ php_runkit_sandbox_read_dimension
 	read_dimension Handler */
-static zval *php_runkit_sandbox_read_dimension(zval *object, zval *member, int type TSRMLS_DC)
+static zval *php_runkit_sandbox_read_dimension(zval *object, zval *member, int type)
 {
 	php_runkit_sandbox_object *objval;
 	zval member_copy;
@@ -1582,13 +1582,13 @@ static zval *php_runkit_sandbox_read_dimension(zval *object, zval *member, int t
 		return EG(uninitialized_zval_ptr);
 	}
 
-	return php_runkit_sandbox_settings[setting_id].getter(objval TSRMLS_CC);
+	return php_runkit_sandbox_settings[setting_id].getter(objval);
 }
 /* }}} */
 
 /* {{{ php_runkit_sandbox_write_dimension
 	write_dimension Handler */
-static void php_runkit_sandbox_write_dimension(zval *object, zval *member, zval *value TSRMLS_DC)
+static void php_runkit_sandbox_write_dimension(zval *object, zval *member, zval *value)
 {
 	php_runkit_sandbox_object *objval;
 	zval member_copy;
@@ -1612,13 +1612,13 @@ static void php_runkit_sandbox_write_dimension(zval *object, zval *member, zval 
 		return;
 	}
 
-	php_runkit_sandbox_settings[setting_id].setter(objval, value TSRMLS_CC);
+	php_runkit_sandbox_settings[setting_id].setter(objval, value);
 }
 /* }}} */
 
 /* {{{ php_runkit_sandbox_has_dimension
 	has_dimension Handler */
-static int php_runkit_sandbox_has_dimension(zval *object, zval *member, int check_empty TSRMLS_DC)
+static int php_runkit_sandbox_has_dimension(zval *object, zval *member, int check_empty)
 {
 	php_runkit_sandbox_object *objval;
 	zval member_copy;
@@ -1672,7 +1672,7 @@ static zend_function_entry php_runkit_sandbox_functions[] = {
 	{ NULL, NULL, NULL }
 };
 
-static void php_runkit_sandbox_dtor(php_runkit_sandbox_object *objval TSRMLS_DC)
+static void php_runkit_sandbox_dtor(php_runkit_sandbox_object *objval)
 {
 	void *prior_context;
 
@@ -1708,7 +1708,7 @@ static void php_runkit_sandbox_dtor(php_runkit_sandbox_object *objval TSRMLS_DC)
 	efree(objval);
 }
 
-static zend_object_value php_runkit_sandbox_ctor(zend_class_entry *ce TSRMLS_DC)
+static zend_object_value php_runkit_sandbox_ctor(zend_class_entry *ce)
 {
 	php_runkit_sandbox_object *objval;
 	zend_object_value retval;
@@ -1718,7 +1718,7 @@ static zend_object_value php_runkit_sandbox_ctor(zend_class_entry *ce TSRMLS_DC)
 	ALLOC_HASHTABLE(objval->obj.properties);
 	zend_hash_init(objval->obj.properties, 0, NULL, ZVAL_PTR_DTOR, 0);
 
-	retval.handle = zend_objects_store_put(objval, NULL, php_runkit_sandbox_dtor, NULL TSRMLS_CC);
+	retval.handle = zend_objects_store_put(objval, NULL, php_runkit_sandbox_dtor, NULL);
 	retval.handlers = &php_runkit_sandbox_object_handlers;
 
 	return retval;
@@ -1730,7 +1730,7 @@ int php_runkit_init_sandbox(INIT_FUNC_ARGS)
 	zend_class_entry ce;
 
 	INIT_CLASS_ENTRY(ce, PHP_RUNKIT_SANDBOX_CLASSNAME, php_runkit_sandbox_functions);
-	php_runkit_sandbox_class_entry = zend_register_internal_class(&ce TSRMLS_CC);
+	php_runkit_sandbox_class_entry = zend_register_internal_class(&ce);
 	php_runkit_sandbox_class_entry->create_object = php_runkit_sandbox_ctor;
 
 	/* Make a new object handler struct with a couple minor changes */
@@ -1807,7 +1807,7 @@ static void php_runkit_lint_compile(INTERNAL_FUNCTION_PARAMETERS, int filemode)
 	zend_execute_data *old_execute_data;
 	zend_execute_data *old_current_execute_data;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &zcode) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &zcode) == FAILURE) {
 		RETURN_FALSE;
 	}
 
@@ -1858,11 +1858,11 @@ static void php_runkit_lint_compile(INTERNAL_FUNCTION_PARAMETERS, int filemode)
 	// 		printf("msg    ='''%s'''\n", ZSTR_VAL(Z_STR(*zcode)));
 
 	// 		if (filemode) {
-	// 			op_array = compile_filename(ZEND_INCLUDE, zcode TSRMLS_CC);
+	// 			op_array = compile_filename(ZEND_INCLUDE, zcode);
 	// 		} else {
 	// 			// TODO: prepend `?>` to emulate the old runkit behavior.
-	// 			eval_desc = zend_make_compiled_string_description("runkit_lint test compile" TSRMLS_CC);
-	// 			op_array = compile_string(zcode, eval_desc TSRMLS_CC);
+	// 			eval_desc = zend_make_compiled_string_description("runkit_lint test compile");
+	// 			op_array = compile_string(zcode, eval_desc);
 	// 			exception = EG(exception);
 	// 			if (exception) {
 	// 				zval tmp_obj;
@@ -1879,7 +1879,7 @@ static void php_runkit_lint_compile(INTERNAL_FUNCTION_PARAMETERS, int filemode)
 
 	// 		if (op_array)  {
 	// 			RETVAL_TRUE;
-	// 			destroy_op_array(op_array TSRMLS_CC);
+	// 			destroy_op_array(op_array);
 	// 			efree(op_array);
 	// 		} else {
 	// 			RETVAL_FALSE;
