@@ -43,7 +43,7 @@ php:
 
 matrix:
   allow_failures:
-    - env: master
+    - php: master
 
 before_script:
  - $CC --version && ci/print_php_int_max.php
