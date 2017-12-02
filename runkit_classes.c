@@ -55,7 +55,7 @@ static int php_runkit_remove_inherited_methods(zval *pDest, void *argument)
 		return ZEND_HASH_APPLY_KEEP;
 	}
 
-	php_runkit_clean_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ancestor_class, ce, fname_lower, fe);
+	php_runkit_clean_children_methods_foreach(EG(class_table), ancestor_class, ce, fname_lower, fe);
 	PHP_RUNKIT_DEL_MAGIC_METHOD(ce, fe);
 	php_runkit_remove_function_from_reflection_objects(fe);
 
@@ -182,7 +182,7 @@ static int php_runkit_inherit_methods(zend_function *fe, zend_class_entry *ce)
 	PHP_RUNKIT_FUNCTION_ADD_REF(fe);
 	PHP_RUNKIT_ADD_MAGIC_METHOD(ce, fname_lower, fe, NULL);
 
-	php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ancestor_class, ce, fe, fname_lower, NULL);
+	php_runkit_update_children_methods_foreach(EG(class_table), ancestor_class, ce, fe, fname_lower, NULL);
 	zend_string_release(fname_lower);
 
 	return ZEND_HASH_APPLY_KEEP;

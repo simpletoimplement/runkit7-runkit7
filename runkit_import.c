@@ -147,7 +147,7 @@ static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_ent
 
 			*clear_cache = 1;
 
-			php_runkit_clean_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), scope, dce, fn, dfe);
+			php_runkit_clean_children_methods_foreach(EG(class_table), scope, dce, fn, dfe);
 			php_runkit_remove_function_from_reflection_objects(dfe);
 			if (zend_hash_del(&dce->function_table, fn) == FAILURE) {
 				php_error_docref(NULL, E_WARNING, "Error removing old method in destination class %s::%s", ZSTR_VAL(dce->name), ZSTR_VAL(fe->common.function_name));
@@ -171,7 +171,7 @@ static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_ent
 			continue;
 		}
 		PHP_RUNKIT_ADD_MAGIC_METHOD(dce, fn, fe, dfe);
-		php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)),
+		php_runkit_update_children_methods_foreach(EG(class_table),
 		                               dce, dce, fe, fn, dfe);
 
 		zend_string_release(fn);
@@ -478,8 +478,6 @@ static uint32_t php_runkit_old_compiler_options;
 /* Disabled because php deprecation notices were causing EG(class_table) to be restored too early */
 /*
 void php_runkit_error_cb(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args) {
-	TSRMLS_FETCH();
-
 	zend_error_cb = php_runkit_old_error_cb;
 	CG(class_table) = current_class_table;
 	EG(class_table) = current_eg_class_table;

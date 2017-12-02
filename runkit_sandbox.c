@@ -44,8 +44,7 @@ static zend_class_entry *php_runkit_sandbox_class_entry;
 
 #define PHP_RUNKIT_SANDBOX_BEGIN(objval) \
 { \
-	void *prior_context = tsrm_set_interpreter_context(objval->context); \
-	TSRMLS_FETCH();
+	void *prior_context = tsrm_set_interpreter_context(objval->context);
 
 #define PHP_RUNKIT_SANDBOX_ABORT(objval) \
 { \
@@ -876,7 +875,6 @@ static int php_runkit_sandbox_sapi_ub_write(const char *str, uint str_length)
 	tsrm_set_interpreter_context(objval->parent_context);
 	{
 		zval **output_buffer[1], *bufcopy, *retval = NULL;
-		TSRMLS_FETCH();
 
 		if (!objval->output_handler ||
 			!RUNKIT_IS_CALLABLE(objval->output_handler, IS_CALLABLE_CHECK_NO_ACCESS, NULL)) {
@@ -923,7 +921,6 @@ static int php_runkit_sandbox_sapi_ub_write(const char *str, uint str_length)
 static void php_runkit_sandbox_sapi_flush(void *server_context)
 {
 	php_runkit_sandbox_object *objval;
-	TSRMLS_FETCH();
 
 	objval = RUNKIT_G(current_sandbox);
 
@@ -938,7 +935,6 @@ static void php_runkit_sandbox_sapi_flush(void *server_context)
 	tsrm_set_interpreter_context(objval->parent_context);
 	{
 		zval *retval = NULL, **args[1];
-		TSRMLS_FETCH();
 
 		if (!objval->output_handler ||
 			!RUNKIT_IS_CALLABLE(objval->output_handler, IS_CALLABLE_CHECK_NO_ACCESS, NULL)) {
@@ -980,8 +976,6 @@ static struct stat *php_runkit_sandbox_sapi_get_stat()
 	if (objval) {
 		tsrm_set_interpreter_context(objval->parent_context);
 		{
-			TSRMLS_FETCH();
-
 			ret = php_runkit_sandbox_original_sapi.get_stat();
 		}
 		tsrm_set_interpreter_context(objval->context);
@@ -1003,8 +997,6 @@ static char *php_runkit_sandbox_sapi_getenv(char *name, size_t name_len)
 	if (objval) {
 		tsrm_set_interpreter_context(objval->parent_context);
 		{
-			TSRMLS_FETCH();
-
 			ret = php_runkit_sandbox_original_sapi.getenv(name, name_len);
 		}
 		tsrm_set_interpreter_context(objval->context);
@@ -1023,7 +1015,6 @@ static void php_runkit_sandbox_sapi_sapi_error(int type, const char *error_msg, 
 	char *message;
 	va_list args;
 	php_runkit_sandbox_object *objval;
-	TSRMLS_FETCH();
 
 	objval = RUNKIT_G(current_sandbox);
 
@@ -1034,8 +1025,6 @@ static void php_runkit_sandbox_sapi_sapi_error(int type, const char *error_msg, 
 	if (objval) {
 		tsrm_set_interpreter_context(objval->parent_context);
 		{
-			TSRMLS_FETCH();
-
 			php_runkit_sandbox_original_sapi.sapi_error(type, "%s", message);
 		}
 	} else {
@@ -1178,8 +1167,6 @@ static double php_runkit_sandbox_sapi_get_request_time()
  */
 static void php_runkit_sandbox_sapi_block_interruptions(void)
 {
-	TSRMLS_FETCH();
-
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
 		php_runkit_sandbox_original_sapi.block_interruptions();
@@ -1195,8 +1182,6 @@ static void php_runkit_sandbox_sapi_block_interruptions(void)
  */
 static void php_runkit_sandbox_sapi_unblock_interruptions(void)
 {
-	TSRMLS_FETCH();
-
 	if (!RUNKIT_G(current_sandbox)) {
 		/* Not in a sandbox use SAPI's actual handler */
 		php_runkit_sandbox_original_sapi.unblock_interruptions();
@@ -1668,8 +1653,6 @@ static void php_runkit_sandbox_dtor(php_runkit_sandbox_object *objval)
 
 	prior_context = tsrm_set_interpreter_context(objval->context);
 	{
-		TSRMLS_FETCH();
-
 		if (objval->disable_functions) {
 			efree(objval->disable_functions);
 		}
@@ -1823,8 +1806,6 @@ static void php_runkit_lint_compile(INTERNAL_FUNCTION_PARAMETERS, int filemode)
 	context = tsrm_new_interpreter_context();
 	prior_context = tsrm_set_interpreter_context(context);
 	// {
-	// 	TSRMLS_FETCH();
-
 	// 	php_request_startup();
 	// 	PG(during_request_startup) = 0;  // TODO find reason for workaround
 	// 	printf("######## Switched to another stack\n");

@@ -288,7 +288,7 @@ void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *p
 	}
 
 	/* Process children of this child */
-	php_runkit_update_children_consts_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ce, value, cname RUNKIT_CONST_FLAGS_CC(access_type));
+	php_runkit_update_children_consts_foreach(EG(class_table), ce, value, cname RUNKIT_CONST_FLAGS_CC(access_type));
 
 	// TODO: Garbage collecting?
 	php_runkit_remove_from_constants_table(ce, cname);
@@ -456,7 +456,7 @@ static int php_runkit_class_constant_add(zend_string *classname, zend_string *co
 
 	// Don't add this constant to subclasses if this constant is private.
 	if (RUNKIT_CONST_FETCH(access_type) != ZEND_ACC_PRIVATE) {
-		php_runkit_update_children_consts_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ce, value, constname RUNKIT_CONST_FLAGS_CC(access_type));
+		php_runkit_update_children_consts_foreach(EG(class_table), ce, value, constname RUNKIT_CONST_FLAGS_CC(access_type));
 	}
 
 	return SUCCESS;

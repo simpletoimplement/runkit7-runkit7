@@ -112,7 +112,7 @@ static void php_runkit_remove_overlapped_property_from_childs(zend_class_entry *
 		return;
 	}
 
-	php_runkit_remove_overlapped_property_from_childs_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ce, propname, offset, is_static, remove_from_objects, property_info_ptr);
+	php_runkit_remove_overlapped_property_from_childs_foreach(EG(class_table), ce, propname, offset, is_static, remove_from_objects, property_info_ptr);
 	// php_runkit_remove_property_from_reflection_objects(ce, propname);
 
 	if (is_static) {
@@ -447,7 +447,7 @@ int php_runkit_def_prop_remove_int(zend_class_entry *ce, zend_string *propname, 
 
 		if (property_info_ptr->flags & (ZEND_ACC_PRIVATE|ZEND_ACC_SHADOW)) {
 			if (offset >= 0) {
-				php_runkit_remove_overlapped_property_from_childs_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)),
+				php_runkit_remove_overlapped_property_from_childs_foreach(EG(class_table),
 				                               ce, propname, offset,
 				                               property_info_ptr->flags & ZEND_ACC_STATIC, remove_from_objects, property_info_ptr);
 			}

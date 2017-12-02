@@ -43,7 +43,6 @@ typedef struct _php_runkit_sandbox_parent_object {
 #define PHP_RUNKIT_SANDBOX_PARENT_BEGIN(objval) \
 { \
 	void *prior_context = tsrm_set_interpreter_context(objval->self->parent_context); \
-	TSRMLS_FETCH(); \
 	zend_try {
 
 #define PHP_RUNKIT_SANDBOX_PARENT_ABORT(objval) \

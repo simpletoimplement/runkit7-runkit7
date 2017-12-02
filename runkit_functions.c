@@ -331,7 +331,7 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 			HashTable *static_variables = fe->op_array.static_variables;
 			ALLOC_HASHTABLE(fe->op_array.static_variables);
 			zend_hash_init(fe->op_array.static_variables, zend_hash_num_elements(static_variables), NULL, ZVAL_PTR_DTOR, 0);
-			zend_hash_apply_with_arguments(RUNKIT_53_TSRMLS_PARAM(static_variables), zval_copy_static_var, 1, fe->op_array.static_variables);
+			zend_hash_apply_with_arguments(static_variables, zval_copy_static_var, 1, fe->op_array.static_variables);
 #endif
 		}
 

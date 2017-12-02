@@ -135,7 +135,7 @@ static int php_runkit_fetch_class_method(zend_string* classname, zend_string* fn
 /* }}} */
 
 /* {{{ php_runkit_update_children_methods_foreach */
-void php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_ARG(HashTable *ht), zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe) {
+void php_runkit_update_children_methods_foreach(HashTable *ht, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe) {
 	zend_class_entry *ce;
 	ZEND_HASH_FOREACH_PTR(ht, ce) {
 		php_runkit_update_children_methods(ce, ancestor_class, parent_class, fe, fname_lower, orig_fe);
@@ -184,7 +184,7 @@ inline static void php_runkit_inherit_magic(zend_class_entry *ce, const zend_fun
 
 /* {{{ php_runkit_update_children_methods
 	Scan the class_table for children of the class just updated */
-void php_runkit_update_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *ce), zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe) {
+void php_runkit_update_children_methods(zend_class_entry *ce, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe) {
 
 	// TODO: This will probably segfault. Is there a type safe version of this?
 	zend_class_entry *scope;
@@ -201,7 +201,7 @@ void php_runkit_update_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *c
 		if (scope != ancestor_class) {
 			/* This method was defined below our current level, leave it be */
 			cfe->common.prototype = _php_runkit_get_method_prototype(scope->parent, fname_lower);
-			php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)),
+			php_runkit_update_children_methods_foreach(EG(class_table),
 						ancestor_class, ce, fe, fname_lower, orig_fe);
 			return;
 		}
@@ -224,7 +224,7 @@ void php_runkit_update_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *c
 	php_runkit_inherit_magic(ce, fe, orig_fe);
 
 	/* Process children of this child */
-	php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)),
+	php_runkit_update_children_methods_foreach(EG(class_table),
 				       ancestor_class, ce, fe, fname_lower, orig_fe);
 
 	return;
@@ -232,17 +232,17 @@ void php_runkit_update_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *c
 /* }}} */
 
 /* {{{ php_runkit_clean_children_methods_foreach */
-void php_runkit_clean_children_methods_foreach(RUNKIT_53_TSRMLS_ARG(HashTable *ht), zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_string *fname_lower, zend_function *orig_cfe) {
+void php_runkit_clean_children_methods_foreach(HashTable *ht, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_string *fname_lower, zend_function *orig_cfe) {
 	zend_class_entry *ce;
 	ZEND_HASH_FOREACH_PTR(ht, ce) {
-		php_runkit_clean_children_methods(RUNKIT_53_TSRMLS_ARG(ce), ancestor_class, parent_class, fname_lower, orig_cfe);
+		php_runkit_clean_children_methods(ce, ancestor_class, parent_class, fname_lower, orig_cfe);
 	} ZEND_HASH_FOREACH_END();
 }
 /* }}} */
 
 /* {{{ php_runkit_clean_children
 	Scan the class_table for children of the class just updated */
-void php_runkit_clean_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *ce), zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_string *fname_lower, zend_function *orig_cfe)
+void php_runkit_clean_children_methods(zend_class_entry *ce, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_string *fname_lower, zend_function *orig_cfe)
 {
 	zend_class_entry *scope;
 	zend_function *cfe = NULL;
@@ -266,7 +266,7 @@ void php_runkit_clean_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *ce
 	}
 
 	/* Process children of this child */
-	php_runkit_clean_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ancestor_class, ce, fname_lower, orig_cfe);
+	php_runkit_clean_children_methods_foreach(EG(class_table), ancestor_class, ce, fname_lower, orig_cfe);
 
 	php_runkit_remove_function_from_reflection_objects(cfe);
 
@@ -443,7 +443,7 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 	fe->common.prototype = _php_runkit_get_method_prototype(ce->parent, methodname_lower);
 
 	PHP_RUNKIT_ADD_MAGIC_METHOD(ce, methodname_lower, fe, orig_fe);
-	php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ancestor_class, ce, fe, methodname_lower, orig_fe);
+	php_runkit_update_children_methods_foreach(EG(class_table), ancestor_class, ce, fe, methodname_lower, orig_fe);
 
 	zend_string_release(methodname_lower);
 
@@ -498,7 +498,7 @@ static int php_runkit_method_copy(zend_string *dclass, zend_string* dfunc, zend_
 
 	PHP_RUNKIT_ADD_MAGIC_METHOD(dce, dfunc_lower, dfe, NULL);
 
-	php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), dce, dce, dfe, dfunc_lower, NULL);
+	php_runkit_update_children_methods_foreach(EG(class_table), dce, dce, dfe, dfunc_lower, NULL);
 
 	zend_string_release(dfunc_lower);
 	return SUCCESS;
@@ -556,7 +556,7 @@ PHP_FUNCTION(runkit_method_remove)
 
 	ancestor_class = php_runkit_locate_scope(ce, fe, methodname_lower);
 
-	php_runkit_clean_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ancestor_class, ce, methodname_lower, fe);
+	php_runkit_clean_children_methods_foreach(EG(class_table), ancestor_class, ce, methodname_lower, fe);
 
 	php_runkit_clear_all_functions_runtime_cache();
 
@@ -618,7 +618,7 @@ PHP_FUNCTION(runkit_method_rename)
 	}
 
 	ancestor_class = php_runkit_locate_scope(ce, fe, methodname_lower);
-	php_runkit_clean_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ancestor_class, ce, methodname_lower, fe);
+	php_runkit_clean_children_methods_foreach(EG(class_table), ancestor_class, ce, methodname_lower, fe);
 
 	php_runkit_clear_all_functions_runtime_cache();
 
@@ -655,7 +655,7 @@ PHP_FUNCTION(runkit_method_rename)
 	fe->common.prototype = _php_runkit_get_method_prototype(ce->parent, newname_lower);;
 
 	PHP_RUNKIT_ADD_MAGIC_METHOD(ce, newname_lower, fe, NULL);
-	php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), ce, ce, fe, newname_lower, NULL);
+	php_runkit_update_children_methods_foreach(EG(class_table), ce, ce, fe, newname_lower, NULL);
 
 	zend_string_release(newname_lower);
 	zend_string_release(methodname_lower);

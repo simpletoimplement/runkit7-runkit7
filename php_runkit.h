@@ -217,8 +217,6 @@ extern ZEND_DECLARE_MODULE_GLOBALS(runkit)
 
 #define RUNKIT_IS_CALLABLE(cb_zv, flags, cb_sp) zend_is_callable((cb_zv), (flags), (cb_sp))
 #define RUNKIT_FILE_HANDLE_DTOR(pHandle)        zend_file_handle_dtor((pHandle))
-#define RUNKIT_53_TSRMLS_PARAM(param)           (param)
-#define RUNKIT_53_TSRMLS_ARG(arg)               arg
 
 #ifdef ZEND_ACC_RETURN_REFERENCE
 #     define PHP_RUNKIT_ACC_RETURN_REFERENCE         ZEND_ACC_RETURN_REFERENCE
@@ -282,10 +280,10 @@ void php_runkit_restore_internal_function(zend_string *fname_lower, zend_functio
 /* runkit_methods.c */
 zend_class_entry *php_runkit_fetch_class(zend_string* classname);
 zend_class_entry *php_runkit_fetch_class_int(zend_string *classname);
-void php_runkit_clean_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *ce), zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_string *fname_lower, zend_function *orig_cfe);
-void php_runkit_clean_children_methods_foreach(RUNKIT_53_TSRMLS_ARG(HashTable *ht), zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_string *fname_lower, zend_function *orig_cfe);
-void php_runkit_update_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *ce), zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe);
-void php_runkit_update_children_methods_foreach(RUNKIT_53_TSRMLS_ARG(HashTable *ht), zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe);
+void php_runkit_clean_children_methods(zend_class_entry *ce, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_string *fname_lower, zend_function *orig_cfe);
+void php_runkit_clean_children_methods_foreach(HashTable *ht, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_string *fname_lower, zend_function *orig_cfe);
+void php_runkit_update_children_methods(zend_class_entry *ce, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe);
+void php_runkit_update_children_methods_foreach(HashTable *ht, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe);
 int php_runkit_fetch_interface(zend_string *classname, zend_class_entry **pce);
 
 /* Redundant unless 7.1 changes - string may no longer apply */
@@ -405,7 +403,7 @@ int php_runkit_shutdown_sandbox(SHUTDOWN_FUNC_ARGS);
 /* runkit_sandbox_parent.c */
 int php_runkit_init_sandbox_parent(INIT_FUNC_ARGS);
 int php_runkit_shutdown_sandbox_parent(SHUTDOWN_FUNC_ARGS);
-int php_runkit_sandbox_array_deep_copy(RUNKIT_53_TSRMLS_ARG(zval **value), int num_args, va_list args, zend_hash_key *hash_key);
+int php_runkit_sandbox_array_deep_copy(zval **value, int num_args, va_list args, zend_hash_key *hash_key);
 
 struct _php_runkit_sandbox_object {
 	zend_object obj;
@@ -447,7 +445,7 @@ struct _php_runkit_sandbox_object {
 		{ \
 			HashTable *original_hashtable = Z_ARRVAL_P(pzv); \
 			array_init(pzv); \
-			zend_hash_apply_with_arguments(RUNKIT_53_TSRMLS_PARAM(original_hashtable), (apply_func_args_t)php_runkit_sandbox_array_deep_copy, 1, Z_ARRVAL_P(pzv)); \
+			zend_hash_apply_with_arguments(original_hashtable, (apply_func_args_t)php_runkit_sandbox_array_deep_copy, 1, Z_ARRVAL_P(pzv)); \
 			break; \
 		} \
 		default: \
