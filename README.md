@@ -27,7 +27,7 @@ Compatibility: PHP7.0 to PHP 7.2
 Superglobals work reliably when tested on web servers and tests.
 Class and function manipulation is recommended only for unit tests.
 
-- `runkit-superglobal` works reliably in PHP 7.
+- The `runkit.superglobal` ini setting works reliably in PHP 7.
 - Manipulating user-defined (i.e. not builtin or part of extensions) functions and methods via `runkit_method_*` and `runkit_function_*` generally works, **but is recommended only in unit tests** (unlikely to crash, but will cause memory leaks)
 - Manipulating built in functions may cause segmentation faults in rare cases.
   File a bug report if you see this.
