@@ -2,7 +2,7 @@
 ============================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
-__Now with partial support for PHP7.0, 7.1, and 7.2!__ (function/method manipulation is recommended only for unit testing. Does not work with PHP 7.3 yet.).
+__Now with partial support for PHP7.0, 7.1, and 7.2!__ (function/method manipulation is recommended only for unit testing. Does not work with PHP 7.3 yet. [PHP 7.2 has some bugs in method/function manipulation that haven't been fixed yet.](https://github.com/runkit7/runkit7/issues/123) ).
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/3jwsf76ge0yo8v74/branch/master?svg=true)](https://ci.appveyor.com/project/TysonAndre/runkit7/branch/master)
@@ -192,6 +192,7 @@ As a replacement for `runkit_lint`/`runkit_lint_file` try any of the following:
 
 - `php -l --no-php-ini $filename` will quickly check if a file is syntactically valid, but will not show you any php notices about deprecated code, etc.
 - [`opcache_compile_file`](https://secure.php.net/manual/en/function.opcache-compile-file.php) may help, but will not show you any notices.
+- [`token_get_all($code, TOKEN_PARSE)`](http://php.net/token_get_all) will detect invalid ASTs in php 7.0+
 - Projects such as [PHP-Parser (Pure PHP)](https://github.com/nikic/PHP-Parser) and [php-ast (C module)](https://github.com/nikic/php-ast, which produce an Abstract Syntax Tree from php code.
   php-ast (PHP module) has a function is much faster and more accurate.
   (Unfortunately, it parses but does not detect erroneous code, e.g. duplicate classes/methods in the same file).
