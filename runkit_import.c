@@ -23,7 +23,7 @@
 
 /* $Id$ */
 
-#include "php_runkit.h"
+#include "runkit.h"
 #include "php_runkit_zval.h"
 
 // TODO: Actually implement this.

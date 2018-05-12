@@ -22,7 +22,7 @@ runkit_property_modify() may be implemented in the future.
 
 /* $Id$ */
 
-#include "php_runkit.h"
+#include "runkit.h"
 #include "php_runkit_zval.h"
 
 #ifdef PHP_RUNKIT_MANIPULATION

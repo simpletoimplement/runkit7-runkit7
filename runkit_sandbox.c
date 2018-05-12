@@ -22,7 +22,7 @@
 
 /* $Id$ */
 
-#include "php_runkit.h"
+#include "runkit.h"
 #include "ext/standard/php_smart_string.h"
 
 #ifdef PHP_RUNKIT_SANDBOX

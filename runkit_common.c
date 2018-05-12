@@ -19,7 +19,7 @@
   +----------------------------------------------------------------------+
 */
 
-#include "php_runkit.h"
+#include "runkit.h"
 
 /* {{{ */
 void ensure_all_objects_of_class_have_magic_methods(zend_class_entry *ce) {

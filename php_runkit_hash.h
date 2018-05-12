@@ -24,7 +24,7 @@
 
 #ifdef PHP_RUNKIT_MANIPULATION
 
-#include "php_runkit.h"
+#include "runkit.h"
 #include "Zend/zend_types.h"
 #include "Zend/zend_types.h"
 

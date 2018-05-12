@@ -21,7 +21,7 @@
 
 /* $Id$ */
 
-#include "php_runkit.h"
+#include "runkit.h"
 
 #ifdef PHP_RUNKIT_MANIPULATION
 
