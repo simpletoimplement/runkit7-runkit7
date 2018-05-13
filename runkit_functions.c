@@ -21,7 +21,7 @@
 
 /* $Id$ */
 
-#include "php_runkit.h"
+#include "runkit.h"
 #include "php_runkit_hash.h"
 #include "php_runkit_zend_execute_API.h"
 #include "Zend/zend.h"

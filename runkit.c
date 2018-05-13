@@ -21,7 +21,7 @@
 
 /* $Id$ */
 
-#include "php_runkit.h"
+#include "runkit.h"
 #include "SAPI.h"
 
 ZEND_DECLARE_MODULE_GLOBALS(runkit)

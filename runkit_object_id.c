@@ -19,7 +19,7 @@
   +----------------------------------------------------------------------+
 */
 
-#include "php_runkit.h"
+#include "runkit.h"
 
 /* {{{ proto int runkit_object_id(object instance)
 Fetch the Object Handle ID from an instance */
