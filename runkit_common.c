@@ -33,8 +33,14 @@ void ensure_all_objects_of_class_have_magic_methods(zend_class_entry *ce) {
   // TODO: Add test of adding magic methods working on objects initialized before the call to runkit.
 	PHP_RUNKIT_ITERATE_THROUGH_OBJECTS_STORE_BEGIN(i)
 	if (object->ce == ce) {
-	  GC_FLAGS(object) |= IS_OBJ_USE_GUARDS;  // see zend_object_std_init
-	  break;
+		// based on Zend/zend_objects.c zend_object_std_init.
+		// TODO: Figure out if anything else needs to be done
+#if PHP_VERSION_ID < 70300
+		GC_FLAGS(object) |= IS_OBJ_USE_GUARDS;  // see zend_object_std_init
+#else
+		// TODO: Also undefined this element for php 7.2, but not 7.0
+		ZVAL_UNDEF(object->properties_table + object->ce->default_properties_count);
+#endif
 	}
 	PHP_RUNKIT_ITERATE_THROUGH_OBJECTS_STORE_END
 }

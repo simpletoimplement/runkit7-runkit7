@@ -12,6 +12,14 @@
 #define GC_ADDREF(x) GC_REFCOUNT((x))++
 #endif
 
+#if PHP_VERSION_ID >= 70300
+#define RUNKIT_IS_FCI_CACHE_INITIALIZED(fci_cache) ((fci_cache)->function_handler != NULL)
+#define RUNKIT_CLEAR_FCI_CACHE(fci_cache) do {(fci_cache)->function_handler = NULL; } while (0)
+#else
+#define RUNKIT_IS_FCI_CACHE_INITIALIZED(fci_cache) ((fci_cache)->initialized)
+#define RUNKIT_CLEAR_FCI_CACHE(fci_cache) do {(fci_cache)->initialized = 0; } while (0)
+#endif
+
 /**
  * Copies of internal methods from Zend/zend_execute_API.c
  * These are used to call internal methods (not in the function table) from the external method.
@@ -86,7 +94,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 		EG(current_execute_data) = &dummy_execute_data;
 	}
 
-	if (!fci_cache || !fci_cache->initialized) {
+	if (!fci_cache || !RUNKIT_IS_FCI_CACHE_INITIALIZED(fci_cache)) {
 		zend_string *callable_name;
 		char *error = NULL;
 
@@ -257,7 +265,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 #endif
 		if (call_via_handler) {
 			/* We must re-initialize function again */
-			fci_cache->initialized = 0;
+			RUNKIT_CLEAR_FCI_CACHE(fci_cache);
 		}
 	} else if (func->type == ZEND_INTERNAL_FUNCTION) {
 		int call_via_handler = (func->common.fn_flags & ZEND_ACC_CALL_VIA_TRAMPOLINE) != 0;
@@ -292,7 +300,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 
 		if (call_via_handler) {
 			/* We must re-initialize function again */
-			fci_cache->initialized = 0;
+			RUNKIT_CLEAR_FCI_CACHE(fci_cache);
 		}
 	} else { /* ZEND_OVERLOADED_FUNCTION */
 		ZVAL_NULL(fci.retval);

@@ -474,6 +474,12 @@ static HashTable *current_class_table, *tmp_class_table, *tmp_eg_class_table, *c
 static uint32_t php_runkit_old_compiler_options;
 /* void (*php_runkit_old_error_cb)(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args); */
 
+#if PHP_VERSION_ID >= 70300
+#define HAS_EARLY_BINDING(op_array) ((op_array)->fn_flags & ZEND_ACC_EARLY_BINDING)
+#else
+#define HAS_EARLY_BINDING(op_array) ((op_array)->early_binding != (uint32_t)-1)
+#endif
+
 /* {{{ php_runkit_error_cb */
 /* Disabled because php deprecation notices were causing EG(class_table) to be restored too early */
 /*
@@ -487,6 +493,31 @@ void php_runkit_error_cb(int type, const char *error_filename, const uint error_
 	php_runkit_old_error_cb(type, error_filename, error_lineno, format, args);
 }
 */
+/* }}} */
+
+uint32_t compute_early_binding_opline_num(const zend_op_array *op_array) /* {{{ */
+{
+#if PHP_VERSION_ID < 70300
+	return op_array->early_binding;
+#else
+	// Copied from zend_build_delayed_early_binding_list in Zend/zend_compile.c
+	// TODO: Locate documantation of change and copy that
+	uint32_t  first_early_binding_opline = (uint32_t)-1;
+	uint32_t *prev_opline_num = &first_early_binding_opline;
+	zend_op  *opline = op_array->opcodes;
+	zend_op  *end = opline + op_array->last;
+
+	while (opline < end) {
+		if (opline->opcode == ZEND_DECLARE_INHERITED_CLASS_DELAYED) {
+			*prev_opline_num = opline - op_array->opcodes;
+			prev_opline_num = &opline->result.opline_num;
+		}
+		++opline;
+	}
+	*prev_opline_num = -1;
+	return first_early_binding_opline;
+#endif
+}
 /* }}} */
 
 /* {{{ array runkit_import(string filename[, long flags])
@@ -567,13 +598,13 @@ PHP_FUNCTION(runkit_import)
 	// This is similar to, but not identical to the function zend_do_delayed_early_binding.
 	// However, the superclasses will be found in the original class table,
 	// but the new classes are found in a separate, temporary class table.
-	if (new_op_array->early_binding != (uint32_t)-1) {
+	if (HAS_EARLY_BINDING(new_op_array)) {
 		// For emitting errors about inheritance, PHP expects the compiled filename to be set.
 		// Allows emitting reasonable error messages for "Cannot make static method X::foo() non static"
 		zend_string * const original_filename = zend_get_compiled_filename();
 
 		zend_bool orig_in_compilation = CG(in_compilation);
-		uint32_t opline_num = new_op_array->early_binding;
+		uint32_t opline_num = compute_early_binding_opline_num(new_op_array);
 		zend_set_compiled_filename(Z_STR_P(filename));
 
 		CG(in_compilation) = 1;
