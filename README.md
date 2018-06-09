@@ -2,7 +2,7 @@
 ============================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
-__Now with partial support for PHP7.0, 7.1, and 7.2!__ (function/method manipulation is recommended only for unit testing. Does not work with PHP 7.3 yet. [PHP 7.2 has some bugs in method/function manipulation that haven't been fixed yet.](https://github.com/runkit7/runkit7/issues/123) ).
+__Now with partial support for PHP7.0, 7.1, and 7.2!__ (function/method manipulation is recommended only for unit testing. **Does not work with PHP 7.3 yet**. [PHP 7.2 has some bugs in method/function manipulation that haven't been fixed yet.](https://github.com/runkit7/runkit7/issues/123) ).
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/3jwsf76ge0yo8v74/branch/master?svg=true)](https://ci.appveyor.com/project/TysonAndre/runkit7/branch/master)
