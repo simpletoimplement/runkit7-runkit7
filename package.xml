@@ -240,19 +240,19 @@ Define customized superglobal variables for general purpose use.
    <file name="php_runkit_hash.h" role="src" />
    <file name="php_runkit_zend_execute_API.h" role="src" />
    <file name="php_runkit_zval.h" role="src" />
-   <file name="runkit_zend_execute_API.c" role="src" />
    <file name="LICENSE" role="doc" />
    <file name="PROPERTY_MANIPULATION.md" role="doc" />
    <file name="README.md" role="doc" />
    <file name="runkit.c" role="src" />
-   <!-- <file name="runkit_classes.c" role="src" /> -->
+   <file name="runkit_classes.c" role="src" />
    <file name="runkit_common.c" role="src" />
    <file name="runkit_constants.c" role="src" />
    <file name="runkit_functions.c" role="src" />
-   <!-- <file name="runkit_import.c" role="src" /> -->
+   <file name="runkit_import.c" role="src" />
    <file name="runkit_methods.c" role="src" />
    <file name="runkit_object_id.c" role="src" />
-   <!-- <file name="runkit_props.c" role="src" /> -->
+   <file name="runkit_props.c" role="src" />
+   <file name="runkit_zend_execute_API.c" role="src" />
   </dir> <!-- / -->
  </contents>
  <dependencies>
