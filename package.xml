@@ -16,10 +16,10 @@ Define customized superglobal variables for general purpose use.
   <email></email>
   <active>yes</active>
  </lead>
- <date>2017-06-18</date>
+ <date>2018-07-03</date>
  <version>
-  <release>1.0.5b1</release>
-  <api>1.0.5b1</api>
+  <release>1.0.5b2</release>
+  <api>1.0.5b2</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -27,8 +27,12 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-   Support specifying `?bool $is_strict` on added or redefined functions and methods.
-   If this is set to true, they will work as if they were declared in a file with `declare(strict_types=1);` at the top.
+- Fix compilation errors in newer php versions.
+- PHP 7.2+ continues to have some severe bugs for function/method manipulation
+- Fix some unit tests
+- runkit_lint and runkit_import continue to be broken (This release contains some work on trying to fix the compilation errors)
+- Update CI test scripts
+- Improve documentation
  </notes>
  <contents>
   <dir name="/">
@@ -264,6 +268,26 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2018-07-03</date>
+   <version>
+    <release>1.0.5b2</release>
+    <api>1.0.5b2</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Fix compilation errors in newer php versions.
+- PHP 7.2+ continues to have some severe bugs for function/method manipulation
+- Fix some unit tests
+- runkit_lint and runkit_import continue to be broken (This release contains some work on trying to fix the compilation errors)
+- Update CI test scripts
+- Improve documentation
+   </notes>
+  </release>
   <release>
    <date>2017-06-18</date>
    <version>
