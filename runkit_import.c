@@ -613,6 +613,7 @@ PHP_FUNCTION(runkit_import)
 			zval *parent_name = RT_CONSTANT(new_op_array, new_op_array->opcodes[opline_num - 1].op2);
 			zval *key = parent_name + 1;
 			zend_class_entry *pce;
+			// TODO: Figure out why this assertion fails in php 7.3
 			ZEND_ASSERT(Z_TYPE_P(parent_name) == IS_STRING);
 
 			// TODO: Check if this is the same in php 7.0

@@ -18,8 +18,8 @@ Define customized superglobal variables for general purpose use.
  </lead>
  <date>2018-07-04</date>
  <version>
-  <release>1.0.5b3</release>
-  <api>1.0.5b3</api>
+  <release>1.0.6</release>
+  <api>1.0.6</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -27,8 +27,7 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Fix incorrect reference counting of class names in parameter and return type signatures for `runkit_function_*()` and `runkit_method_*()` (https://github.com/runkit7/runkit7/issues/123).
-  This bug only affected php 7.2.0+
+- Fix crashes seen in php 7.3 alphas when function and method manipulation is used. (https://github.com/runkit7/runkit7/issues/126, https://github.com/runkit7/runkit7/issues/141)
  </notes>
  <contents>
   <dir name="/">
@@ -265,6 +264,21 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2018-07-04</date>
+   <version>
+    <release>1.0.6</release>
+    <api>1.0.6</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Fix crashes seen in php 7.3 alphas when function and method manipulation is used. (https://github.com/runkit7/runkit7/issues/126, https://github.com/runkit7/runkit7/issues/141)
+   </notes>
+  </release>
   <release>
    <date>2018-07-04</date>
    <version>
