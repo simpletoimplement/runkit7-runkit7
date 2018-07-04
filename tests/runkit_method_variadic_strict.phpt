@@ -61,7 +61,7 @@ function main() {
     try {
         printf("After mock: %s\n", var_export(foo::bar('methodName', 0), true));
     } catch (TypeError $e) {
-        printf("When strict mode was true, this threw an exception: %s\n", $e->getMessage());
+        printf("When strict mode was true, this threw an exception: %s\n", str_replace('int,', 'integer,', $e->getMessage()));
     }
     remove_mock('foo', 'bar', 'bar0000001123');
     printf("In weak mode\n");

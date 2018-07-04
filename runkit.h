@@ -86,7 +86,7 @@ static inline void* _debug_emalloc(void* data, int bytes, char* file, int line) 
 #define debug_printf(...) do { } while(0)
 #endif
 
-#define PHP_RUNKIT_VERSION					"1.0.5b2"
+#define PHP_RUNKIT_VERSION					"1.0.7"
 #define PHP_RUNKIT_SANDBOX_CLASSNAME		"Runkit_Sandbox"
 #define PHP_RUNKIT_SANDBOX_PARENT_CLASSNAME	"Runkit_Sandbox_Parent"
 
@@ -614,7 +614,7 @@ inline static parsed_return_type php_runkit_parse_return_type_arg(int argc, zval
 }
 /* }}} */
 
-/* {{{ php_runkit_parse_return_type_arg */
+/* {{{ php_runkit_parse_is_strict_arg */
 inline static parsed_is_strict php_runkit_parse_is_strict_arg(int argc, zval *args, int arg_pos) {
 	parsed_is_strict retval;
 	retval.is_strict = 0;
@@ -634,6 +634,7 @@ inline static parsed_is_strict php_runkit_parse_is_strict_arg(int argc, zval *ar
 	}
 	return retval;
 }
+/* }}} */
 
 /* {{{ php_runkit_parse_args_to_zvals */
 inline static zend_bool php_runkit_parse_args_to_zvals(int argc, zval **pargs) {
@@ -744,6 +745,12 @@ inline static zend_object *php_runkit_zend_object_store_get(const zval *zobject)
 	return EG(objects_store).object_buckets[handle];
 }
 /* }}} */
+#endif
+
+#if PHP_VERSION_ID >= 70300
+#define RUNKIT_RT_CONSTANT(op_array, opline, node) RT_CONSTANT((opline), (node))
+#else
+#define RUNKIT_RT_CONSTANT(op_array, opline, node) RT_CONSTANT((op_array), (node))
 #endif
 
 #endif	/* RUNKIT_H */

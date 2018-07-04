@@ -30,12 +30,6 @@
 #define RUNKIT_ALIASED_USER_FUNCTION(fe) ((fe)->internal_function.reserved[0])
 #define RUNKIT_IS_ALIAS_FOR_USER_FUNCTION(fe) ((fe)->type == ZEND_INTERNAL_FUNCTION && (fe)->internal_function.handler == php_runkit_function_alias_handler)
 
-#if PHP_VERSION_ID >= 70300
-#define RUNKIT_RT_CONSTANT(op_array, opline, node) RT_CONSTANT((opline), (node))
-#else
-#define RUNKIT_RT_CONSTANT(op_array, opline, node) RT_CONSTANT((op_array), (node))
-#endif
-
 extern ZEND_API void zend_vm_set_opcode_handler(zend_op* op);
 
 #ifdef PHP_RUNKIT_MANIPULATION

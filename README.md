@@ -2,7 +2,7 @@
 ============================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
-__Now with partial support for PHP7.0, 7.1, and 7.2!__ (function/method manipulation is recommended only for unit testing. (PHP 7.3 currently has minor bugs in `runkit_import` and internal function manipulation)
+__Now with partial support for PHP7.0, 7.1, and 7.2!__ (function/method manipulation is recommended only for unit testing)
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/3jwsf76ge0yo8v74/branch/master?svg=true)](https://ci.appveyor.com/project/TysonAndre/runkit7/branch/master)
@@ -46,10 +46,10 @@ Class and function manipulation is recommended only for unit tests.
 
 The following contributions are welcome:
 
--	Pull requests with  PHP5 -> PHP7 code migration of functions
--	New test cases for features that no longer work in PHP7, or code crashing runkit7.
--	Issues for PHP language features that worked in PHP5, but no longer work in PHP7,
-	for the implemented methods (`runkit_function_*` and `runkit_method_*`)
+-   Pull requests with  PHP5 -> PHP7 code migration of functions
+-   New test cases for features that no longer work in PHP7, or code crashing runkit7.
+-   Issues for PHP language features that worked in PHP5, but no longer work in PHP7,
+    for the implemented methods (`runkit_function_*` and `runkit_method_*`)
 -   Fixes and documentation.
 
 Most of the runkit tests for method manipulation and function manipulation are passing.
@@ -69,46 +69,48 @@ The following mocking libraries work with the runkit7 fork
 
 ### Bugs in PHP7 runkit
 
--	There are segmentation faults when manipulating internal functions
-	(a.k.a. "runkit.internal_override=1")
-	(when you rename/redefine/(copy?) internal functions, and call internal functions with user functions' implementation, or vice versa)
-	(and when functions redefinitions aren't cleaned up)
-	Many of these have been fixed.
--	There are reference counting bugs causing memory leaks.
-	2 calls to `emalloc` have been temporarily replaced with calls to `pemalloc`
-	so that I could execute tests.
--	There may be a few remaining logic errors after migrating the code to PHP7.
--	The zend VM bytecode may change in 7.3 or future releases, so some opcodes may not work with each new minor php version release.
+-   There are segmentation faults when manipulating internal functions
+    (a.k.a. "runkit.internal_override=1")
+    (when you rename/redefine/(copy?) internal functions, and call internal functions with user functions' implementation, or vice versa)
+    (and when functions redefinitions aren't cleaned up)
+    Many of these have been fixed.
+-   There are reference counting bugs causing memory leaks.
+    2 calls to `emalloc` have been temporarily replaced with calls to `pemalloc`
+    so that I could execute tests.
+-   There may be a few remaining logic errors after migrating the code to PHP7.
+-   The zend VM bytecode representation may change in 7.3 betas or future minor/major releases,
+    so some opcodes may not work with each new minor php version release.
 
 ### APIs for PHP7
+
 #### Implemented APIs for PHP7 (buggy internal function manipulation):
 
--	`runkit_function_*`: Most tests are passing. There are some bugs related to renaming internal functions.
--	`runkit_method_*`: Most tests are passing. Same comment as `runkit_function_*`
--	`runkit_zval_inspect`: Partly passing, and needs to be rewritten because of PHP7's zval changes.
--	`runkit_constant_add` works. Other constant manipulation functions don't work for constants within the same file due to the interpreter inlining them.
--	Runkit superglobals.
+-   `runkit_function_*`: Most tests are passing. There are some memory leaks when renaming internal functions.
+-   `runkit_method_*`: Most tests are passing. There are some memory leaks when renaming internal functions.
+-   `runkit_zval_inspect`: Partly passing, and needs to be rewritten because of PHP7's zval changes.
+-   `runkit_constant_add` works. Other constant manipulation functions don't work for constants within the same file due to the interpreter inlining them.
+-   Runkit superglobals.
+-   `runkit_import`
+    Some flags are missing for PHP 7.x, especially properties, and other tests have known failures.
+    See https://github.com/runkit7/runkit7/issues/73
 
 #### Unsupported APIs for PHP7:
 (These functions will be missing. Some of these should be possible to implement.)
 
--	`runkit_import`
-	Disabled because of bugs related to properties
-	See https://github.com/runkit7/runkit7/issues/73
--	`runkit_class_adopt` and `runkit_class_emancipate`
-	Disabled because of [bugs related to properties](./PROPERTY_MANIPULATION.md).
--	`runkit_lint*`
+-   `runkit_class_adopt` and `runkit_class_emancipate`
+    Disabled because of [bugs related to properties](./PROPERTY_MANIPULATION.md).
+-   `runkit_lint*`
     Might be possible if this is rewritten to use actual threading: See [issue #114](https://github.com/runkit7/runkit7/issues/114)
--	`runkit_constant_*` : `runkit_constant_add` works reliably, other methods don't.
-	This works better when the constants are declared in a different file.
--	`runkit_default_property_*`
-	Disabled because of [bugs related to properties](./PROPERTY_MANIPULATION.md)
-	See [issue #30](https://github.com/runkit7/runkit7/issues/30) (implement function to modify only) and [issue #113](https://github.com/runkit7/runkit7/issues/113) (Manipulate static properties)
+-   `runkit_constant_*` : `runkit_constant_add` works reliably, other methods don't.
+    This works better when the constants are declared in a file separate from the file accessing that constant.
+-   `runkit_default_property_*`
+    Disabled because of [bugs related to properties](./PROPERTY_MANIPULATION.md)
+    See [issue #30](https://github.com/runkit7/runkit7/issues/30) (implement function to modify only) and [issue #113](https://github.com/runkit7/runkit7/issues/113) (Manipulate static properties)
 
-	`runkit_default_property_add` has been removed in php7 - it requires `realloc`ing a different zval to add a property to the property table
-	That would break a lot of things.
--	`runkit_return_value_used`: Removed, was not working and unrelated to other features.
-	`vld` seems to have a working implementation in the opcode analyzer, not familiar with how it works.
+    `runkit_default_property_add` has been removed in php7 - it requires `realloc`ing a different zval to add a property to the property table
+    That would break a lot of things.
+-   `runkit_return_value_used`: Removed, was not working and unrelated to other features.
+    `vld` seems to have a working implementation in the opcode analyzer, not familiar with how it works.
 
 #### Reasons for disabling property manipulation
 
@@ -118,16 +120,9 @@ See [PROPERTY\_MANIPULATION.md](./PROPERTY_MANIPULATION.md)
 
 See https://github.com/runkit7/runkit7/issues
 
-Things to do in the near future:
-
--   Fix bugs related to edge cases of function and method manipulation
--   See if constant manipulation in the same file can be fixed, e.g. by recompiling functions using those constants, or by patching php-src.
-    It was broken because the php7 compiler inlines the constants automatically in the generated opcodes.
-
-Things to do after that:
+Tasks for the near future:
 
 -   Replace property manipulation with `runkit_default_property_modify` (https://github.com/runkit7/runkit7/issues/30)
--	Fix FPM
 
 ### Contributing
 
@@ -183,24 +178,29 @@ User defined functions and user defined methods may now be renamed, delete, and 
 
 Examples for these functions may also be found in the tests folder.
 
+#### `runkit_lint` alternatives
+
+`runkit_lint` was  disabled with the rest of the sandbox code due to issues porting it to PHP 7 ([Issue #114](https://github.com/runkit7/runkit7/issues/114)).
 As a replacement for `runkit_lint`/`runkit_lint_file` try any of the following:
 
 - `php -l --no-php-ini $filename` will quickly check if a file is syntactically valid, but will not show you any php notices about deprecated code, etc.
 - [`opcache_compile_file`](https://secure.php.net/manual/en/function.opcache-compile-file.php) may help, but will not show you any notices.
 - [`token_get_all($code, TOKEN_PARSE)`](http://php.net/token_get_all) will detect invalid ASTs in php 7.0+
 - Projects such as [PHP-Parser (Pure PHP)](https://github.com/nikic/PHP-Parser) and [php-ast (C module)](https://github.com/nikic/php-ast), which produce an Abstract Syntax Tree from php code.
-  php-ast (PHP module) has a function is much faster and more accurate.
+  Alternately, `token_get_all()` will throw an error for syntax errors if the flag `TOKEN_PARSE` is passed in.
   (Unfortunately, it parses but does not detect erroneous code, e.g. duplicate classes/methods in the same file).
 
   ```php
   // Example replacement for runkit_lint.
   try {
-      $ast = ast\parse_code('<?php function foo(){}', $version = 35)
-	  return true;
-  }catch (ParseError $e) {
-	  return false;
+      $ast = token_get_all('<?php function foo(){}', TOKEN_PARSE)
+      return true;
+  } catch (ParseError $e) {
+      return false;
   }
   ```
+
+  Alternately, you may wish to use a different approach and run a PHP static analyzer such as [Phan](https://github.com/phan/phan), [Psalm](https://github.com/vimeo/psalm), or [PHPStan](https://github.com/phpstan/phpstan)
 
 Installation
 ============
@@ -224,8 +224,8 @@ sudo make install
 Pecl tars are also included with newer GitHub releases.
 
 1. Go to https://github.com/runkit7/runkit7/releases
-2. Download the tgz file from the link (e.g. runkit-1.0.5b1.tgz)
-3. `pecl install ./runkit-1.0.5b1.tgz`
+2. Download the tgz file from the link (e.g. runkit-1.0.6.tgz)
+3. `pecl install ./runkit-1.0.6.tgz`
 
 ### BUILDING AND INSTALLING RUNKIT7 IN WINDOWS
 
@@ -237,11 +237,14 @@ For PHP7, you need to install "Visual Studio 2015 Community Edition" (or other 2
 Make sure that C++ is installed with Visual Studio.
 The command prompt to use is "VS2015 x86 Native Tools Command Prompt" on 32-bit, "VS2015 x64 Native Tools Command Prompt" on 64-bit.
 
+- Note that different visual studio versions are recommended for different PHP versions.
+  For PHP 7.2+, use Visual Studio 2017 instead.
+
 For 64-bit installations of php7, use "x64" instead of "x86" for the below commands/folders.
 
 After completing setup steps mentioned, including for `C:\php-sdk\phpdev\vc14`
 
-extract download of php-7.0.9-src (or any version of php 7) to C:\php-sdk\phpdev\vc14\x86\php-7.0.9-src
+extract download of php-7.0.30-src (or any version of php 7) to C:\php-sdk\phpdev\vc14\x86\php-7.0.30-src
 
 #### Installing runkit7 on windows
 
@@ -256,13 +259,13 @@ Then, execute the following (Add `--enable-runkit` to the configure flags you we
 ```Batchfile
 cd C:\php-sdk
 C:\php-sdk\bin\phpsdk_setvars.bat
-cd phpdev\vc14\x86\php-7.0.9\src
+cd phpdev\vc14\x86\php-7.0.30\src
 buildconf
 configure --enable-runkit
 nmake
 ```
 
-Then, optionally test it (Most of the tests should pass, around 16 are still failing):
+Then, optionally test it (Most of the tests should pass, be skipped, or be known failures.):
 
 ```Batchfile
 nmake test TESTS="C:\php-sdk\vc14\x86\pecl\runkit7\tests

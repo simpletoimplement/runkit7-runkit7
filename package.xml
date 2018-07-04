@@ -18,8 +18,8 @@ Define customized superglobal variables for general purpose use.
  </lead>
  <date>2018-07-04</date>
  <version>
-  <release>1.0.6</release>
-  <api>1.0.6</api>
+  <release>1.0.7</release>
+  <api>1.0.7</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -264,6 +264,21 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2018-07-04</date>
+   <version>
+    <release>1.0.7</release>
+    <api>1.0.7</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Fix crashes in `runkit_import()` seen in php 7.3 alphas.
+   </notes>
+  </release>
   <release>
    <date>2018-07-04</date>
    <version>
