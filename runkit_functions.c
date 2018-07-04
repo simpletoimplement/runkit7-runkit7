@@ -189,9 +189,8 @@ static inline void php_runkit_destroy_misplaced_internal_function(zend_function 
 /* {{{ php_runkit_set_opcode_constant
 		for absolute constant addresses, creates a local copy of that literal.
 		Modifies op's contents. */
-static void php_runkit_set_opcode_constant(const zval* literals, znode_op* op, zval* literalI) {
-	debug_printf("php_runkit_set_opcode_constant(%llx, %llx, %d), USE_ABS=%d", (long long)literals, (long long)literalI, (int)sizeof(zval), ZEND_USE_ABS_CONST_ADDR);
-	// TODO: ZEND_PASS_TWO_UPDATE_CONSTANT???
+static void php_runkit_set_opcode_constant(const zval* literals, znode_op* op, const zval* literalI) {
+	debug_printf("php_runkit_set_opcode_constant(%llx, %llx, %d), USE_ABS=%d\n", (long long)literals, (long long)literalI, (int)sizeof(zval), ZEND_USE_ABS_CONST_ADDR);
 #if ZEND_USE_ABS_CONST_ADDR
 	RT_CONSTANT_EX(literals, *op) = literalI;
 #else
@@ -205,12 +204,12 @@ static void php_runkit_set_opcode_constant(const zval* literals, znode_op* op, z
 /* {{{ php_runkit_set_opcode_constant_relative
 		for absolute constant addresses, creates a local copy of that literal.
 		Modifies op's contents. */
-static void php_runkit_set_opcode_constant_relative(const zend_op_array *op_array, const zend_op* opline, znode_op* op, zval* literalI) {
-	debug_printf("php_runkit_set_opcode_constant(%llx, %llx, %d), USE_ABS=%d", (long long)literals, (long long)literalI, (int)sizeof(zval), ZEND_USE_ABS_CONST_ADDR);
-	// TODO: ZEND_PASS_TWO_UPDATE_CONSTANT???
+static void php_runkit_set_opcode_constant_relative(const zend_op_array *op_array, const zend_op* opline, znode_op* op, const zval* literalI) {
+	debug_printf("php_runkit_set_opcode_constant_relative(%llx, %d), USE_ABS=%d\n", (long long)(long long)literalI, (int)sizeof(zval), ZEND_USE_ABS_CONST_ADDR);
 #if ZEND_USE_ABS_CONST_ADDR
 	RUNKIT_RT_CONSTANT(op_array, opline, *op) = literalI;
 #else
+	debug_printf("opcodes=%llx literals=%llx op=%llx literalI=%llx", (long long)op_array->opcodes, (long long) op_array->literals, (long long) op, (long long)literalI);
 	// TODO: Assert that this is in a meaningful range.
 	// TODO: is this ever necessary for relative constant addresses?
 	// Opposite of ((zval*)(((char*)(opline)) + (int32_t)(node).constant))
@@ -298,7 +297,9 @@ static zend_op *runkit_allocate_opcode_copy(const zend_op_array * const op_array
 #if PHP_VERSION_ID >= 70300
 	// Adjustment for https://github.com/runkit7/runkit7/issues/126
 	// I assume that PHP's pass_two() from Zend/zend_opcache.c would be done by now
-	if (!(ZEND_USE_ABS_CONST_ADDR) && op_array->literals) {
+	if (!(ZEND_USE_ABS_CONST_ADDR) &&
+			(op_array->fn_flags & ZEND_ACC_DONE_PASS_TWO) &&
+			op_array->literals) {
 		// Allocate enough space for op_array->opcode_copy and op_array->last_literal()
 		size_t bytes_to_allocate = ZEND_MM_ALIGNED_SIZE_EX(sizeof(zend_op) * op_array->last, 16) +
 			sizeof(zval) * op_array->last_literal;
@@ -317,9 +318,10 @@ static zval *runkit_allocate_literals(const zend_op_array * const op_array, zend
 #if PHP_VERSION_ID >= 70300
 	// Adjustment for https://github.com/runkit7/runkit7/issues/126
 	// I assume that PHP's pass_two() from Zend/zend_opcache.c would be done by now
-	if (!(ZEND_USE_ABS_CONST_ADDR)) {
+	if (!(ZEND_USE_ABS_CONST_ADDR) &&
+			(op_array->fn_flags & ZEND_ACC_DONE_PASS_TWO)) {
 		// Reuse the extra space allocated for runkit_allocate_opcode_copy
-		return (zval*)(((char*)op_array->opcodes) + ZEND_MM_ALIGNED_SIZE_EX(sizeof(zend_op) * op_array->last, 16));
+		return (zval*)(((char*)opcode_copy) + ZEND_MM_ALIGNED_SIZE_EX(sizeof(zend_op) * op_array->last, 16));
 	}
 #else
 	(void)opcode_copy;
@@ -450,8 +452,10 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 
 		debug_printf("op_array.literals = %llx, last_literal = %d\n", (long long)op_array->literals, op_array->last_literal);
 		if (op_array->literals) {
+			debug_printf("   old op_array.literals = %llx, opcodes=%llx\n", (long long)op_array->literals, (long long)op_array->opcodes);
 			i = op_array->last_literal;
 			literals = runkit_allocate_literals(op_array, opcode_copy);
+			debug_printf("copied op_array.literals = %llx, opcodes=%llx\n", (long long)literals, (long long)opcode_copy);
 			while (i > 0) {
 				uint32_t k;
 
@@ -473,21 +477,28 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 					if (opcode_copy[k].op2_type == IS_CONST) {
 						debug_printf("op2: %llx, %llx\n", (long long)RT_CONSTANT_EX(literals, opcode_copy[k].op2), (long long)&(op_array->literals[i]));
 					}*/
-					debug_printf("old constant = %d\n", new_op->op1.constant);
 					// TODO: This may be completely unnecessary on 64-bit systems. This may be broken on 32-bit systems.
 #ifdef RT_CONSTANT_EX
 					if (new_op->op1_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op1) == &op_array->literals[i]) {
+						debug_printf("old op1 constant = %d\n", new_op->op1.constant);
 						php_runkit_set_opcode_constant(literals, &(new_op->op1), &literals[i]);
+						debug_printf("new op1 constant = %d\n", new_op->op1.constant);
 					}
 					if (new_op->op2_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op2) == &op_array->literals[i]) {
+						debug_printf("old op2 constant = %d\n", new_op->op2.constant);
 						php_runkit_set_opcode_constant(literals, &(new_op->op2), &literals[i]);
+						debug_printf("new op2 constant = %d\n", new_op->op2.constant);
 					}
 #else
-					if (new_op->op1_type == IS_CONST && RUNKIT_RT_CONSTANT(op_array, new_op, new_op->op1) == &op_array->literals[i]) {
+					if (new_op->op1_type == IS_CONST && RUNKIT_RT_CONSTANT(op_array, &op_array->opcodes[i], new_op->op1) == &op_array->literals[i]) {
+						debug_printf("old op1 constant = %d\n", new_op->op1.constant);
 						php_runkit_set_opcode_constant_relative(op_array, new_op, &(new_op->op1), &literals[i]);
+						debug_printf("new op1 constant = %d\n", new_op->op1.constant);
 					}
-					if (new_op->op2_type == IS_CONST && RUNKIT_RT_CONSTANT(op_array, new_op, new_op->op2) == &op_array->literals[i]) {
+					if (new_op->op2_type == IS_CONST && RUNKIT_RT_CONSTANT(op_array, &op_array->opcodes[i], new_op->op2) == &op_array->literals[i]) {
+						debug_printf("old op2 constant = %d\n", new_op->op2.constant);
 						php_runkit_set_opcode_constant_relative(op_array, new_op, &(new_op->op2), &literals[i]);
+						debug_printf("new op2 constant = %d\n", new_op->op2.constant);
 					}
 #endif
 				}
@@ -552,7 +563,10 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 		}
 	}
 
-	fe->common.fn_flags &= ~ZEND_ACC_DONE_PASS_TWO;
+	// I'm not sure why this was originally added in upstream -- Removing this isn't causing test failures in php 7.
+	// NOTE: If this line is uncommented, then PHP 7.3 would fail during cleanup of op arrays,
+	// because Zend's function destructor expects functions that didn't complete pass two to have a separate allocated array for literals.
+	// fe->common.fn_flags &= ~ZEND_ACC_DONE_PASS_TWO;
 	fe->common.prototype = fe;
 }
 /* }}} */
