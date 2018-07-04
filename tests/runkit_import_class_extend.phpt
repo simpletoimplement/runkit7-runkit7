@@ -3,6 +3,9 @@ runkit_import() Importing and overriding classes extending another loaded class
 --SKIPIF--
 <?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
 if (!function_exists('runkit_import')) print "skip";
+if (DIRECTORY_SEPARATOR === "\\" && !ZEND_THREAD_SAFE) {
+	print "skip this is a known bug on windows and only affects NTS runkit_import(). https://github.com/runkit7/runkit7/issues/135 was filed to investigate this\n";
+}
 ?>
 --FILE--
 <?php
@@ -21,7 +24,10 @@ runkit_import(dirname(__FILE__) . '/runkit_import_class_extend.inc', RUNKIT_IMPO
 $Test = new Test;
 $Test->ver();
 $Test->aaa();
+echo "done\n";
+?>
 --EXPECTF--
 n
 n
 n
+done
