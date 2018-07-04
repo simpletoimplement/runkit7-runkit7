@@ -287,7 +287,9 @@ int php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname, char 
 /* }}} */
 
 /* {{{ php_runkit_function_copy_ctor_same_type
-    Duplicates structures in an zend_function, creating a function of the same type (user/internal) as the original function */
+	Duplicates structures in an zend_function, creating a function of the same type (user/internal) as the original function
+	This does the opposite of some parts of destroy_op_array() from Zend/zend_opcode.c
+	*/
 static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_string* newname)
 {
 
@@ -345,7 +347,7 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 		opcode_copy = safe_emalloc(sizeof(zend_op), fe->op_array.last, 0);
 		last_op = fe->op_array.opcodes + fe->op_array.last;
 		// TODO: See if this code works on 32-bit PHP.
-		for(i = 0; i < fe->op_array.last; i++) {
+		for (i = 0; i < fe->op_array.last; i++) {
 			opcode_copy[i] = fe->op_array.opcodes[i];
 			debug_printf("opcode = %s, is_const=%d, constant=%d\n", zend_get_opcode_name((int)opcode_copy[i].opcode), (int) (opcode_copy[i].op1_type == IS_CONST), fe->op_array.opcodes[i].op1.constant);
 			if (opcode_copy[i].op1_type != IS_CONST) {
@@ -493,6 +495,12 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 #if PHP_VERSION_ID < 70200
 				if (tmpArginfo[i].class_name) {
 					zend_string_addref(tmpArginfo[i].class_name);
+				}
+#else
+				// php >= 7.2.0
+				if (ZEND_TYPE_IS_CLASS(tmpArginfo[i].type)) {
+					// This works as the opposite for both php 7.2 and 7.3 (zend_string_release or zend_string_release_ex
+					zend_string_addref(ZEND_TYPE_NAME(tmpArginfo[i].type));
 				}
 #endif
 			}
