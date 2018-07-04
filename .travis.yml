@@ -25,6 +25,7 @@ env:
   - CC=gcc-4.8 CXX=g++-4.8 USE_32BIT=1 VALGRIND=1 PHP_NTS_USE=actually-zts PHP_CONFIGURE_ARGS='--disable-all --enable-maintainer-zts --enable-debug --enable-session'
 
 # Defined at https://github.com/php-build/php-build/tree/master/share/php-build/definitions
+# https://github.com/travis-ci/travis-ci/issues/9717 PHP 7.3 alphas not added yet
 php:
   - master
   - '7.2'
@@ -36,8 +37,6 @@ matrix:
     - php: master
   exclude:
     - php: 7.0
-      env: CC=gcc-4.8 CXX=g++-4.8
-    - php: master
       env: CC=gcc-4.8 CXX=g++-4.8
     - php: master
       env: CC=gcc-4.8 CXX=g++-4.8 VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'

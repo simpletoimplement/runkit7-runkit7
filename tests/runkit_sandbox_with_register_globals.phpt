@@ -12,4 +12,3 @@ register_globals=On
 $php = new Runkit_Sandbox();
 --EXPECTREGEX--
 (((PHP )?Warning|Deprecated):\s+Directive 'register_globals' is deprecated in PHP 5\.3 and greater in Unknown on line 0)?(Fatal error: Directive 'register_globals' is no longer available in PHP in Unknown on line 0)?
---DONE--
