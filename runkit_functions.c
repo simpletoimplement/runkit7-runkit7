@@ -30,6 +30,12 @@
 #define RUNKIT_ALIASED_USER_FUNCTION(fe) ((fe)->internal_function.reserved[0])
 #define RUNKIT_IS_ALIAS_FOR_USER_FUNCTION(fe) ((fe)->type == ZEND_INTERNAL_FUNCTION && (fe)->internal_function.handler == php_runkit_function_alias_handler)
 
+#if PHP_VERSION_ID >= 70300
+#define RUNKIT_RT_CONSTANT(op_array, opline, node) RT_CONSTANT((opline), (node))
+#else
+#define RUNKIT_RT_CONSTANT(op_array, opline, node) RT_CONSTANT((op_array), (node))
+#endif
+
 extern ZEND_API void zend_vm_set_opcode_handler(zend_op* op);
 
 #ifdef PHP_RUNKIT_MANIPULATION
@@ -199,11 +205,11 @@ static void php_runkit_set_opcode_constant(const zval* literals, znode_op* op, z
 /* {{{ php_runkit_set_opcode_constant_relative
 		for absolute constant addresses, creates a local copy of that literal.
 		Modifies op's contents. */
-static void php_runkit_set_opcode_constant_relative(const zend_op* opline, znode_op* op, zval* literalI) {
+static void php_runkit_set_opcode_constant_relative(const zend_op_array *op_array, const zend_op* opline, znode_op* op, zval* literalI) {
 	debug_printf("php_runkit_set_opcode_constant(%llx, %llx, %d), USE_ABS=%d", (long long)literals, (long long)literalI, (int)sizeof(zval), ZEND_USE_ABS_CONST_ADDR);
 	// TODO: ZEND_PASS_TWO_UPDATE_CONSTANT???
 #if ZEND_USE_ABS_CONST_ADDR
-	RT_CONSTANT(opline, *op) = literalI;
+	RUNKIT_RT_CONSTANT(op_array, opline, *op) = literalI;
 #else
 	// TODO: Assert that this is in a meaningful range.
 	// TODO: is this ever necessary for relative constant addresses?
@@ -286,6 +292,42 @@ int php_runkit_function_copy_ctor(zend_function *fe, zend_string* newname, char 
 }
 /* }}} */
 
+/* {{{ runkit_allocate_opcode_copy
+    Allocates a zend_op_array with enough memory to store the opcodes (As well as literals, if required for php 7.3) */
+static zend_op *runkit_allocate_opcode_copy(const zend_op_array * const op_array) {
+#if PHP_VERSION_ID >= 70300
+	// Adjustment for https://github.com/runkit7/runkit7/issues/126
+	// I assume that PHP's pass_two() from Zend/zend_opcache.c would be done by now
+	if (!(ZEND_USE_ABS_CONST_ADDR) && op_array->literals) {
+		// Allocate enough space for op_array->opcode_copy and op_array->last_literal()
+		size_t bytes_to_allocate = ZEND_MM_ALIGNED_SIZE_EX(sizeof(zend_op) * op_array->last, 16) +
+			sizeof(zval) * op_array->last_literal;
+		zend_op *opcode = (zend_op *) emalloc(bytes_to_allocate);
+		memset(opcode, 0, bytes_to_allocate);
+		return opcode;
+		// Skip the memcpy step for the op_array and the literals in php 7.3+
+	}
+#endif
+	return safe_emalloc(sizeof(zend_op), op_array->last, 0);
+}
+/* }}} */
+
+/* {{{ runkit_allocate_literals */
+static zval *runkit_allocate_literals(const zend_op_array * const op_array, zend_op* opcode_copy) {
+#if PHP_VERSION_ID >= 70300
+	// Adjustment for https://github.com/runkit7/runkit7/issues/126
+	// I assume that PHP's pass_two() from Zend/zend_opcache.c would be done by now
+	if (!(ZEND_USE_ABS_CONST_ADDR)) {
+		// Reuse the extra space allocated for runkit_allocate_opcode_copy
+		return (zval*)(((char*)op_array->opcodes) + ZEND_MM_ALIGNED_SIZE_EX(sizeof(zend_op) * op_array->last, 16));
+	}
+#else
+	(void)opcode_copy;
+#endif
+	return safe_emalloc(op_array->last_literal, sizeof(zval), 0);
+}
+/* }}} */
+
 /* {{{ php_runkit_function_copy_ctor_same_type
 	Duplicates structures in an zend_function, creating a function of the same type (user/internal) as the original function
 	This does the opposite of some parts of destroy_op_array() from Zend/zend_opcode.c
@@ -299,6 +341,7 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 	zend_op *last_op;
 	zend_op *opcode_copy;
 	uint32_t i;
+	zend_op_array *const op_array = &(fe->op_array);
 
 	if (newname) {
 		zend_string_addref(newname);
@@ -310,47 +353,48 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 	}
 
 	if (fe->common.type == ZEND_USER_FUNCTION) {
-		if (fe->op_array.vars) {
-			i = fe->op_array.last_var;
-			dupvars = safe_emalloc(fe->op_array.last_var, sizeof(zend_string*), 0);
+		if (op_array->vars) {
+			i = op_array->last_var;
+			dupvars = safe_emalloc(op_array->last_var, sizeof(zend_string*), 0);
 			while (i > 0) {
 				i--;
-				dupvars[i] = fe->op_array.vars[i];
+				dupvars[i] = op_array->vars[i];
 				zend_string_addref(dupvars[i]);
 			}
-			fe->op_array.vars = dupvars;
+			op_array->vars = dupvars;
 		}
 
-		if (fe->op_array.static_variables) {
+		if (op_array->static_variables) {
 			// Similar to zend_compile.c's zend_create_closure copying static variables, zend_compile.c's do_bind_function
 #if PHP_VERSION_ID >= 70100
 			// TODO: Does that work with references?
 			// 979: This seems to be calling an internal function returning a reference, then crashing?
 			// ZEND_ASSERT((call->func->common.fn_flags & ZEND_ACC_RETURN_REFERENCE)
 			// 	? Z_ISREF_P(ret) : !Z_ISREF_P(ret));
-			fe->op_array.static_variables = zend_array_dup(fe->op_array.static_variables);
+			op_array->static_variables = zend_array_dup(op_array->static_variables);
 #else
-			HashTable *static_variables = fe->op_array.static_variables;
-			ALLOC_HASHTABLE(fe->op_array.static_variables);
-			zend_hash_init(fe->op_array.static_variables, zend_hash_num_elements(static_variables), NULL, ZVAL_PTR_DTOR, 0);
-			zend_hash_apply_with_arguments(static_variables, zval_copy_static_var, 1, fe->op_array.static_variables);
+			HashTable *static_variables = op_array->static_variables;
+			ALLOC_HASHTABLE(op_array->static_variables);
+			zend_hash_init(op_array->static_variables, zend_hash_num_elements(static_variables), NULL, ZVAL_PTR_DTOR, 0);
+			zend_hash_apply_with_arguments(static_variables, zval_copy_static_var, 1, op_array->static_variables);
 #endif
 		}
 
-		if (fe->op_array.run_time_cache) {
+		if (op_array->run_time_cache) {
 			// TODO: Garbage collect these, somehow?
-			run_time_cache = pemalloc(fe->op_array.cache_size, 1);
-			memset(run_time_cache, 0, fe->op_array.cache_size);
-			fe->op_array.run_time_cache = run_time_cache;
+			run_time_cache = pemalloc(op_array->cache_size, 1);
+			memset(run_time_cache, 0, op_array->cache_size);
+			op_array->run_time_cache = run_time_cache;
 		}
 
-		opcode_copy = safe_emalloc(sizeof(zend_op), fe->op_array.last, 0);
-		last_op = fe->op_array.opcodes + fe->op_array.last;
+		opcode_copy = runkit_allocate_opcode_copy(op_array);
+		last_op = op_array->opcodes + op_array->last;
 		// TODO: See if this code works on 32-bit PHP.
-		for (i = 0; i < fe->op_array.last; i++) {
-			opcode_copy[i] = fe->op_array.opcodes[i];
-			debug_printf("opcode = %s, is_const=%d, constant=%d\n", zend_get_opcode_name((int)opcode_copy[i].opcode), (int) (opcode_copy[i].op1_type == IS_CONST), fe->op_array.opcodes[i].op1.constant);
+		for (i = 0; i < op_array->last; i++) {
+			opcode_copy[i] = op_array->opcodes[i];
+			debug_printf("opcode = %s, is_const=%d, constant=%d\n", zend_get_opcode_name((int)opcode_copy[i].opcode), (int) (opcode_copy[i].op1_type == IS_CONST), op_array->opcodes[i].op1.constant);
 			if (opcode_copy[i].op1_type != IS_CONST) {
+				// TODO: What about switch statements in php 7.2, etc?
 				zend_op *opline;
 				zend_op *jmp_addr_op1;
 				switch (opcode_copy[i].opcode) {
@@ -364,12 +408,12 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 						opline = &opcode_copy[i];
 						jmp_addr_op1 = OP_JMP_ADDR(opline, opline->op1);
 						// TODO: I don't know if this is really the same as jmp_addr. FIXME
-						if (jmp_addr_op1 >= fe->op_array.opcodes &&
+						if (jmp_addr_op1 >= op_array->opcodes &&
 							jmp_addr_op1 < last_op) {
 #if ZEND_USE_ABS_JMP_ADDR
-							opline->op1.jmp_addr = opcode_copy + (fe->op_array.opcodes[i].op1.jmp_addr - fe->op_array.opcodes);
+							opline->op1.jmp_addr = opcode_copy + (op_array->opcodes[i].op1.jmp_addr - op_array->opcodes);
 #else
-							opline->op1.jmp_offset += ((char*)fe->op_array.opcodes) - ((char*)opcode_copy);
+							opline->op1.jmp_offset += ((char*)op_array->opcodes) - ((char*)opcode_copy);
 #endif
 						}
 				}
@@ -391,12 +435,12 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 						opline = &opcode_copy[i];
 						jmp_addr_op2 = OP_JMP_ADDR(opline, opline->op2);
 						// TODO: I don't know if this is really the same as jmp_addr. FIXME
-						if (jmp_addr_op2 >= fe->op_array.opcodes &&
+						if (jmp_addr_op2 >= op_array->opcodes &&
 							jmp_addr_op2 < last_op) {
 #if ZEND_USE_ABS_JMP_ADDR
-							opline->op2.jmp_addr = opcode_copy + (fe->op_array.opcodes[i].op2.jmp_addr - fe->op_array.opcodes);
+							opline->op2.jmp_addr = opcode_copy + (op_array->opcodes[i].op2.jmp_addr - op_array->opcodes);
 #else
-							opline->op2.jmp_offset += ((char*)fe->op_array.opcodes) - ((char*)opcode_copy);
+							opline->op2.jmp_offset += ((char*)op_array->opcodes) - ((char*)opcode_copy);
 #endif
 						}
 				}
@@ -404,10 +448,10 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 		}
 
 
-		debug_printf("op_array.literals = %llx, last_literal = %d\n", (long long)fe->op_array.literals, fe->op_array.last_literal);
-		if (fe->op_array.literals) {
-			i = fe->op_array.last_literal;
-			literals = safe_emalloc(fe->op_array.last_literal, sizeof(zval), 0);
+		debug_printf("op_array.literals = %llx, last_literal = %d\n", (long long)op_array->literals, op_array->last_literal);
+		if (op_array->literals) {
+			i = op_array->last_literal;
+			literals = runkit_allocate_literals(op_array, opcode_copy);
 			while (i > 0) {
 				uint32_t k;
 
@@ -415,78 +459,78 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 				// This code copies the zvals from the original function's op array to the new function's op array.
 				// TODO: Re-examine this line to see if reference counting was done properly.
 				// TODO: fix all of the other places old types of copies were used.
-				literals[i] = fe->op_array.literals[i];
+				literals[i] = op_array->literals[i];
 				Z_TRY_ADDREF(literals[i]);
 				debug_printf("Copying literal of type %d\n", (int) Z_TYPE(literals[i]));
 				// TODO: Check if constants are being replaced properly.
 				// TODO: This may no longer do anything on 64-bit builds of PHP.
-				for (k=0; k < fe->op_array.last; k++) {
+				for (k=0; k < op_array->last; k++) {
 					zend_op* const new_op = &opcode_copy[k];
 					debug_printf("%d(%s)\ttype=%d %d\n", k, zend_get_opcode_name(new_op->opcode), (int)new_op->op1_type, (int)new_op->op2_type);
 					/*if (opcode_copy[k].OP1_type == IS_CONST) {
-						debug_printf("op1: %llx, %llx\n", (long long)RT_CONSTANT_EX(literals, opcode_copy[k].op1), (long long)&(fe->op_array.literals[i]));
+						debug_printf("op1: %llx, %llx\n", (long long)RT_CONSTANT_EX(literals, opcode_copy[k].op1), (long long)&(op_array->literals[i]));
 					}
 					if (opcode_copy[k].op2_type == IS_CONST) {
-						debug_printf("op2: %llx, %llx\n", (long long)RT_CONSTANT_EX(literals, opcode_copy[k].op2), (long long)&(fe->op_array.literals[i]));
+						debug_printf("op2: %llx, %llx\n", (long long)RT_CONSTANT_EX(literals, opcode_copy[k].op2), (long long)&(op_array->literals[i]));
 					}*/
 					debug_printf("old constant = %d\n", new_op->op1.constant);
 					// TODO: This may be completely unnecessary on 64-bit systems. This may be broken on 32-bit systems.
 #ifdef RT_CONSTANT_EX
-					if (new_op->op1_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op1) == &fe->op_array.literals[i]) {
+					if (new_op->op1_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op1) == &op_array->literals[i]) {
 						php_runkit_set_opcode_constant(literals, &(new_op->op1), &literals[i]);
 					}
-					if (new_op->op2_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op2) == &fe->op_array.literals[i]) {
+					if (new_op->op2_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op2) == &op_array->literals[i]) {
 						php_runkit_set_opcode_constant(literals, &(new_op->op2), &literals[i]);
 					}
 #else
-					if (new_op->op1_type == IS_CONST && RT_CONSTANT(new_op, new_op->op1) == &fe->op_array.literals[i]) {
-						php_runkit_set_opcode_constant_relative(new_op, &(new_op->op1), &literals[i]);
+					if (new_op->op1_type == IS_CONST && RUNKIT_RT_CONSTANT(op_array, new_op, new_op->op1) == &op_array->literals[i]) {
+						php_runkit_set_opcode_constant_relative(op_array, new_op, &(new_op->op1), &literals[i]);
 					}
-					if (new_op->op2_type == IS_CONST && RT_CONSTANT(new_op, new_op->op2) == &fe->op_array.literals[i]) {
-						php_runkit_set_opcode_constant_relative(new_op, &(new_op->op2), &literals[i]);
+					if (new_op->op2_type == IS_CONST && RUNKIT_RT_CONSTANT(op_array, new_op, new_op->op2) == &op_array->literals[i]) {
+						php_runkit_set_opcode_constant_relative(op_array, new_op, &(new_op->op2), &literals[i]);
 					}
 #endif
 				}
 			}
-			fe->op_array.literals = literals;
+			op_array->literals = literals;
 		}
+		op_array->opcodes = opcode_copy;
+		op_array->refcount = (uint32_t*) emalloc(sizeof(uint32_t));
+		*op_array->refcount = 1;
 
-		fe->op_array.opcodes = opcode_copy;
-		fe->op_array.refcount = (uint32_t*) emalloc(sizeof(uint32_t));
-		*fe->op_array.refcount = 1;
 		// TODO: Check if this is an interned string...
-		if (fe->op_array.doc_comment) {
-			zend_string_addref(fe->op_array.doc_comment);
+		if (op_array->doc_comment) {
+			zend_string_addref(op_array->doc_comment);
 		}
-		fe->op_array.try_catch_array = (zend_try_catch_element*)estrndup((char*)fe->op_array.try_catch_array, sizeof(zend_try_catch_element) * fe->op_array.last_try_catch);
+		op_array->try_catch_array = (zend_try_catch_element*)estrndup((char*)op_array->try_catch_array, sizeof(zend_try_catch_element) * op_array->last_try_catch);
 #if PHP_MAJOR_VERSION == 7 && PHP_MINOR_VERSION == 0
-	fe->op_array.brk_cont_array = (zend_brk_cont_element*)estrndup((char*)fe->op_array.brk_cont_array, sizeof(zend_brk_cont_element) * fe->op_array.last_brk_cont);
+	op_array->brk_cont_array = (zend_brk_cont_element*)estrndup((char*)op_array->brk_cont_array, sizeof(zend_brk_cont_element) * op_array->last_brk_cont);
 #elif PHP_VERSION_ID >= 70100
-	if (fe->op_array.live_range) {
-		fe->op_array.live_range = (zend_live_range*)estrndup((char*)fe->op_array.live_range, sizeof(zend_live_range) * fe->op_array.last_live_range);
+	if (op_array->live_range) {
+		op_array->live_range = (zend_live_range*)estrndup((char*)op_array->live_range, sizeof(zend_live_range) * op_array->last_live_range);
 	}
 #endif
 
-		if (fe->op_array.arg_info) {
+		if (op_array->arg_info) {
 			zend_arg_info *tmpArginfo;
 			zend_arg_info *originalArginfo;
 			// num_args calculation taken from zend_opcode.c destroy_op_array
 			// TODO: Add tests that functions with return types are properly created and destroyed.
 			// TODO: Specify what runkit should do about return types, what is an error, what is valid.
-			uint32_t num_args = fe->op_array.num_args;
+			uint32_t num_args = op_array->num_args;
 			int32_t offset = 0;
 
-			if (fe->op_array.fn_flags & ZEND_ACC_HAS_RETURN_TYPE) {
+			if (op_array->fn_flags & ZEND_ACC_HAS_RETURN_TYPE) {
 				offset++;
 				num_args++;
 			}
-			if (fe->op_array.fn_flags & ZEND_ACC_VARIADIC) {
+			if (op_array->fn_flags & ZEND_ACC_VARIADIC) {
 				num_args++;
 			}
 
 			tmpArginfo = (zend_arg_info*) safe_emalloc(sizeof(zend_arg_info), num_args, 0);
 
-			originalArginfo = &((fe->op_array.arg_info)[-offset]);
+			originalArginfo = &((op_array->arg_info)[-offset]);
 			for (i = 0; i < num_args; i++) {
 				tmpArginfo[i] = originalArginfo[i];
 				if (tmpArginfo[i].name) {
@@ -504,7 +548,7 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 				}
 #endif
 			}
-			fe->op_array.arg_info = &tmpArginfo[offset];
+			op_array->arg_info = &tmpArginfo[offset];
 		}
 	}
 
@@ -714,28 +758,28 @@ static inline void php_runkit_fix_hardcoded_stack_sizes(zend_function *f, zend_s
 
 	// FIXME work on namespaced functions
 	zend_op_array *op_array;
-	zend_op *it;
+	zend_op *opline_it;
 	zend_op *end;
 	if (f == NULL || f->type != ZEND_USER_FUNCTION) {
 		return;
 	}
 
 	op_array = &(f->op_array);
-	it = op_array->opcodes;
-	end = it + op_array->last;
+	opline_it = op_array->opcodes;
+	end = opline_it + op_array->last;
 	//printf("Calling php_runkit_fix_hardcoded_stack_sizes for user func last=%d\n", op_array->last);
-	for (; it < end; it++) {
-		// printf("Calling opcode=%d\n", it->opcode);
+	for (; opline_it < end; opline_it++) {
+		// printf("Calling opcode=%d\n", opline_it->opcode);
 		// PHP uses different constants (More constant space needed for ZEND_INIT_FCALL_BY_NAME),
-		// instead of converting to ZEND_INIT_FCALL_BY_NAME, recalculate the maximum amount of stack space it may need.
-		if (it->opcode == ZEND_INIT_FCALL) {
-			zval *function_name = (zval*)(RT_CONSTANT(op_array, it->op2));
+		// instead of converting to ZEND_INIT_FCALL_BY_NAME, recalculate the maximum amount of stack space opline_it may need.
+		if (opline_it->opcode == ZEND_INIT_FCALL) {
+			zval *function_name = (zval*)(RUNKIT_RT_CONSTANT(op_array, opline_it, opline_it->op2));
 			//printf("Checking init_fcall, function name = %s\n", ZSTR_VAL(Z_STR_P(function_name)));
 			if (zend_string_equals(Z_STR_P(function_name), called_name_lower)) {
 				// Modify that opline with the recalculated required stack size
-				uint32_t new_size = zend_vm_calc_used_stack(it->extended_value, called_f);
-				if (new_size > it->op1.num) {
-					it->op1.num = new_size;
+				uint32_t new_size = zend_vm_calc_used_stack(opline_it->extended_value, called_f);
+				if (new_size > opline_it->op1.num) {
+					opline_it->op1.num = new_size;
 				}
 			}
 		}
