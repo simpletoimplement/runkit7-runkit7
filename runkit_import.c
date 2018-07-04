@@ -26,7 +26,6 @@
 #include "runkit.h"
 #include "php_runkit_zval.h"
 
-// TODO: Actually implement this.
 #ifdef PHP_RUNKIT_MANIPULATION
 /* {{{ php_runkit_import_functions
  */
@@ -610,10 +609,10 @@ PHP_FUNCTION(runkit_import)
 		CG(in_compilation) = 1;
 		while (opline_num != (uint32_t)-1) {
 			// TODO: Check if it's still op2, figure out the set of expected opcodes
-			zval *parent_name = RT_CONSTANT(new_op_array, new_op_array->opcodes[opline_num - 1].op2);
+			const zend_op * const parent_name_opcode = &(new_op_array->opcodes[opline_num - 1]);
+			zval *parent_name = RUNKIT_RT_CONSTANT(new_op_array, parent_name_opcode, parent_name_opcode->op2);
 			zval *key = parent_name + 1;
 			zend_class_entry *pce;
-			// TODO: Figure out why this assertion fails in php 7.3
 			ZEND_ASSERT(Z_TYPE_P(parent_name) == IS_STRING);
 
 			// TODO: Check if this is the same in php 7.0
