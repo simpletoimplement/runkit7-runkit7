@@ -124,6 +124,7 @@ Define customized superglobal variables for general purpose use.
     <file name="runkit_function_remove.phpt" role="test" />
     <file name="runkit_function_rename_and_reflection.phpt" role="test" />
     <file name="runkit_function_rename_internal.phpt" role="test" />
+    <file name="runkit_function_rename_large_switch.phpt" role="test" />
     <file name="runkit_function_rename.phpt" role="test" />
     <file name="runkit_function_rename_redefine_add_remove.phpt" role="test" />
     <file name="runkit_functions_redefining_and_cache.inc" role="test" />
