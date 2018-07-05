@@ -181,9 +181,9 @@ static inline void php_runkit_destroy_misplaced_internal_function(zend_function 
 
 #ifdef RT_CONSTANT_EX
 /* {{{ php_runkit_set_opcode_constant
-		for absolute constant addresses, creates a local copy of that literal.
+		for absolute constant addresses (ZEND_USE_ABS_CONST_ADDR), changes op to point to the local copy of that literal.
 		Modifies op's contents. */
-static void php_runkit_set_opcode_constant(const zval* literals, znode_op* op, const zval* literalI) {
+static void php_runkit_set_opcode_constant(const zval* literals, znode_op* op, zval* literalI) {
 	debug_printf("php_runkit_set_opcode_constant(%llx, %llx, %d), USE_ABS=%d\n", (long long)literals, (long long)literalI, (int)sizeof(zval), ZEND_USE_ABS_CONST_ADDR);
 #if ZEND_USE_ABS_CONST_ADDR
 	RT_CONSTANT_EX(literals, *op) = literalI;
