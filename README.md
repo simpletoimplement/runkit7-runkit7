@@ -47,7 +47,7 @@ Class and function manipulation is recommended only for unit tests.
 The following contributions are welcome:
 
 -   Pull requests with  PHP5 -> PHP7 code migration of functions
--   New test cases for features that no longer work in PHP7, or code crashing runkit7.
+-   New test cases for features that no longer work in PHP7, or bug reports containing code crashing runkit7.
 -   Issues for PHP language features that worked in PHP5, but no longer work in PHP7,
     for the implemented methods (`runkit_function_*` and `runkit_method_*`)
 -   Fixes and documentation.
@@ -62,7 +62,7 @@ The following mocking libraries work with the runkit7 fork
 
 - [![Build Status](https://travis-ci.org/runkit7/Timecop-PHP.svg?branch=master)](https://travis-ci.org/runkit7/Timecop-PHP) [timecop-PHP (Fork)](https://github.com/runkit7/Timecop-PHP), a time testing library inspired by the ruby timecop gem (requires `runkit.internal_override=1`, suggested only for unit tests)
 - [![Build Status](https://travis-ci.org/tototoshi/staticmock.svg?branch=master)](https://travis-ci.org/tototoshi/staticmock) [staticmock](https://github.com/tototoshi/staticmock), a mockery-like DSL to replace static methods in tests.
-- [![Build Status](https://travis-ci.org/runkit7/SimpleStaticMock.svg?branch=master)](https://travis-ci.org/runkit7/SimpleStaticMock) [SimpleStaticMock (Fork)](https://github.com/runkit7/SimpleStaticMock), a very simple class to mock static methods in unit tests. Unrelated to tototoshi/staticmock. Has patches to work in php 7.1.
+- [![Build Status](https://travis-ci.org/runkit7/SimpleStaticMock.svg?branch=master)](https://travis-ci.org/runkit7/SimpleStaticMock) [SimpleStaticMock (Fork)](https://github.com/runkit7/SimpleStaticMock), a very simple class to mock static methods in unit tests. Unrelated to tototoshi/staticmock.
 - [![Build Status](https://travis-ci.org/runkit7/TraceOn.svg?branch=master)](https://travis-ci.org/runkit7/TraceOn) [TraceOn (Fork)](https://github.com/runkit7/TraceOn), a simple PHP utility to trace(investigate) invocations of instance/static/global methods.
 
 ## PHP7 SPECIFIC DETAILS
@@ -76,19 +76,18 @@ The following mocking libraries work with the runkit7 fork
     Many of these have been fixed.
 -   There are reference counting bugs causing memory leaks.
     2 calls to `emalloc` have been temporarily replaced with calls to `pemalloc`
-    so that I could execute tests.
--   There may be a few remaining logic errors after migrating the code to PHP7.
--   The zend VM bytecode representation may change in 7.3 betas or future minor/major releases,
-    so some opcodes may not work with each new minor php version release.
+    so that tests would not crash during shutdown (and other reasons)
+-   The Zend VM bytecode representation may change in 7.3 betas and in future minor/major PHP releases after 7.3.
+    Any new opcodes added may not work as expected with each new minor php version release.
 
 ### APIs for PHP7
 
-#### Implemented APIs for PHP7 (buggy internal function manipulation):
+#### Implemented APIs for PHP7
 
 -   `runkit_function_*`: Most tests are passing. There are some memory leaks when renaming internal functions.
 -   `runkit_method_*`: Most tests are passing. There are some memory leaks when renaming internal functions.
 -   `runkit_zval_inspect`: Partly passing, and needs to be rewritten because of PHP7's zval changes.
--   `runkit_constant_add` works. Other constant manipulation functions don't work for constants within the same file due to the interpreter inlining them.
+-   `runkit_constant_add` works. Other constant manipulation functions don't work for constants accessed within the same file due to the compiler inlining their values for performance.
 -   Runkit superglobals.
 -   `runkit_import`
     Some flags are missing for PHP 7.x, especially properties, and other tests have known failures.
@@ -108,7 +107,7 @@ The following mocking libraries work with the runkit7 fork
     See [issue #30](https://github.com/runkit7/runkit7/issues/30) (implement function to modify only) and [issue #113](https://github.com/runkit7/runkit7/issues/113) (Manipulate static properties)
 
     `runkit_default_property_add` has been removed in php7 - it requires `realloc`ing a different zval to add a property to the property table
-    That would break a lot of things.
+    That would break a lot of things (PHP internals, other PHP modules, etc)
 -   `runkit_return_value_used`: Removed, was not working and unrelated to other features.
     `vld` seems to have a working implementation in the opcode analyzer, not familiar with how it works.
 
@@ -237,8 +236,8 @@ For PHP7, you need to install "Visual Studio 2015 Community Edition" (or other 2
 Make sure that C++ is installed with Visual Studio.
 The command prompt to use is "VS2015 x86 Native Tools Command Prompt" on 32-bit, "VS2015 x64 Native Tools Command Prompt" on 64-bit.
 
-- Note that different visual studio versions are recommended for different PHP versions.
-  For PHP 7.2+, use Visual Studio 2017 instead.
+- Note that different visual studio versions are needed for different PHP versions.
+  For PHP 7.2+, use Visual Studio 2017 and vc15 instead.
 
 For 64-bit installations of php7, use "x64" instead of "x86" for the below commands/folders.
 
