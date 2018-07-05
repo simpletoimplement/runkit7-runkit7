@@ -26,7 +26,7 @@ Class and function manipulation is recommended only for unit tests.
 - Manipulating user-defined (i.e. not builtin or part of extensions) functions and methods via `runkit_method_*` and `runkit_function_*` generally works, **but is recommended only in unit tests** (unlikely to crash, but will cause memory leaks)
 - Manipulating built in functions may cause segmentation faults in rare cases.
   File a bug report if you see this.
-  **this is recommended only in unit tests, because of the possibility of crashes**.
+  **Function and method manipulation is recommended only for debugging or unit tests, because of the possibility of crashes**.
   (Manipulating built in class methods is impossible/not supported)
 - Adding default properties to classes doesn't work in php7, because of a change
   in the way PHP stores objects.
