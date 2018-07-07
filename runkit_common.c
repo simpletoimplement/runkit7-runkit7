@@ -100,31 +100,32 @@ void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string *lcmname, zen
 /* {{{ PHP_RUNKIT_DEL_MAGIC_METHOD */
 void PHP_RUNKIT_DEL_MAGIC_METHOD(zend_class_entry *ce, const zend_function *fe)
 {
-	if ((ce)->constructor == (fe))
-		(ce)->constructor = NULL;
-	else if ((ce)->destructor == (fe))
-		(ce)->destructor = NULL;
-	else if ((ce)->__get == (fe))
-		(ce)->__get = NULL;
-	else if ((ce)->__set == (fe))
-		(ce)->__set = NULL;
-	else if ((ce)->__unset == (fe))
-		(ce)->__unset = NULL;
-	else if ((ce)->__isset == (fe))
-		(ce)->__isset = NULL;
-	else if ((ce)->__call == (fe))
-		(ce)->__call = NULL;
-	else if ((ce)->__callstatic == (fe))
-		(ce)->__callstatic = NULL;
-	else if ((ce)->__tostring == (fe))
-		(ce)->__tostring = NULL;
-	else if ((ce)->__debugInfo == (fe))
-		(ce)->__debugInfo = NULL;
-	else if ((ce)->clone == (fe))
-		(ce)->clone = NULL;
-	else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && (ce)->serialize_func == (fe))
-		(ce)->serialize_func   = NULL;
-	else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && (ce)->unserialize_func == (fe))
-		(ce)->unserialize_func = NULL;
+	if (ce->constructor == fe) {
+		ce->constructor = NULL;
+	} else if (ce->destructor == fe) {
+		ce->destructor = NULL;
+	} else if (ce->__get == fe) {
+		ce->__get = NULL;
+	} else if (ce->__set == fe) {
+		ce->__set = NULL;
+	} else if (ce->__unset == fe) {
+		ce->__unset = NULL;
+	} else if (ce->__isset == fe) {
+		ce->__isset = NULL;
+	} else if (ce->__call == fe) {
+		ce->__call = NULL;
+	} else if (ce->__callstatic == fe) {
+		ce->__callstatic = NULL;
+	} else if (ce->__tostring == fe) {
+		ce->__tostring = NULL;
+	} else if (ce->__debugInfo == fe) {
+		ce->__debugInfo = NULL;
+	} else if (ce->clone == fe) {
+		ce->clone = NULL;
+	} else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && ce->serialize_func == fe) {
+		ce->serialize_func = NULL;
+	} else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && ce->unserialize_func == fe) {
+		ce->unserialize_func = NULL;
+	}
 }
 /* }}} */
