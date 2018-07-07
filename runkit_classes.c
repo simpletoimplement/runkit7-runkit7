@@ -30,7 +30,8 @@ runkit_property_modify() may be implemented in the future.
 /* {{{ php_runkit_remove_inherited_methods_foreach */
 // Remove methods that were inherited from class ce from the function_table.
 static int php_runkit_remove_inherited_methods(zval *pDest, void *argument); // forward declare.
-static void php_runkit_remove_inherited_methods_foreach(HashTable *function_table, zend_class_entry *ce) {
+static void php_runkit_remove_inherited_methods_foreach(HashTable *function_table, zend_class_entry *ce)
+{
 	zend_hash_apply_with_argument(function_table, php_runkit_remove_inherited_methods, ce);
 }
 
@@ -40,8 +41,8 @@ static void php_runkit_remove_inherited_methods_foreach(HashTable *function_tabl
 static int php_runkit_remove_inherited_methods(zval *pDest, void *argument)
 {
 	zend_function *fe = Z_FUNC_P(pDest);
-	zend_class_entry *ce = (zend_class_entry*) argument;
-	zend_string * const fname = fe->common.function_name;
+	zend_class_entry *ce = (zend_class_entry *)argument;
+	zend_string *const fname = fe->common.function_name;
 	zend_string *fname_lower;
 	zend_class_entry *ancestor_class;
 	ZEND_ASSERT(Z_TYPE_P(pDest) == IS_PTR);
@@ -121,7 +122,7 @@ PHP_FUNCTION(runkit_class_emancipate)
 			last_null = php_runkit_memrchr(propname, 0, propname_len);
 			if (last_null) {
 			    propname_len -= last_null - propname + 1;
-			    propname = last_null+1;
+				propname = last_null + 1;
 			}
 			propname_zs = zend_string_init(propname, propname_len, 0);
 
@@ -141,9 +142,11 @@ PHP_FUNCTION(runkit_class_emancipate)
 /* {{{ php_runkit_inherit_methods_foreach
     Inherit methods from a new ancestor (in function_table) */
 static int php_runkit_inherit_methods(zend_function *fe, zend_class_entry *ce);
-static void php_runkit_inherit_methods_foreach(HashTable *function_table, zend_class_entry *ce) {
+static void php_runkit_inherit_methods_foreach(HashTable *function_table, zend_class_entry *ce)
+{
 	zend_function *fe;
-	ZEND_HASH_FOREACH_PTR(function_table, fe) {
+	ZEND_HASH_FOREACH_PTR(function_table, fe)
+	{
 		php_runkit_inherit_methods(fe, ce);
 	} ZEND_HASH_FOREACH_END();
 }
@@ -263,7 +266,7 @@ PHP_FUNCTION(runkit_class_adopt)
 			const char *propname = ZSTR_VAL(property_info_ptr->name);
 			int propname_len = ZSTR_LEN(property_info_ptr->name);
 			const char *last_null;
-			zend_string* propname_zs;
+			zend_string *propname_zs;
 
 			if (property_info_ptr->flags & ZEND_ACC_STATIC) {
 				p = &CE_STATIC_MEMBERS(parent)[property_info_ptr->offset];
@@ -276,12 +279,12 @@ PHP_FUNCTION(runkit_class_adopt)
 			last_null = php_runkit_memrchr(propname, 0, propname_len);
 			if (last_null) {
 				propname_len -= last_null - propname + 1;
-				propname = last_null+1;
+				propname = last_null + 1;
 			}
 			propname_zs = zend_string_init(propname, propname_len, 0);
 
 			php_runkit_def_prop_add_int(ce, propname_zs,
-										p, property_info_ptr->flags/*visibility*/,
+										p, property_info_ptr->flags /*visibility*/,
 										property_info_ptr->doc_comment,
 										property_info_ptr->ce /*definer_class*/, 0 /*override*/, 1 /*override_in_objects*/);
 			// TODO: free propname_zs?
@@ -306,4 +309,3 @@ PHP_FUNCTION(runkit_class_adopt)
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
-

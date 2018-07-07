@@ -51,7 +51,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 	fci.retval = return_value;
 	fci.param_count = ZEND_CALL_NUM_ARGS(EG(current_execute_data));
 	fci.params = ZEND_CALL_ARG(EG(current_execute_data), 1);  // params and param_count From zend_API.c
-	fci.no_separation = (zend_bool) 1;  // ???
+	fci.no_separation = (zend_bool)1;			  // ???
 #if PHP_VERSION_ID < 70100
 	fci.symbol_table = NULL; // ???
 #endif
@@ -147,7 +147,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 		return FAILURE;
 	}
 
-	if (func->common.fn_flags & (ZEND_ACC_ABSTRACT|ZEND_ACC_DEPRECATED)) {
+	if (func->common.fn_flags & (ZEND_ACC_ABSTRACT | ZEND_ACC_DEPRECATED)) {
 		if (func->common.fn_flags & ZEND_ACC_ABSTRACT) {
 			zend_throw_error(NULL, "Cannot call abstract method %s::%s()", ZSTR_VAL(func->common.scope->name), ZSTR_VAL(func->common.function_name));
 			if (EG(current_execute_data) == &dummy_execute_data) {
@@ -163,7 +163,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 		}
 	}
 
-	for (i=0; i<fci.param_count; i++) {
+	for (i = 0; i < fci.param_count; i++) {
 		zval *param;
 		zval *arg = &fci.params[i];
 
@@ -180,7 +180,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 					zend_vm_stack_free_call_frame(call);
 
 					zend_error(E_WARNING, "Parameter %d to %s%s%s() expected to be a reference, value given",
-						i+1,
+						i + 1,
 						func->common.scope ? ZSTR_VAL(func->common.scope->name) : "",
 						func->common.scope ? "::" : "",
 						ZSTR_VAL(func->common.function_name));
@@ -202,7 +202,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 					/* By-value send is not allowed -- emit a warning,
 					 * but still perform the call with a by-value send. */
 					zend_error(E_WARNING,
-						"Parameter %d to %s%s%s() expected to be a reference, value given", i+1,
+						"Parameter %d to %s%s%s() expected to be a reference, value given", i + 1,
 						func->common.scope ? ZSTR_VAL(func->common.scope->name) : "",
 						func->common.scope ? "::" : "",
 						ZSTR_VAL(func->common.function_name));
@@ -221,7 +221,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 			}
 #endif
 		}
-		param = ZEND_CALL_ARG(call, i+1);
+		param = ZEND_CALL_ARG(call, i + 1);
 #if PHP_VERSION_ID < 70100
 		ZVAL_COPY_VALUE(param, arg);
 #else
@@ -238,8 +238,8 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 #endif
 
 	if (UNEXPECTED(func->op_array.fn_flags & ZEND_ACC_CLOSURE)) {
-		ZEND_ASSERT(GC_TYPE((zend_object*)func->op_array.prototype) == IS_OBJECT);
-		GC_ADDREF((zend_object*)func->op_array.prototype);
+		ZEND_ASSERT(GC_TYPE((zend_object *)func->op_array.prototype) == IS_OBJECT);
+		GC_ADDREF((zend_object *)func->op_array.prototype);
 		ZEND_ADD_CALL_FLAG(call, ZEND_CALL_CLOSURE);
 	}
 

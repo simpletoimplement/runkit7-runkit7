@@ -1799,9 +1799,9 @@ static void php_runkit_lint_compile(INTERNAL_FUNCTION_PARAMETERS, int filemode)
 	printf("exception   =%llx\n", (long long)(EG(exception)));
 	printf("&exception  =%llx\n", (long long)(&EG(exception)));
 	printf("_tsrm_ls_cache=%llx\n", (long long)tsrm_get_ls_cache());
-	printf("_tsrm_ls_cache[globals_id-1]=%llx\n", (long long)((*((void ***) tsrm_get_ls_cache()))[executor_globals_id-1]));
-	printf("_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)((((zend_executor_globals *) (*((void ***) tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
-	printf("&_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)&((((zend_executor_globals *) (*((void ***) tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
+	printf("_tsrm_ls_cache[globals_id-1]=%llx\n", (long long)((*((void ***)tsrm_get_ls_cache()))[executor_globals_id - 1]));
+	printf("_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)((((zend_executor_globals *)(*((void ***)tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
+	printf("&_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)&((((zend_executor_globals *)(*((void ***)tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
 
 	context = tsrm_new_interpreter_context();
 	prior_context = tsrm_set_interpreter_context(context);
@@ -1883,9 +1883,9 @@ static void php_runkit_lint_compile(INTERNAL_FUNCTION_PARAMETERS, int filemode)
 	printf("&exception  =%llx\n", (long long)(&EG(exception)));
 	// Should this invalidate it?
 	printf("_tsrm_ls_cache=%llx\n", (long long)tsrm_get_ls_cache());
-	printf("_tsrm_ls_cache[globals_id-1]=%llx\n", (long long)((*((void ***) tsrm_get_ls_cache()))[executor_globals_id-1]));
-	printf("_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)((((zend_executor_globals *) (*((void ***) tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
-	printf("&_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)&((((zend_executor_globals *) (*((void ***) tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
+	printf("_tsrm_ls_cache[globals_id-1]=%llx\n", (long long)((*((void ***)tsrm_get_ls_cache()))[executor_globals_id - 1]));
+	printf("_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)((((zend_executor_globals *)(*((void ***)tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
+	printf("&_tsrm_ls_cache[globals_id-1]->exception=%llx\n", (long long)&((((zend_executor_globals *)(*((void ***)tsrm_get_ls_cache()))[((executor_globals_id)-1)])->exception)));
 	fflush(stdout);
 
 	EX(call) = old_execute_data;
@@ -1921,4 +1921,3 @@ PHP_FUNCTION(runkit_lint_file)
 /* }}} */
 
 #endif /* PHP_RUNKIT_SANDBOX */
-

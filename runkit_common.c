@@ -22,7 +22,8 @@
 #include "runkit.h"
 
 /* {{{ */
-void ensure_all_objects_of_class_have_magic_methods(zend_class_entry *ce) {
+void ensure_all_objects_of_class_have_magic_methods(zend_class_entry *ce)
+{
 	uint32_t i;
 	if (ce->ce_flags & ZEND_ACC_USE_GUARDS) {
 		return;  // Nothing to do?
@@ -47,7 +48,8 @@ void ensure_all_objects_of_class_have_magic_methods(zend_class_entry *ce) {
 /* }}} */
 
 /* {{{ PHP_RUNKIT_ADD_MAGIC_METHOD */
-void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string* lcmname, zend_function *fe, const zend_function *orig_fe) {
+void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string *lcmname, zend_function *fe, const zend_function *orig_fe)
+{
 	if (zend_string_equals_literal(lcmname, ZEND_CLONE_FUNC_NAME)) {
 		(ce)->clone = (fe);
 #if PHP_VERSION_ID < 70200
@@ -55,10 +57,12 @@ void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string* lcmname, zen
 #endif
 	} else if (zend_string_equals_literal(lcmname, ZEND_CONSTRUCTOR_FUNC_NAME)) {
 		if (!(ce)->constructor || (ce)->constructor == (orig_fe)) {
-			(ce)->constructor = (fe); (fe)->common.fn_flags |= ZEND_ACC_CTOR;
+			(ce)->constructor = (fe);
+			(fe)->common.fn_flags |= ZEND_ACC_CTOR;
 		}
 	} else if (zend_string_equals_literal(lcmname, ZEND_DESTRUCTOR_FUNC_NAME)) {
-		(ce)->destructor = (fe); (fe)->common.fn_flags |= ZEND_ACC_DTOR;
+		(ce)->destructor = (fe);
+		(fe)->common.fn_flags |= ZEND_ACC_DTOR;
 	} else if (zend_string_equals_literal(lcmname, ZEND_GET_FUNC_NAME)) {
 		(ce)->__get = (fe);
 		ensure_all_objects_of_class_have_magic_methods(ce);
@@ -94,18 +98,30 @@ void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string* lcmname, zen
 /** }}} */
 
 /* {{{ PHP_RUNKIT_DEL_MAGIC_METHOD */
-void PHP_RUNKIT_DEL_MAGIC_METHOD(zend_class_entry *ce, const zend_function *fe) {
-	if      ((ce)->constructor == (fe))       (ce)->constructor      = NULL;
-	else if ((ce)->destructor == (fe))        (ce)->destructor       = NULL;
-	else if ((ce)->__get == (fe))             (ce)->__get            = NULL;
-	else if ((ce)->__set == (fe))             (ce)->__set            = NULL;
-	else if ((ce)->__unset == (fe))           (ce)->__unset          = NULL;
-	else if ((ce)->__isset == (fe))           (ce)->__isset          = NULL;
-	else if ((ce)->__call == (fe))            (ce)->__call           = NULL;
-	else if ((ce)->__callstatic == (fe))      (ce)->__callstatic     = NULL;
-	else if ((ce)->__tostring == (fe))        (ce)->__tostring       = NULL;
-	else if ((ce)->__debugInfo == (fe))       (ce)->__debugInfo      = NULL;
-	else if ((ce)->clone == (fe))             (ce)->clone            = NULL;
+void PHP_RUNKIT_DEL_MAGIC_METHOD(zend_class_entry *ce, const zend_function *fe)
+{
+	if ((ce)->constructor == (fe))
+		(ce)->constructor = NULL;
+	else if ((ce)->destructor == (fe))
+		(ce)->destructor = NULL;
+	else if ((ce)->__get == (fe))
+		(ce)->__get = NULL;
+	else if ((ce)->__set == (fe))
+		(ce)->__set = NULL;
+	else if ((ce)->__unset == (fe))
+		(ce)->__unset = NULL;
+	else if ((ce)->__isset == (fe))
+		(ce)->__isset = NULL;
+	else if ((ce)->__call == (fe))
+		(ce)->__call = NULL;
+	else if ((ce)->__callstatic == (fe))
+		(ce)->__callstatic = NULL;
+	else if ((ce)->__tostring == (fe))
+		(ce)->__tostring = NULL;
+	else if ((ce)->__debugInfo == (fe))
+		(ce)->__debugInfo = NULL;
+	else if ((ce)->clone == (fe))
+		(ce)->clone = NULL;
 	else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && (ce)->serialize_func == (fe))
 		(ce)->serialize_func   = NULL;
 	else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && (ce)->unserialize_func == (fe))

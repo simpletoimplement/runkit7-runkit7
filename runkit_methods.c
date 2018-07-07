@@ -27,7 +27,8 @@
 
 /* {{{ _php_runkit_get_method_prototype
 	Locates the prototype method with name func_lower in the inheritance chain of ce. */
-static inline zend_function* _php_runkit_get_method_prototype(zend_class_entry *ce, zend_string* func_lower) {
+static inline zend_function *_php_runkit_get_method_prototype(zend_class_entry *ce, zend_string *func_lower)
+{
 	zend_class_entry *pce = ce;
 	zend_function *proto = NULL;
 
@@ -44,8 +45,9 @@ static inline zend_function* _php_runkit_get_method_prototype(zend_class_entry *
 /* {{{ php_runkit_fetch_class_int
        Fetches the class entry **without** using the autoloader.
 	   This could be any class entry type (interface, user-defined class, internal class, etc.) */
-zend_class_entry *php_runkit_fetch_class_int(zend_string *classname) {
-	return zend_lookup_class_ex(classname, (zval*) /* key = */ NULL, /* use_autoload = */ (int)0);
+zend_class_entry *php_runkit_fetch_class_int(zend_string *classname)
+{
+	return zend_lookup_class_ex(classname, (zval *)/* key = */ NULL, /* use_autoload = */ (int)0);
 }
 /* }}} */
 
@@ -76,7 +78,7 @@ zend_class_entry *php_runkit_fetch_class(zend_string *classname)
 
 /* {{{ php_runkit_fetch_interface
  */
-int php_runkit_fetch_interface(zend_string* classname, zend_class_entry **pce)
+int php_runkit_fetch_interface(zend_string *classname, zend_class_entry **pce)
 {
 	if ((*pce = php_runkit_fetch_class_int(classname)) == NULL) {
 		return FAILURE;
@@ -93,11 +95,11 @@ int php_runkit_fetch_interface(zend_string* classname, zend_class_entry **pce)
 
 /* {{{ php_runkit_fetch_class_method
  */
-static int php_runkit_fetch_class_method(zend_string* classname, zend_string* fname, zend_class_entry **pce, zend_function **pfe)
+static int php_runkit_fetch_class_method(zend_string *classname, zend_string *fname, zend_class_entry **pce, zend_function **pfe)
 {
 	zend_class_entry *ce;
 	zend_function *fe;
-	zend_string* fname_lower;
+	zend_string *fname_lower;
 
 	if ((ce = php_runkit_fetch_class_int(classname)) == NULL) {
 		return FAILURE;
@@ -135,7 +137,8 @@ static int php_runkit_fetch_class_method(zend_string* classname, zend_string* fn
 /* }}} */
 
 /* {{{ php_runkit_update_children_methods_foreach */
-void php_runkit_update_children_methods_foreach(HashTable *ht, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe) {
+void php_runkit_update_children_methods_foreach(HashTable *ht, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe)
+{
 	zend_class_entry *ce;
 	ZEND_HASH_FOREACH_PTR(ht, ce) {
 		php_runkit_update_children_methods(ce, ancestor_class, parent_class, fe, fname_lower, orig_fe);
@@ -145,7 +148,8 @@ void php_runkit_update_children_methods_foreach(HashTable *ht, zend_class_entry 
 
 
 /* {{{ php_runkit_inherit_magic */
-inline static void php_runkit_inherit_magic(zend_class_entry *ce, const zend_function *fe, const zend_function *orig_fe) {
+inline static void php_runkit_inherit_magic(zend_class_entry *ce, const zend_function *fe, const zend_function *orig_fe)
+{
 	if ((ce)->__get == (orig_fe) && (ce)->parent->__get == (fe)) {
 		(ce)->__get        = (ce)->parent->__get;
 		ensure_all_objects_of_class_have_magic_methods(ce);
@@ -184,7 +188,8 @@ inline static void php_runkit_inherit_magic(zend_class_entry *ce, const zend_fun
 
 /* {{{ php_runkit_update_children_methods
 	Scan the class_table for children of the class just updated */
-void php_runkit_update_children_methods(zend_class_entry *ce, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe) {
+void php_runkit_update_children_methods(zend_class_entry *ce, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe)
+{
 
 	// TODO: This will probably segfault. Is there a type safe version of this?
 	zend_class_entry *scope;
@@ -232,7 +237,8 @@ void php_runkit_update_children_methods(zend_class_entry *ce, zend_class_entry *
 /* }}} */
 
 /* {{{ php_runkit_clean_children_methods_foreach */
-void php_runkit_clean_children_methods_foreach(HashTable *ht, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_string *fname_lower, zend_function *orig_cfe) {
+void php_runkit_clean_children_methods_foreach(HashTable *ht, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_string *fname_lower, zend_function *orig_cfe)
+{
 	zend_class_entry *ce;
 	ZEND_HASH_FOREACH_PTR(ht, ce) {
 		php_runkit_clean_children_methods(ce, ancestor_class, parent_class, fname_lower, orig_cfe);
@@ -285,7 +291,7 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 	parsed_is_strict is_strict;
 	zend_class_entry *ce, *ancestor_class = NULL;
 	zend_function *func, *fe, *source_fe = NULL, *orig_fe = NULL;
-	zend_string* methodname_lower;
+	zend_string *methodname_lower;
 	long argc = ZEND_NUM_ARGS();
 	long flags = ZEND_ACC_PUBLIC;
 	zval *args;
@@ -414,7 +420,7 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 	// TODO: Seeing if this broke it.
 	php_runkit_clear_all_functions_runtime_cache();
 
-	if(orig_fe) {
+	if (orig_fe) {
 		php_runkit_remove_function_from_reflection_objects(orig_fe);
 	}
 
@@ -453,11 +459,11 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 
 /* {{{ php_runkit_method_copy
  */
-static int php_runkit_method_copy(zend_string *dclass, zend_string* dfunc, zend_string* sclass, zend_string* sfunc)
+static int php_runkit_method_copy(zend_string *dclass, zend_string *dfunc, zend_string *sclass, zend_string *sfunc)
 {
 	zend_class_entry *dce, *sce;
 	zend_function *sfe, *dfe;
-	zend_string* dfunc_lower;
+	zend_string *dfunc_lower;
 	zend_function *fe;
 
 	if (php_runkit_fetch_class_method(sclass, sfunc, &sce, &sfe) == FAILURE) {
@@ -533,9 +539,9 @@ PHP_FUNCTION(runkit_method_remove)
 {
 	zend_class_entry *ce, *ancestor_class = NULL;
 	zend_function *fe;
-	zend_string* methodname;
-	zend_string* classname;
-	zend_string* methodname_lower;
+	zend_string *methodname;
+	zend_string *classname;
+	zend_string *methodname_lower;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "SS", &classname, &methodname) == FAILURE) {
 		php_error_docref(NULL, E_WARNING, "Can't parse parameters");
@@ -581,12 +587,11 @@ PHP_FUNCTION(runkit_method_rename)
 {
 	zend_class_entry *ce, *ancestor_class = NULL;
 	zend_function *fe, *func, *old_fe;
-	zend_string* classname;
-	zend_string* methodname;
-	zend_string* newname;
-	zend_string* newname_lower;
-	zend_string* methodname_lower;
-
+	zend_string *classname;
+	zend_string *methodname;
+	zend_string *newname;
+	zend_string *newname_lower;
+	zend_string *methodname_lower;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "SSS",	&classname, &methodname, &newname) == FAILURE) {
 		RETURN_FALSE;
@@ -652,7 +657,7 @@ PHP_FUNCTION(runkit_method_rename)
 	}
 
 	fe->common.scope = ce;
-	fe->common.prototype = _php_runkit_get_method_prototype(ce->parent, newname_lower);;
+	fe->common.prototype = _php_runkit_get_method_prototype(ce->parent, newname_lower);
 
 	PHP_RUNKIT_ADD_MAGIC_METHOD(ce, newname_lower, fe, NULL);
 	php_runkit_update_children_methods_foreach(EG(class_table), ce, ce, fe, newname_lower, NULL);
@@ -668,7 +673,7 @@ PHP_FUNCTION(runkit_method_rename)
 	Copy a method from one name to another or from one class to another */
 PHP_FUNCTION(runkit_method_copy)
 {
-	zend_string* dclass, *dfunc, *sclass, *sfunc = NULL;
+	zend_string *dclass, *dfunc, *sclass, *sfunc = NULL;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "SSS|S", &dclass, &dfunc, &sclass, &sfunc) == FAILURE) {
 		RETURN_FALSE;
@@ -691,4 +696,3 @@ PHP_FUNCTION(runkit_method_copy)
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
-

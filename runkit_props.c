@@ -31,7 +31,8 @@ runkit_property_modify() may be added in the future (will change the value, but 
 #ifdef PHP_RUNKIT_MANIPULATION_PROPERTIES
 
 /* {{{ php_runkit_make_object_property_public */
-static inline void php_runkit_make_object_property_public(zend_string *propname, zend_object *object, int offset, zend_property_info *property_info_ptr) {
+static inline void php_runkit_make_object_property_public(zend_string *propname, zend_object *object, int offset, zend_property_info *property_info_ptr)
+{
 	if ((property_info_ptr->flags & (ZEND_ACC_PRIVATE | ZEND_ACC_PROTECTED | ZEND_ACC_SHADOW))) {
 		zval *prop_val = NULL;
 		if (!object->properties) {
@@ -50,8 +51,13 @@ static inline void php_runkit_make_object_property_public(zend_string *propname,
 			}
 			// TODO: This is probably going to cause a segfault.
 			zend_hash_update(object->properties, propname, prop_val);
-			php_error_docref(NULL, E_NOTICE, "Making %s::%s public to remove it "
-					 "from class without objects overriding", ZSTR_VAL(object->ce->name), ZSTR_VAL(propname));
+			php_error_docref(
+				NULL,
+				E_NOTICE,
+				"Making %s::%s public to remove it from class without objects overriding",
+				ZSTR_VAL(object->ce->name),
+				ZSTR_VAL(propname)
+			);
 		}
 	}
 }
@@ -73,9 +79,10 @@ static void php_runkit_remove_children_def_props(zend_class_entry *ce, zend_clas
 /* }}} */
 
 /* {{{ php_runkit_remove_property_by_full_name */
-static int php_runkit_remove_property_by_full_name(zval *pDest, void *argument) {
+static int php_runkit_remove_property_by_full_name(zval *pDest, void *argument)
+{
 	const zend_property_info *prop = Z_PTR_P(pDest);
-	const zend_property_info *comp_prop = (zend_property_info*) argument;
+	const zend_property_info *comp_prop = (zend_property_info *)argument;
 
 	ZEND_ASSERT(Z_TYPE_P(pDest) == IS_PTR);
 
@@ -90,7 +97,9 @@ static int php_runkit_remove_property_by_full_name(zval *pDest, void *argument) 
 /* {{{ php_runkit_remove_overlapped_property_from_child
        Clean private properties of children by offset */
 static void php_runkit_remove_overlapped_property_from_childs(zend_class_entry *ce, zend_class_entry *parent_class, zend_string *propname, int offset, zend_bool is_static, zend_bool remove_from_objects, zend_property_info *property_info_ptr);
-static void php_runkit_remove_overlapped_property_from_childs_foreach(HashTable* ht, zend_class_entry *parent_class, zend_string *propname, int offset, zend_bool is_static, zend_bool remove_from_objects, zend_property_info *property_info_ptr) {
+
+static void php_runkit_remove_overlapped_property_from_childs_foreach(HashTable *ht, zend_class_entry *parent_class, zend_string *propname, int offset, zend_bool is_static, zend_bool remove_from_objects, zend_property_info *property_info_ptr)
+{
 	zend_class_entry *ce;
 	ZEND_HASH_FOREACH_PTR(ht, ce) {
 		php_runkit_remove_overlapped_property_from_childs(ce, parent_class, propname, offset, is_static, remove_from_objects, property_info_ptr);
@@ -102,7 +111,8 @@ static void php_runkit_remove_overlapped_property_from_childs_foreach(HashTable*
 
 /* {{{ php_runkit_remove_overlapped_property_from_child
        Clean private properties of child by offset */
-static void php_runkit_remove_overlapped_property_from_childs(zend_class_entry *ce, zend_class_entry *parent_class, zend_string *propname, int offset, zend_bool is_static, zend_bool remove_from_objects, zend_property_info *property_info_ptr) {
+static void php_runkit_remove_overlapped_property_from_childs(zend_class_entry *ce, zend_class_entry *parent_class, zend_string *propname, int offset, zend_bool is_static, zend_bool remove_from_objects, zend_property_info *property_info_ptr)
+{
 	uint32_t i;
 	zend_property_info *p;
 	zval *table;
@@ -155,8 +165,8 @@ st_success:
 /* }}} */
 
 /* {{{ php_runkit_def_prop_add_int */
-int php_runkit_def_prop_add_int(zend_class_entry *ce, zend_string* propname, zval *copyval, long visibility,
-                                zend_string* doc_comment, zend_class_entry *definer_class, int override,
+int php_runkit_def_prop_add_int(zend_class_entry *ce, zend_string *propname, zval *copyval, long visibility,
+				zend_string *doc_comment, zend_class_entry *definer_class, int override,
                                 int override_in_objects)
 {
 	uint32_t i;
@@ -191,7 +201,7 @@ int php_runkit_def_prop_add_int(zend_class_entry *ce, zend_string* propname, zva
 			                 ZSTR_VAL(ce->name), (prop_info_ptr->flags & ZEND_ACC_STATIC) ? "::$" : "->", ZSTR_VAL(propname));
 			return FAILURE;
 		} else {
-			php_runkit_def_prop_remove_int(ce, propname, NULL, (zend_bool) 0, override_in_objects, (zend_property_info*) NULL);
+			php_runkit_def_prop_remove_int(ce, propname, NULL, (zend_bool)0, override_in_objects, (zend_property_info *)NULL);
 			php_runkit_clear_all_functions_runtime_cache();
 		}
 	}
@@ -418,8 +428,7 @@ int php_runkit_def_prop_remove_int(zend_class_entry *ce, zend_string *propname, 
 		if (parent_property &&
 		    (parent_property->offset != property_info_ptr->offset ||
 		     parent_property->ce != property_info_ptr->ce ||
-		     ((parent_property->flags & ZEND_ACC_STATIC) != (property_info_ptr->flags & ZEND_ACC_STATIC))
-		    )) {
+		     ((parent_property->flags & ZEND_ACC_STATIC) != (property_info_ptr->flags & ZEND_ACC_STATIC)))) {
 			return SUCCESS;
 		}
 
@@ -445,7 +454,7 @@ int php_runkit_def_prop_remove_int(zend_class_entry *ce, zend_string *propname, 
 		flags = property_info_ptr->flags;
 		offset = property_info_ptr->offset;
 
-		if (property_info_ptr->flags & (ZEND_ACC_PRIVATE|ZEND_ACC_SHADOW)) {
+		if (property_info_ptr->flags & (ZEND_ACC_PRIVATE | ZEND_ACC_SHADOW)) {
 			if (offset >= 0) {
 				php_runkit_remove_overlapped_property_from_childs_foreach(EG(class_table),
 				                               ce, propname, offset,
