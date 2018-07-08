@@ -31,7 +31,7 @@ ZEND_DECLARE_MODULE_GLOBALS(runkit)
 	Return numericly indexed array of registered superglobals */
 PHP_FUNCTION(runkit_superglobals)
 {
-	zend_string* key;
+	zend_string *key;
 
 	array_init(return_value);
 	ZEND_HASH_FOREACH_STR_KEY(CG(auto_globals), key) {
@@ -281,7 +281,7 @@ zend_module_entry runkit_module_entry = {
 #if defined(PHP_RUNKIT_SUPERGLOBALS) || defined(PHP_RUNKIT_MANIPULATION)
 PHP_INI_BEGIN()
 #ifdef PHP_RUNKIT_SUPERGLOBALS
-	PHP_INI_ENTRY("runkit.superglobal", "", PHP_INI_SYSTEM|PHP_INI_PERDIR, NULL)
+	PHP_INI_ENTRY("runkit.superglobal", "", PHP_INI_SYSTEM | PHP_INI_PERDIR, NULL)
 #endif
 #ifdef PHP_RUNKIT_MANIPULATION
 	STD_PHP_INI_BOOLEAN("runkit.internal_override", "0", PHP_INI_SYSTEM, OnUpdateBool, internal_override, zend_runkit_globals, runkit_globals)
@@ -294,14 +294,17 @@ ZEND_GET_MODULE(runkit)
 #endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
-ZEND_FUNCTION(_php_runkit_removed_function) {
+ZEND_FUNCTION(_php_runkit_removed_function)
+{
 	php_error_docref(NULL, E_ERROR, "A function removed by runkit was somehow invoked");
 }
-ZEND_FUNCTION(_php_runkit_removed_method) {
+ZEND_FUNCTION(_php_runkit_removed_method)
+{
 	php_error_docref(NULL, E_ERROR, "A method removed by runkit was somehow invoked");
 }
 
-static inline void _php_runkit_init_stub_function(const char *name, void (*handler)(INTERNAL_FUNCTION_PARAMETERS), zend_function **result) {
+static inline void _php_runkit_init_stub_function(const char *name, void (*handler)(INTERNAL_FUNCTION_PARAMETERS), zend_function **result)
+{
 	*result = pemalloc(sizeof(zend_function), 1);
 	(*result)->common.function_name = zend_string_init(name, strlen(name), 1);  // TODO: Can this be persistent?
 	(*result)->common.scope = NULL;
@@ -318,7 +321,7 @@ static inline void _php_runkit_init_stub_function(const char *name, void (*handl
 #if defined(PHP_RUNKIT_SANDBOX) || defined(PHP_RUNKIT_MANIPULATION)
 static void php_runkit_globals_ctor(void *pDest)
 {
-	zend_runkit_globals *runkit_global = (zend_runkit_globals *) pDest;
+	zend_runkit_globals *runkit_global = (zend_runkit_globals *)pDest;
 #ifdef PHP_RUNKIT_SANDBOX
 	runkit_global->current_sandbox = NULL;
 #endif
@@ -351,7 +354,6 @@ static void _php_runkit_feature_constant(const char *name, size_t name_len, zend
 	c.module_number = module_number;
 	zend_register_constant(&c);
 }
-
 
 /* {{{ PHP_MINIT_FUNCTION
  */
@@ -449,7 +451,7 @@ PHP_MSHUTDOWN_FUNCTION(runkit)
 static void php_runkit_register_auto_global(char *s, int len)
 {
 	zend_auto_global *auto_global;
-	zend_string* globalName = zend_string_init(s, len, 1);
+	zend_string *globalName = zend_string_init(s, len, 1);
 	zval z;
 
 	if (zend_hash_exists(CG(auto_globals), globalName)) {
@@ -484,7 +486,8 @@ static void php_runkit_register_auto_global(char *s, int len)
 /* }}} */
 
 /* {{{ php_runkit_rinit_register_superglobals */
-static void php_runkit_rinit_register_superglobals(const char *ini_s) {
+static void php_runkit_rinit_register_superglobals(const char *ini_s)
+{
 	char *s;
 	char *p;
 	char *dup;
@@ -497,7 +500,7 @@ static void php_runkit_rinit_register_superglobals(const char *ini_s) {
 
 	s = dup = estrdup(ini_s);
 	p = strchr(s, ',');
-	while(p) {
+	while (p) {
 		if (p - s) {
 			*p = '\0';
 			php_runkit_register_auto_global(s, p - s);
@@ -575,7 +578,6 @@ PHP_RSHUTDOWN_FUNCTION(runkit)
 		FREE_HASHTABLE(RUNKIT_G(misplaced_internal_functions));
 		RUNKIT_G(misplaced_internal_functions) = NULL;
 	}
-
 
 	if (RUNKIT_G(replaced_internal_functions) && strcmp(sapi_module.name, "fpm-fcgi") == 0) {
 		/* Restore internal functions */
@@ -669,7 +671,6 @@ PHP_MINFO_FUNCTION(runkit)
 #if defined(PHP_RUNKIT_SUPERGLOBALS) || defined(PHP_RUNKIT_MANIPULATION)
 	DISPLAY_INI_ENTRIES();
 #endif
-
 }
 /* }}} */
 

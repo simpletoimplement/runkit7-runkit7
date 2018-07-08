@@ -22,7 +22,8 @@
 #define PHP_RUNKIT_ZVAL_H
 
 /* {{{ php_runkit_zval_resolve_class_constant */
-inline static void php_runkit_zval_resolve_class_constant(zval *p, zend_class_entry *ce) {
+inline static void php_runkit_zval_resolve_class_constant(zval *p, zend_class_entry *ce)
+{
 	if (Z_CONSTANT_P(p)) {
 #if PHP_VERSION_ID >= 70100
         // TODO: What does this do?
@@ -34,7 +35,6 @@ inline static void php_runkit_zval_resolve_class_constant(zval *p, zend_class_en
 	}
 }
 /* }}} */
-
 
 #define PHP_RUNKIT_ZVAL_CONVERT_TO_STRING_IF_NEEDED(val, val_copy) \
 	if (Z_TYPE_P(member) != IS_STRING) { \

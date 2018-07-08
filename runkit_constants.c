@@ -33,7 +33,7 @@
 #endif
 
 // validate_constant_array copied from Zend/zend_builtin_functions.c. This accepts IS_ARRAY
-static int validate_constant_array(zval * const z) /* {{{ */
+static int validate_constant_array(zval *const z) /* {{{ */
 {
 	int ret = 1;
 	HashTable *ht;
@@ -152,14 +152,15 @@ static zend_bool runkit_copy_constant_zval(zval *dst, zval *src) /* {{{ */
 }
 /* }}} */
 
-static zend_bool php_runkit_remove_from_constants_table(zend_class_entry *ce, zend_string *cname) {
+static zend_bool php_runkit_remove_from_constants_table(zend_class_entry *ce, zend_string *cname)
+{
 #if PHP_VERSION_ID >= 70100
 	zend_class_constant *c;
 	c = zend_hash_find_ptr(&ce->constants_table, cname);
 	if (c == NULL) {
 		return 0;
 	}
-	switch(Z_TYPE(c->value)) {
+	switch (Z_TYPE(c->value)) {
 	case IS_STRING:
 		zval_ptr_dtor(&(c->value));
 		ZVAL_NULL(&(c->value));  // Reset the type to NULL so that the entry won't be corrupted when added again.
@@ -180,7 +181,7 @@ static zend_bool php_runkit_remove_from_constants_table(zend_class_entry *ce, ze
  */
 static int php_runkit_fetch_const(zend_string *cname_zs, zend_constant **constant, char **found_cname)
 {
-	char* cname = ZSTR_VAL(cname_zs);
+	char *cname = ZSTR_VAL(cname_zs);
 	int cname_len = ZSTR_LEN(cname_zs);
 	char *lcase = NULL;
 	char *old_cname = cname;
@@ -193,7 +194,7 @@ static int php_runkit_fetch_const(zend_string *cname_zs, zend_constant **constan
 		--cname_len;
 	}
 
-	separator = (char *) zend_memrchr(cname, '\\', cname_len);
+	separator = (char *)zend_memrchr(cname, '\\', cname_len);
 	if (separator) {
 		int nsname_len = separator - cname;
 		char *constant_name = separator + 1;
@@ -231,7 +232,8 @@ static int php_runkit_fetch_const(zend_string *cname_zs, zend_constant **constan
 #if PHP_VERSION_ID >= 70100
 /* {{{ php_runkit_class_constant_ctor
 Creates a class constant for a given class entry */
-static zend_class_constant *php_runkit_class_constant_ctor(zval *value, zend_class_entry *ce, int access_type, zend_string *doc_comment) {
+static zend_class_constant *php_runkit_class_constant_ctor(zval *value, zend_class_entry *ce, int access_type, zend_string *doc_comment)
+{
 	zend_class_constant *c;
 	// TODO add tests of modifying internal classes
 	if (ce->type == ZEND_INTERNAL_CLASS) {
@@ -250,7 +252,8 @@ static zend_class_constant *php_runkit_class_constant_ctor(zval *value, zend_cla
 /* }}} */
 #endif
 
-static int php_runkit_class_constant_add_raw(zval *value, zend_class_entry *ce, zend_string *constname RUNKIT_CONST_FLAGS_DC(access_type), zend_string *doc_comment) {
+static int php_runkit_class_constant_add_raw(zval *value, zend_class_entry *ce, zend_string *constname RUNKIT_CONST_FLAGS_DC(access_type), zend_string *doc_comment)
+{
 #if PHP_VERSION_ID >= 70100
 	zend_class_constant *c;
 #endif
@@ -311,7 +314,8 @@ static int php_runkit_class_constant_remove(zend_string *classname, zend_string 
 #if PHP_VERSION_ID >= 70100
 		, zend_long *old_access_type
 #endif
-		) {
+					    )
+{
 	zend_class_entry *ce;
 #if PHP_VERSION_ID >= 70100
 	zend_class_constant *c;
@@ -343,7 +347,8 @@ static int php_runkit_class_constant_remove(zend_string *classname, zend_string 
 /* }}}*/
 
 /* {{{ php_runkit_global_constant_remove */
-static int php_runkit_global_constant_remove(zend_string *constname) {
+static int php_runkit_global_constant_remove(zend_string *constname)
+{
 	zend_constant *constant;
 	char *found_constname;
 
@@ -371,7 +376,7 @@ static int php_runkit_global_constant_remove(zend_string *constname) {
 
 /* {{{ php_runkit_constant_remove
  */
-static int php_runkit_constant_remove(zend_string* classname, zend_string* constname
+static int php_runkit_constant_remove(zend_string *classname, zend_string *constname
 #if PHP_VERSION_ID >= 70100
 		, zend_long *old_access_type
 #endif
@@ -389,7 +394,8 @@ static int php_runkit_constant_remove(zend_string* classname, zend_string* const
 /* }}} */
 
 /* {{{ php_runkit_check_has_constant_type */
-static zend_bool php_runkit_check_has_constant_type(const zval *value) {
+static zend_bool php_runkit_check_has_constant_type(const zval *value)
+{
 	switch (Z_TYPE_P(value)) {
 		case IS_LONG:
 		case IS_DOUBLE:
@@ -400,7 +406,7 @@ static zend_bool php_runkit_check_has_constant_type(const zval *value) {
 		case IS_NULL:
 			return 1;
 		case IS_ARRAY:
-			return validate_constant_array((zval*) value);
+		return validate_constant_array((zval *)value);
 		default:
 			php_error_docref(NULL, E_WARNING, "Constants may only evaluate to scalar values or arrays");
 			return 0;
@@ -409,7 +415,8 @@ static zend_bool php_runkit_check_has_constant_type(const zval *value) {
 /* }}} */
 
 /* {{{ php_runkit_global_constant_add */
-static int php_runkit_global_constant_add(zend_string *constname, zval *value) {
+static int php_runkit_global_constant_add(zend_string *constname, zval *value)
+{
 	zend_constant c;
 
 	// TODO: Memory management properly
@@ -430,7 +437,8 @@ static int php_runkit_global_constant_add(zend_string *constname, zval *value) {
 /* }}} */
 
 /* {{{ php_runkit_class_constant_add */
-static int php_runkit_class_constant_add(zend_string *classname, zend_string *constname, zval *value RUNKIT_CONST_FLAGS_DC(access_type)) {
+static int php_runkit_class_constant_add(zend_string *classname, zend_string *constname, zval *value RUNKIT_CONST_FLAGS_DC(access_type))
+{
 	zend_class_entry *ce;
 
 	if ((ce = php_runkit_fetch_class(classname)) == NULL) {
@@ -470,10 +478,9 @@ static int php_runkit_class_constant_add(zend_string *classname, zend_string *co
 }
 /* }}} */
 
-
 /* {{{ php_runkit_constant_add
        Adds a global or class constant value. This is a global constant if classname is empty or null. */
-static int php_runkit_constant_add(zend_string* classname, zend_string* constname, zval *value RUNKIT_CONST_FLAGS_DC(access_type))
+static int php_runkit_constant_add(zend_string *classname, zend_string *constname, zval *value RUNKIT_CONST_FLAGS_DC(access_type))
 {
 	if (!php_runkit_check_has_constant_type(value)) {
 		return FAILURE;
@@ -611,4 +618,3 @@ PHP_FUNCTION(runkit_constant_add)
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
-

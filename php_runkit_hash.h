@@ -25,13 +25,14 @@
 #ifdef PHP_RUNKIT_MANIPULATION
 
 #include "runkit.h"
+
 #include "Zend/zend_types.h"
 #include "Zend/zend_types.h"
 
 /* {{{ php_runkit_hash_get_bucket */
 // Copied from zend_hash_find_bucket of zend_hash.c and modified slightly.
 // Same as the implementation in 7.0 and 7.1
-inline static Bucket *php_runkit_zend_hash_find_bucket(HashTable *ht, zend_string* key)
+inline static Bucket *php_runkit_zend_hash_find_bucket(HashTable *ht, zend_string *key)
 {
 	zend_ulong h;
 	uint32_t nIndex;
@@ -61,7 +62,8 @@ inline static Bucket *php_runkit_zend_hash_find_bucket(HashTable *ht, zend_strin
 /* {{{ php_runkit_hash_move_runkit_to_front }}} */
 // Moves the runkit module to the front of the list (After "core", but before modules such as "session"
 // so that it will be unloaded after all of the PHP code is executed.
-inline static void php_runkit_hash_move_runkit_to_front() {
+inline static void php_runkit_hash_move_runkit_to_front()
+{
 	zend_ulong numkey;
 	zend_string *strkey;
 	zend_string *runkit_str;

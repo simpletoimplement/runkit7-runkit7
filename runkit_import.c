@@ -29,8 +29,9 @@
 #ifdef PHP_RUNKIT_MANIPULATION
 /* {{{ php_runkit_import_functions
  */
-static int php_runkit_import_functions(HashTable *function_table, long flags
-                                       , zend_bool *clear_cache)
+static int php_runkit_import_functions(HashTable *function_table,
+		                               long flags,
+									   zend_bool *clear_cache)
 {
 	zend_function *fe;
 	zend_ulong idx;
@@ -462,7 +463,7 @@ static zend_op_array *php_runkit_compile_filename(int type, zval *filename)
 	}
 	zend_destroy_file_handle(&file_handle);
 
-	if (filename==&tmp) {
+	if (filename == &tmp) {
 		zval_dtor(&tmp);
 	}
 	return retval;
@@ -555,11 +556,11 @@ PHP_FUNCTION(runkit_import)
 		local_compile_filename = php_runkit_compile_filename;
 	}
 
-	tmp_class_table = (HashTable *) emalloc(sizeof(HashTable));
+	tmp_class_table = (HashTable *)emalloc(sizeof(HashTable));
 	zend_hash_init_ex(tmp_class_table, 64, NULL, ZEND_CLASS_DTOR, 0, 0);
-	tmp_eg_class_table = (HashTable *) emalloc(sizeof(HashTable));
+	tmp_eg_class_table = (HashTable *)emalloc(sizeof(HashTable));
 	zend_hash_init_ex(tmp_eg_class_table, 10, NULL, ZEND_CLASS_DTOR, 0, 0);
-	tmp_function_table = (HashTable *) emalloc(sizeof(HashTable));
+	tmp_function_table = (HashTable *)emalloc(sizeof(HashTable));
 	zend_hash_init_ex(tmp_function_table, 100, NULL, ZEND_FUNCTION_DTOR, 0, 0);
 
 	current_class_table = CG(class_table);
@@ -600,7 +601,7 @@ PHP_FUNCTION(runkit_import)
 	if (HAS_EARLY_BINDING(new_op_array)) {
 		// For emitting errors about inheritance, PHP expects the compiled filename to be set.
 		// Allows emitting reasonable error messages for "Cannot make static method X::foo() non static"
-		zend_string * const original_filename = zend_get_compiled_filename();
+		zend_string *const original_filename = zend_get_compiled_filename();
 
 		zend_bool orig_in_compilation = CG(in_compilation);
 		uint32_t opline_num = compute_early_binding_opline_num(new_op_array);
@@ -609,7 +610,7 @@ PHP_FUNCTION(runkit_import)
 		CG(in_compilation) = 1;
 		while (opline_num != (uint32_t)-1) {
 			// TODO: Check if it's still op2, figure out the set of expected opcodes
-			const zend_op * const parent_name_opcode = &(new_op_array->opcodes[opline_num - 1]);
+			const zend_op *const parent_name_opcode = &(new_op_array->opcodes[opline_num - 1]);
 			zval *parent_name = RUNKIT_RT_CONSTANT(new_op_array, parent_name_opcode, parent_name_opcode->op2);
 			zval *key = parent_name + 1;
 			zend_class_entry *pce;
