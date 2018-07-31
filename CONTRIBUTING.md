@@ -64,7 +64,7 @@ Notes on `HashTable`s
 
 Changes to the internal representation of `HashTable`s require a lot of code changes.
 
-Miscellaneous notes on differences betwen PHP5 and PHP7
+Miscellaneous notes on differences between PHP5 and PHP7
 
 - zend opcode, opline, and `zend_function`s have changed in PHP7.
 - Stack frame layout has changed.

@@ -7,7 +7,7 @@ runkit_import() Importing and overriding properties which were modified via refl
 ?>
 --FILE--
 <?php
-require_once('runkit_import_properies_modified_via_reflection.inc');
+require_once('runkit_import_properties_modified_via_reflection.inc');
 
 $oTestReload = new TestReload('TestClass');
 unset($oTestReload);
@@ -28,7 +28,7 @@ class TestReload{
 		$this->GetProperties();
 
 		// Reload class
-		$oReload = new Reload('runkit_import_properies_modified_via_reflection.inc');
+		$oReload = new Reload('runkit_import_properties_modified_via_reflection.inc');
 		unset($oReload);
 
 		// Verify the property values were reset to default

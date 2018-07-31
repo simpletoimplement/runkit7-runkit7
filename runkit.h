@@ -645,7 +645,7 @@ inline static zend_bool php_runkit_parse_args_to_zvals(int argc, zval **pargs)
 		return 0;
 	}
 	if (zend_get_parameters_array_ex(argc, *pargs) == FAILURE) {
-		php_error_docref(NULL, E_ERROR, "Internal error occured while parsing arguments");
+		php_error_docref(NULL, E_ERROR, "Internal error occurred while parsing arguments");
 		efree(*pargs);
 		return 0;
 	}

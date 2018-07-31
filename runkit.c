@@ -635,7 +635,7 @@ PHP_MINFO_FUNCTION(runkit)
 	php_info_print_table_header(2, "version", PHP_RUNKIT_VERSION);
 
 #ifdef PHP_RUNKIT_CLASSKIT_COMPAT
-	php_info_print_table_header(2, "classkit compatability", "enabled");
+	php_info_print_table_header(2, "classkit compatibility", "enabled");
 #endif
 
 #ifdef PHP_RUNKIT_SUPERGLOBALS

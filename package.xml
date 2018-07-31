@@ -16,18 +16,18 @@ Define customized superglobal variables for general purpose use.
   <email></email>
   <active>yes</active>
  </lead>
- <date>2018-07-04</date>
+ <date>2018-07-30</date>
  <version>
-  <release>1.0.7</release>
-  <api>1.0.7</api>
+  <release>1.0.8dev</release>
+  <api>1.0.8dev</api>
  </version>
  <stability>
-  <release>alpha</release>
-  <api>alpha</api>
+  <release>dev</release>
+  <api>dev</api>
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Fix crashes seen in php 7.3 alphas when function and method manipulation is used. (https://github.com/runkit7/runkit7/issues/126, https://github.com/runkit7/runkit7/issues/141)
+- Fix typos in documentation and tests.
  </notes>
  <contents>
   <dir name="/">
@@ -165,8 +165,8 @@ Define customized superglobal variables for general purpose use.
     <file name="runkit_import_method_with_static_var.inc" role="test" />
     <file name="runkit_import_method_with_static_var.phpt" role="test" />
     <file name="runkit_import_non_existent_file.phpt" role="test" />
-    <file name="runkit_import_properies_modified_via_reflection.inc" role="test" />
-    <file name="runkit_import_properies_modified_via_reflection.phpt" role="test" />
+    <file name="runkit_import_properties_modified_via_reflection.inc" role="test" />
+    <file name="runkit_import_properties_modified_via_reflection.phpt" role="test" />
     <file name="runkit_import_static_properties_override.inc" role="test" />
     <file name="runkit_import_static_properties_override.phpt" role="test" />
     <file name="runkit_import_with_syntax_error.inc" role="test" />
@@ -637,7 +637,7 @@ Define customized superglobal variables for general purpose use.
    <notes>Allow building part of runkit while leaving other functionality out.
 --enable-runkit works as before, building all runkit features
 Individual features may enabled or disable by using
---enable-runkit-featurename or --disbale-runkit-featurename
+--enable-runkit-featurename or --disable-runkit-featurename
 where featurename is any of:
     modify  - Runtime manipulation
     super   - Superglobal registration
@@ -690,7 +690,7 @@ Added functions:
   runkit_return_value_used()
   runkit_default_property_add()
 Implemented class property importing in runkit_import()
-Began refactor for PHP6 compatability
+Began refactor for PHP6 compatibility
    </notes>
   </release>
 
@@ -710,7 +710,7 @@ Began refactor for PHP6 compatability
 Workaround bug when using runkit_import() with opcode caches by bypassing cache for imported file.
 Fix using runkit_import() with multiple classes (Thanks to Stuart Herbert for the patch)
 Fix various reference issues for parameters passed to manipulation functions.
-Fix C++ compatability in sandbox source files.
+Fix C++ compatibility in sandbox source files.
 Fix parent_scope support (was only applied to property_read and eval/include/require ops)
 Expand parent_scope setting to allow variable arrays as symbol tables.
    </notes>
@@ -740,7 +740,7 @@ parent_call - Can call parent&apos;s functions
 parent_eval - Can eval arbitrary code in parent scope
 parent_include - Can include/require code in parent scope
 parent_echo - Can echo/print data (bypass output_handler)
-parent_die - Can kill parent (commiting suicide in the process)
+parent_die - Can kill parent (committing suicide in the process)
 
 A special parent_scope setting modifies the active symbol table of the parent
 as seen from the child according to:

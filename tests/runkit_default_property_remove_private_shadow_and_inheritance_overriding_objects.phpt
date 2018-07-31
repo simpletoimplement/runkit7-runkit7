@@ -18,7 +18,7 @@ class RunkitSubClass extends RunkitClass {
 }
 
 class RunkitSubSubClass extends RunkitSubClass {
-    private $privateProperty = "overriden";
+    private $privateProperty = "overridden";
     function getPrivate1() {return $this->privateProperty;}
 }
 
@@ -57,11 +57,11 @@ RunkitSubClass Object
 )
 RunkitSubSubClass Object
 (
-    [privateProperty%sprivate] => overriden
+    [privateProperty%sprivate] => overridden
 )
 RunkitSubSubSubClass Object
 (
-    [privateProperty%sprivate] => overriden
+    [privateProperty%sprivate] => overridden
 )
 RunkitClass Object
 (
@@ -72,11 +72,11 @@ RunkitSubClass Object
 )
 RunkitSubSubClass Object
 (
-    [privateProperty%sprivate] => overriden
+    [privateProperty%sprivate] => overridden
 )
 RunkitSubSubSubClass Object
 (
-    [privateProperty%sprivate] => overriden
+    [privateProperty%sprivate] => overridden
 )
 original
 

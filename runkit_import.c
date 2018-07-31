@@ -387,7 +387,7 @@ static int php_runkit_import_classes(HashTable *class_table, const long flags
 			zend_string_release(classname_lower);
 
 			if ((dce = php_runkit_fetch_class(ce->name)) == NULL) {
-				/* Oddly non-existant target class or error retreiving it... Or it's an internal class... */
+				/* Oddly non-existent target class or error retrieving it... Or it's an internal class... */
 				php_error_docref(NULL, E_WARNING, "Cannot redeclare class %s", ZSTR_VAL(ce->name));
 				continue;
 			}
