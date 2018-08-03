@@ -17,9 +17,18 @@ dnl PHP_ARG_ENABLE(runkit-sandbox, whether to enable Sandbox support,
 dnl [  --enable-runkit-sandbox   Enable Runkit_Sandbox (Requires ZTS)], inherit, no)
 
 if test "$PHP_RUNKIT" != "no"; then
-  if test "$PHP_RUNKIT_MODIFY" = "inherit"; then
-    PHP_RUNKIT_MODIFY=yes
-  fi
+  AC_MSG_CHECKING([if this is built with PHP >= 7.0])
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+  #include <$phpincludedir/main/php_version.h>
+  ]], [[
+#if PHP_MAJOR_VERSION < 7
+#error PHP < 7
+#endif
+  ]])],[
+    AC_MSG_RESULT([this is PHP 7 or newer])
+  ],[
+    AC_MSG_ERROR([Runkit7 requires PHP 7.0 or newer, phpize was run with PHP < 7]);
+  ])
   if test "$PHP_RUNKIT_SUPER" = "inherit"; then
     PHP_RUNKIT_SUPER=yes
   fi

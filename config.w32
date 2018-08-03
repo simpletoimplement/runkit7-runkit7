@@ -10,6 +10,12 @@ ARG_ENABLE("runkit-spl_object_id", "Enable spl_object_id alias of runkit_object_
 // ARG_ENABLE("runkit-sandbox", "Disable Runkit_Sandbox (Requires ZTS)", "yes");
 
 if (PHP_RUNKIT != "no") {
+    var dll = get_define('PHPDLL');
+    var is_php5 = null != dll.match(/^php5/);
+    if (is_php5) {
+        ERROR("Runkit7 supports PHP 7 and newer. It does not support PHP 5");
+    }
+
     // TODO: Why isn't HAVE_CONFIG_H being set all of the time?
     if (PHP_RUNKIT_MODIFY != "no") {
         // Hackish way to enable these CFLAGS to include the necessary flags
