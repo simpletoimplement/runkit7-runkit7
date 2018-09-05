@@ -256,7 +256,7 @@ extern ZEND_DECLARE_MODULE_GLOBALS(runkit)
 #endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
-#if !defined(zend_hash_add_or_update)
+#if !defined(zend_hash_add_or_update) && PHP_VERSION_ID < 70300
 /* Why doesn't ZE2 define this? */
 #define zend_hash_add_or_update(ht, key, data, mode) \
         _zend_hash_add_or_update((ht), (key), (data), (mode) ZEND_FILE_LINE_CC)
@@ -755,6 +755,23 @@ inline static zend_object *php_runkit_zend_object_store_get(const zval *zobject)
 #else
 #define RUNKIT_RT_CONSTANT(op_array, opline, node) RT_CONSTANT((op_array), (node))
 #endif
+
+/* {{{ PHP < 7.3 compatibility for zend_constant */
+#ifndef ZEND_CONSTANT_SET_FLAGS
+#define ZEND_CONSTANT_SET_FLAGS(c, _flags, _module_number) do { \
+		(c)->flags = (_flags); \
+		(c)->module_number = (_module_number); \
+	} while (0)
+#endif
+
+#ifndef ZEND_CONSTANT_FLAGS
+#define ZEND_CONSTANT_FLAGS(c) ((c)->flags)
+#endif
+
+#ifndef ZEND_CONSTANT_MODULE_NUMBER
+#define ZEND_CONSTANT_MODULE_NUMBER(c) ((c)->module_number)
+#endif
+/* }}} */
 
 #endif	/* RUNKIT_H */
 
