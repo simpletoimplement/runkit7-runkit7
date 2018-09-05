@@ -25,10 +25,11 @@ if [ "x${TRAVIS:-0}" != "x" ]; then
 fi
 # Otherwise, put a minimal installation inside of the cache.
 PHP_TAR_FILE="$PHP_FOLDER.tar.bz2"
-if [ "$PHP_NTS_NORMAL_VERSION" == "7.3.0" ] ; then
-	curl --location --verbose https://github.com/php/php-src/archive/master.zip -o php-src-master.zip
-	unzip php-src-master.zip
-	PHP_FOLDER=php-src-master
+# TODO: Start testing 7.4 once travis CI supports PHP 7.3 instead of master
+if [ "$PHP_NTS_NORMAL_VERSION" == "7.3.0" || "$PHP_NTS_NORMAL_VERSION" == "7.4.0" ] ; then
+	curl --location --verbose https://github.com/php/php-src/archive/PHP-7.3.zip -o php-src-PHP-7.3.zip
+	unzip php-src-PHP-7.3.zip
+	PHP_FOLDER=php-src-PHP-7.3
 	pushd $PHP_FOLDER
 	./buildconf --force
 	popd

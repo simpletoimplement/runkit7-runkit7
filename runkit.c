@@ -349,9 +349,8 @@ static void _php_runkit_feature_constant(const char *name, size_t name_len, zend
 	zend_constant c;
 
 	ZVAL_BOOL(&(c.value), enabled);
-	c.flags = flags;
 	c.name = zend_string_init(name, name_len - 1, 1);  // TODO: can this be persistent?
-	c.module_number = module_number;
+	ZEND_CONSTANT_SET_FLAGS(&c, flags, module_number);
 	zend_register_constant(&c);
 }
 

@@ -215,7 +215,7 @@ static int php_runkit_fetch_const(zend_string *cname_zs, zend_constant **constan
 			zend_str_tolower(lcase + cname_len - constant_name_len, constant_name_len);
 		}
 		cname = lcase;
-		if ((*constant = zend_hash_str_find_ptr(EG(zend_constants), cname, cname_len)) == NULL || ((*constant)->flags & CONST_CS)) {
+		if ((*constant = zend_hash_str_find_ptr(EG(zend_constants), cname, cname_len)) == NULL || (ZEND_CONSTANT_FLAGS(*constant) & CONST_CS)) {
 			php_error_docref(NULL, E_WARNING, "Constant %s not found", old_cname);
 			efree(lcase);
 			return FAILURE;
@@ -356,7 +356,7 @@ static int php_runkit_global_constant_remove(zend_string *constname)
 		return FAILURE;
 	}
 
-	if (constant->module_number != PHP_USER_CONSTANT) {
+	if (ZEND_CONSTANT_MODULE_NUMBER(constant) != PHP_USER_CONSTANT) {
 		php_error_docref(NULL, E_WARNING, "Only user defined constants may be removed.");
 		return FAILURE;
 	}
@@ -429,9 +429,8 @@ static int php_runkit_global_constant_add(zend_string *constname, zval *value)
 	/* Traditional global constant */
 	runkit_copy_constant_zval(&c.value, value);
 
-	c.flags = CONST_CS;
 	c.name = constname;
-	c.module_number = PHP_USER_CONSTANT;
+	ZEND_CONSTANT_SET_FLAGS(&c, CONST_CS, PHP_USER_CONSTANT);
 	return zend_register_constant(&c);
 }
 /* }}} */
