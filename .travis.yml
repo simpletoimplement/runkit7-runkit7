@@ -26,6 +26,7 @@ env:
 
 # Defined at https://github.com/php-build/php-build/tree/master/share/php-build/definitions
 # https://github.com/travis-ci/travis-ci/issues/9717 PHP 7.3 alphas not added yet
+# TODO: Change master once Travis supports 7.3 as a tag (master is PHP 7.4-dev)
 php:
   - master
   - '7.2'
