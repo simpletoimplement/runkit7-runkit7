@@ -878,7 +878,7 @@ static int php_runkit_sandbox_sapi_ub_write(const char *str, uint str_length)
 
 		if (!objval->output_handler ||
 			!RUNKIT_IS_CALLABLE(objval->output_handler, IS_CALLABLE_CHECK_NO_ACCESS, NULL)) {
-			/* No hander, or invalid handler, pass up the line... */
+			/* No handler, or invalid handler, pass up the line... */
 			bytes_written = PHPWRITE(str, str_length);
 
 			tsrm_set_interpreter_context(objval->context);
@@ -938,7 +938,7 @@ static void php_runkit_sandbox_sapi_flush(void *server_context)
 
 		if (!objval->output_handler ||
 			!RUNKIT_IS_CALLABLE(objval->output_handler, IS_CALLABLE_CHECK_NO_ACCESS, NULL)) {
-			/* No hander, or invalid handler, pass up the line... */
+			/* No handler, or invalid handler, pass up the line... */
 			if (php_runkit_sandbox_original_sapi.flush) {
 				php_runkit_sandbox_original_sapi.flush(server_context);
 			}

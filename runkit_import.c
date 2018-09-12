@@ -501,7 +501,7 @@ uint32_t compute_early_binding_opline_num(const zend_op_array *op_array) /* {{{ 
 	return op_array->early_binding;
 #else
 	// Copied from zend_build_delayed_early_binding_list in Zend/zend_compile.c
-	// TODO: Locate documantation of change and copy that
+	// TODO: Locate documentation of change and copy that
 	uint32_t  first_early_binding_opline = (uint32_t)-1;
 	uint32_t *prev_opline_num = &first_early_binding_opline;
 	zend_op  *opline = op_array->opcodes;
