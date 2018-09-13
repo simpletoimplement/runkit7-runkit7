@@ -22,8 +22,8 @@ Define customized superglobal variables for general purpose use.
   <api>1.0.8</api>
  </version>
  <stability>
-  <release>dev</release>
-  <api>dev</api>
+  <release>alpha</release>
+  <api>alpha</api>
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
