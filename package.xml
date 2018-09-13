@@ -16,10 +16,10 @@ Define customized superglobal variables for general purpose use.
   <email></email>
   <active>yes</active>
  </lead>
- <date>2018-07-30</date>
+ <date>2018-09-13</date>
  <version>
-  <release>1.0.8dev</release>
-  <api>1.0.8dev</api>
+  <release>1.0.8</release>
+  <api>1.0.8</api>
  </version>
  <stability>
   <release>dev</release>
@@ -27,7 +27,8 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Fix typos in documentation and tests.
+- Update documentation, fix typos in documentation and tests.
+- Fix compilation errors in PHP 7.3 betas. Note that runkit_import() has bugs in PHP 7.3.
  </notes>
  <contents>
   <dir name="/">
@@ -265,6 +266,22 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2018-09-13</date>
+   <version>
+    <release>1.0.8</release>
+    <api>1.0.8</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Update documentation, fix typos in documentation and tests.
+- Fix compilation errors in PHP 7.3 betas. Note that runkit_import() has bugs in PHP 7.3.
+   </notes>
+  </release>
   <release>
    <date>2018-07-04</date>
    <version>
