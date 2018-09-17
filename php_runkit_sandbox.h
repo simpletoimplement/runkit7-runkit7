@@ -77,7 +77,7 @@ inline static zend_op_array *php_runkit_sandbox_include_or_eval_int(zval *return
 		op_array = compile_string(zcode, eval_desc);
 		efree(eval_desc);
 	} else if (!once) {
-		/* include() & requre() */
+		/* include() & require() */
 		op_array = compile_filename(type, zcode);
 	} else {
 		/* include_once() & require_once() */

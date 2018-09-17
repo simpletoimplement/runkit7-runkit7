@@ -1,5 +1,5 @@
 --TEST--
-Bug#57249 - Sutdown bug with runkit_import on a function-static variable
+Bug#57249 - Shutdown bug with runkit_import on a function-static variable
 --SKIPIF--
 <?php if (!extension_loaded("runkit") || !function_exists('runkit_import')) print "skip"; ?>
 --FILE--
