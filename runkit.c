@@ -28,7 +28,7 @@ ZEND_DECLARE_MODULE_GLOBALS(runkit)
 
 #ifdef PHP_RUNKIT_SUPERGLOBALS
 /* {{{ proto array runkit_superglobals(void)
-	Return numericly indexed array of registered superglobals */
+	Return numerically indexed array of registered superglobals */
 PHP_FUNCTION(runkit_superglobals)
 {
 	zend_string *key;
@@ -44,7 +44,7 @@ PHP_FUNCTION(runkit_superglobals)
 /* }}} */
 #endif /* PHP_RUNKIT_SUPERGLOBALS */
 
-/* {{{ proto array runkit_zval_inspect(mized var)
+/* {{{ proto array runkit_zval_inspect(mixed var)
  */
 PHP_FUNCTION(runkit_zval_inspect)
 {

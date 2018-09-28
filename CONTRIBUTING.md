@@ -15,7 +15,7 @@ Headers are found in `php_runkit*.h`
 Source files are found in `runkit*.c`
 
 `config.m4` (Unix/Linux) and `config.w32` (windows) are used to generate `./configure` and the make file
-`package.xml` contains the configuration for generating a pecl package. It should be updated when new tests or source files are added.
+`package.xml` contains the configuration for generating a PECL package. It should be updated when new tests or source files are added.
 
 Some code still hasn't been ported from `config.m4` to `config.w32`. This code is disabled via C preprocessor macros (e.g. sandbox, etc.). See https://github.com/runkit7/runkit7#unsupported-apis-for-php7
 
