@@ -64,7 +64,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 	}
 
 	if (EG(exception)) {
-		return FAILURE; /* we would result in an instable executor otherwise */
+		return FAILURE; /* we would result in an unstable executor otherwise */
 	}
 
 #if PHP_VERSION_ID < 70100

@@ -528,7 +528,7 @@ static void php_runkit_sandbox_include_or_eval(INTERNAL_FUNCTION_PARAMETERS, int
 				bailed_out = 1;
 			}
 		} zend_catch {
-            /* It's impossible to know what caused the failure, just deactive the sandbox now */
+            /* It's impossible to know what caused the failure, just deactivate the sandbox now */
 			objval->active = 0;
 			bailed_out = 1;
 		} zend_end_try();
@@ -1477,7 +1477,7 @@ PHP_RUNKIT_SANDBOX_SETTING_SETTER(parent_scope)
 	}
 
 	/* Assumes that such a deep scope *will* exist when a var is resolved
-	 * If the scopes don't go that deep, var will be grabbed from the global scoep
+	 * If the scopes don't go that deep, var will be grabbed from the global scope
 	 */
 	objval->parent_scope = Z_LVAL(copyval);
 }
