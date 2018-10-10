@@ -5,7 +5,7 @@ However, adding or removing new properties is no longer feasible for the followi
 2. As of php7's new zval layout, The only way to "add" a default property would be to realloc() every single one
    of the `zend_object`s that are instances of that class (to make room for another property).
    This would break php internals and possibly extensions.
-   A possible other way way would be to change the API to `runkit_default_property_modify($className, $propertyName, $value, $flags = TODO)`
+   A possible other way would be to change the API to `runkit_default_property_modify($className, $propertyName, $value, $flags = TODO)`
    (with a precondition $propertyName already existed)
    The old way properties of objects were stored was as a pointer to an array.
    In php7, it's part of `zend_object` itself, similar to what is described in https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html (1-length, with an UNDEF value at the end)
