@@ -3,8 +3,8 @@ runkit_import() Importing and overriding classes extending another loaded class
 --SKIPIF--
 <?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
 if (!function_exists('runkit_import')) print "skip";
-if (DIRECTORY_SEPARATOR === "\\" && !ZEND_THREAD_SAFE) {
-	print "skip this is a known bug on windows and only affects NTS runkit_import(). https://github.com/runkit7/runkit7/issues/135 was filed to investigate this\n";
+if ((DIRECTORY_SEPARATOR === "\\" && !ZEND_THREAD_SAFE) || PHP_VERSION_ID >= 70300) {
+	print "skip this is a known bug on windows/PHP 7.3 and only affects NTS runkit_import(). https://github.com/runkit7/runkit7/issues/135 was filed to investigate this\n";
 }
 ?>
 --FILE--
