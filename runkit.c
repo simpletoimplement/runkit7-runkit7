@@ -340,20 +340,6 @@ static void php_runkit_globals_ctor(void *pDest)
 }
 #endif
 
-#define php_runkit_feature_constant(feature, enabled) \
-		_php_runkit_feature_constant("RUNKIT_FEATURE_" #feature, sizeof("RUNKIT_FEATURE_" #feature), (enabled), \
-									CONST_CS | CONST_PERSISTENT, module_number)
-static void _php_runkit_feature_constant(const char *name, size_t name_len, zend_bool enabled,
-									int flags, int module_number)
-{
-	zend_constant c;
-
-	ZVAL_BOOL(&(c.value), enabled);
-	c.name = zend_string_init(name, name_len - 1, 1);  // TODO: can this be persistent?
-	ZEND_CONSTANT_SET_FLAGS(&c, flags, module_number);
-	zend_register_constant(&c);
-}
-
 /* {{{ PHP_MINIT_FUNCTION
  */
 PHP_MINIT_FUNCTION(runkit)
@@ -397,19 +383,19 @@ PHP_MINIT_FUNCTION(runkit)
 
 	/* Feature Identifying constants */
 #ifdef PHP_RUNKIT_MANIPULATION
-	php_runkit_feature_constant(MANIPULATION, 1);
+	REGISTER_LONG_CONSTANT("RUNKIT_FEATURE_MANIPULATION",      1,                                        CONST_CS | CONST_PERSISTENT);
 #else
-	php_runkit_feature_constant(MANIPULATION, 0);
+	REGISTER_LONG_CONSTANT("RUNKIT_FEATURE_MANIPULATION",      0,                                        CONST_CS | CONST_PERSISTENT);
 #endif
 #ifdef PHP_RUNKIT_SUPERGLOBALS
-	php_runkit_feature_constant(SUPERGLOBALS, 1);
+	REGISTER_LONG_CONSTANT("RUNKIT_FEATURE_SUPERGLOBALS",      1,                                        CONST_CS | CONST_PERSISTENT);
 #else
-	php_runkit_feature_constant(SUPERGLOBALS, 0);
+	REGISTER_LONG_CONSTANT("RUNKIT_FEATURE_SUPERGLOBALS",      0,                                        CONST_CS | CONST_PERSISTENT);
 #endif
 #ifdef PHP_RUNKIT_SANDBOX
-	php_runkit_feature_constant(SANDBOX, 1);
+	REGISTER_LONG_CONSTANT("RUNKIT_FEATURE_SANDBOX",           1,                                        CONST_CS | CONST_PERSISTENT);
 #else
-	php_runkit_feature_constant(SANDBOX, 0);
+	REGISTER_LONG_CONSTANT("RUNKIT_FEATURE_SANDBOX",           0,                                        CONST_CS | CONST_PERSISTENT);
 #endif
 
 	return (1)
