@@ -1501,6 +1501,7 @@ PHP_FUNCTION(runkit_function_rename)
 		}
 		RETURN_FALSE;
 	}
+	php_runkit_fix_all_hardcoded_stack_sizes(dfunc_lower, func);
 
 	php_runkit_add_to_misplaced_internal_functions(func, dfunc_lower);
 
