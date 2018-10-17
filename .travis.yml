@@ -29,9 +29,10 @@ env:
 # TODO: Change master once Travis supports 7.3 as a tag (master is PHP 7.4-dev)
 php:
   - master
-  - '7.2'
-  - '7.1'
-  - '7.0'
+  - 7.3
+  - 7.2
+  - 7.1
+  - 7.0
 
 matrix:
   allow_failures:
@@ -39,6 +40,12 @@ matrix:
   exclude:
     - php: 7.0
       env: CC=gcc-4.8 CXX=g++-4.8
+    - php: 7.2
+      env: CC=gcc-4.8 CXX=g++-4.8
+    # Until https://bugs.php.net/bug.php?id=75951 is fixed for PHP 7.3 and master, exclude testing on clang since it won't build.
+    # This affects both the newer clang-5.0 and the default Travis version.
+    - php: 7.3
+      env: CC=clang
     - php: master
       env: CC=gcc-4.8 CXX=g++-4.8 VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'
     - php: master
@@ -61,6 +68,8 @@ before_script:
 script:
  - phpenv config-rm xdebug.ini || true
  - ci/run_tests.sh
+ # Print any valgrind errors
+ - shopt -s nullglob; head -n 999 tests/*.mem < /dev/null
 
 branches:
   only:
