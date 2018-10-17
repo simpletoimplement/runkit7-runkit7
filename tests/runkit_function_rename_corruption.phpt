@@ -2,7 +2,6 @@
 runkit_function_rename() function corruption prevented when original method is replaced with a substitute.
 --SKIPIF--
 <?php if (!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
-<?php if (!class_exists('SQLite3')) print "skip"; ?>
 --FILE--
 <?php
 
