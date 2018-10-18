@@ -30,6 +30,11 @@ runkit_property_modify() may be added in the future (will change the value, but 
 
 #ifdef PHP_RUNKIT_MANIPULATION_PROPERTIES
 
+/* Removed in php 7.4 */
+#ifndef ZEND_ACC_SHADOW
+#define ZEND_ACC_SHADOW 0
+#endif
+
 /* {{{ php_runkit_make_object_property_public */
 static inline void php_runkit_make_object_property_public(zend_string *propname, zend_object *object, int offset, zend_property_info *property_info_ptr)
 {

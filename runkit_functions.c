@@ -27,6 +27,15 @@
 
 #include "Zend/zend.h"
 
+#ifdef ZEND_MAP_PTR_GET
+#define RUNKIT_RUN_TIME_CACHE(op_array) \
+       ZEND_MAP_PTR_GET((op_array)->run_time_cache)
+#else
+#define RUNKIT_RUN_TIME_CACHE(op_array) \
+       ((op_array)->run_time_cache)
+#endif
+
+
 // Get lvalue of the aliased user function for a fake internal function.
 #define RUNKIT_ALIASED_USER_FUNCTION(fe) ((fe)->internal_function.reserved[0])
 #define RUNKIT_IS_ALIAS_FOR_USER_FUNCTION(fe) ((fe)->type == ZEND_INTERNAL_FUNCTION && (fe)->internal_function.handler == php_runkit_function_alias_handler)
@@ -385,11 +394,15 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 #endif
 		}
 
-		if (op_array->run_time_cache) {
+		if (RUNKIT_RUN_TIME_CACHE(op_array)) {
 			// TODO: Garbage collect these, somehow?
 			run_time_cache = pemalloc(op_array->cache_size, 1);
 			memset(run_time_cache, 0, op_array->cache_size);
+#ifdef ZEND_MAP_PTR_SET
+			ZEND_MAP_PTR_SET(op_array->run_time_cache, run_time_cache);
+#else
 			op_array->run_time_cache = run_time_cache;
+#endif
 		}
 
 		opcode_copy = runkit_allocate_opcode_copy(op_array);
@@ -722,13 +735,17 @@ static inline void *runkit_zend_hash_add_or_update_function_table_ptr(HashTable 
 /* {{{ php_runkit_clear_function_runtime_cache */
 static void php_runkit_clear_function_runtime_cache(zend_function *f)
 {
-	if (f->type != ZEND_USER_FUNCTION ||
-	    f->op_array.cache_size == 0 || f->op_array.run_time_cache == NULL) {
+	zend_op_array *op_array;
+	if (f->type != ZEND_USER_FUNCTION) {
+		return;
+	}
+	op_array = &(f->op_array);
+	if (op_array->cache_size == 0 || RUNKIT_RUN_TIME_CACHE(op_array) == NULL) {
 		return;
 	}
 
 	// TODO: Does memset do what I want it to do?
-	memset(f->op_array.run_time_cache, 0, f->op_array.cache_size);
+	memset(RUNKIT_RUN_TIME_CACHE(op_array), 0, op_array->cache_size);
 }
 /* }}} */
 
@@ -757,10 +774,10 @@ void php_runkit_clear_all_functions_runtime_cache()
 	// TODO: Does this make sense, does it work with a runtime cache?
 	for (ptr = EG(current_execute_data); ptr != NULL; ptr = ptr->prev_execute_data) {
 		// TODO: I assume that ptr->run_time_cache is the same pointer, if set?
-		if (ptr->func == NULL || ptr->func->type == ZEND_INTERNAL_FUNCTION || ptr->func->op_array.cache_size == 0 || ptr->func->op_array.run_time_cache == NULL) {
+		if (ptr->func == NULL || ptr->func->type == ZEND_INTERNAL_FUNCTION || ptr->func->op_array.cache_size == 0 || RUNKIT_RUN_TIME_CACHE(&(ptr->func->op_array)) == NULL) {
 			continue;
 		}
-		memset(ptr->func->op_array.run_time_cache, 0, ptr->func->op_array.cache_size);
+		memset(RUNKIT_RUN_TIME_CACHE(&(ptr->func->op_array)), 0, ptr->func->op_array.cache_size);
 	}
 
 	PHP_RUNKIT_ITERATE_THROUGH_OBJECTS_STORE_BEGIN(i)

@@ -58,11 +58,15 @@ void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string *lcmname, zen
 	} else if (zend_string_equals_literal(lcmname, ZEND_CONSTRUCTOR_FUNC_NAME)) {
 		if (!(ce)->constructor || (ce)->constructor == (orig_fe)) {
 			(ce)->constructor = (fe);
+#if PHP_VERSION_ID < 70400
 			(fe)->common.fn_flags |= ZEND_ACC_CTOR;
+#endif
 		}
 	} else if (zend_string_equals_literal(lcmname, ZEND_DESTRUCTOR_FUNC_NAME)) {
 		(ce)->destructor = (fe);
+#if PHP_VERSION_ID < 70400
 		(fe)->common.fn_flags |= ZEND_ACC_DTOR;
+#endif
 	} else if (zend_string_equals_literal(lcmname, ZEND_GET_FUNC_NAME)) {
 		(ce)->__get = (fe);
 		ensure_all_objects_of_class_have_magic_methods(ce);
@@ -91,7 +95,9 @@ void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string *lcmname, zen
 		// TODO: Re-examine the changes to the constructor code for any bugs.
 		if (!(ce)->constructor || (ce)->constructor == (orig_fe)) {
 			(ce)->constructor = (fe);
+#if PHP_VERSION_ID < 70400
 			(fe)->common.fn_flags |= ZEND_ACC_CTOR;
+#endif
 		}
 	}
 }

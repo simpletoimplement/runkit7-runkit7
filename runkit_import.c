@@ -615,10 +615,19 @@ PHP_FUNCTION(runkit_import)
 			zval *key = parent_name + 1;
 			zend_class_entry *pce;
 			ZEND_ASSERT(Z_TYPE_P(parent_name) == IS_STRING);
+#if PHP_VERSION_ID >= 70400
+			pce = zend_lookup_class_ex(Z_STR_P(parent_name), Z_STR_P(key), 0);
+#else
+			pce = zend_lookup_class_ex(Z_STR_P(parent_name), key, 0);
+#endif
 
 			// TODO: Check if this is the same in php 7.0
-            if ((pce = zend_lookup_class_ex(Z_STR_P(parent_name), key, 0)) != NULL) {
+            if (pce != NULL) {
+#if PHP_VERSION_ID >= 70400
+                do_bind_inherited_class(key, pce);
+#else
                 do_bind_inherited_class(new_op_array, &new_op_array->opcodes[opline_num], tmp_class_table, pce, 0);
+#endif
             }
 			opline_num = new_op_array->opcodes[opline_num].result.opline_num;
 		}
