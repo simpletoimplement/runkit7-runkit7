@@ -20,8 +20,6 @@ FIXME: Check that all applicable flags, member variables, etc. are manipulated a
 runkit_property_modify() may be implemented in the future.
 */
 
-/* $Id$ */
-
 #include "runkit.h"
 #include "php_runkit_zval.h"
 
@@ -215,7 +213,11 @@ int php_runkit_class_copy(zend_class_entry *src, zend_string *classname)
 	new_class_entry->info.user.doc_comment = src->info.user.doc_comment;
 	new_class_entry->info.user.line_end = src->info.user.line_end;
 	new_class_entry->num_traits = src->num_traits;
+#if PHP_VERSION_ID >= 70400
+	new_class_entry->trait_names = src->trait_names;
+#else
 	new_class_entry->traits = src->traits;
+#endif
 	new_class_entry->ce_flags = src->ce_flags;
 
 	// TODO: zend_hash_update_ptr for everything to do with class_table

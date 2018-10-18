@@ -47,7 +47,11 @@ static inline zend_function *_php_runkit_get_method_prototype(zend_class_entry *
 	   This could be any class entry type (interface, user-defined class, internal class, etc.) */
 zend_class_entry *php_runkit_fetch_class_int(zend_string *classname)
 {
+#if PHP_VERSION_ID >= 70400
+	return zend_lookup_class_ex(classname, (zend_string *)/* key = */ NULL, /* use_autoload = */ (int)0);
+#else
 	return zend_lookup_class_ex(classname, (zval *)/* key = */ NULL, /* use_autoload = */ (int)0);
+#endif
 }
 /* }}} */
 
