@@ -1518,6 +1518,7 @@ PHP_FUNCTION(runkit_function_rename)
 		}
 		RETURN_FALSE;
 	}
+	// Fix issue caused when runkit_function_rename replaces a different, previously used function - https://github.com/runkit7/runkit7/issues/153
 	php_runkit_fix_all_hardcoded_stack_sizes(dfunc_lower, func);
 
 	php_runkit_add_to_misplaced_internal_functions(func, dfunc_lower);

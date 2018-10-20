@@ -16,10 +16,10 @@ Define customized superglobal variables for general purpose use.
   <email></email>
   <active>yes</active>
  </lead>
- <date>2018-09-13</date>
+ <date>2018-10-20</date>
  <version>
-  <release>1.0.8</release>
-  <api>1.0.8</api>
+  <release>1.0.9</release>
+  <api>1.0.9</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -27,8 +27,8 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Update documentation, fix typos in documentation and tests.
-- Fix compilation errors in PHP 7.3 betas. Note that runkit_import() has bugs in PHP 7.3.
+- Fix a crash caused some of the time when using runkit_function_rename to replace an original function with a different one.
+- Fix a few compatibility issues with php 7.4.0-dev (new compatibility issues will come up in the future, and some tests fail)
  </notes>
  <contents>
   <dir name="/">
@@ -124,6 +124,8 @@ Define customized superglobal variables for general purpose use.
     <file name="runkit_function_remove_and_reflection.phpt" role="test" />
     <file name="runkit_function_remove.phpt" role="test" />
     <file name="runkit_function_rename_and_reflection.phpt" role="test" />
+    <file name="runkit_function_rename_corruption.phpt" role="test" />
+    <file name="runkit_function_rename_corruption2.phpt" role="test" />
     <file name="runkit_function_rename_internal.phpt" role="test" />
     <file name="runkit_function_rename_large_switch.phpt" role="test" />
     <file name="runkit_function_rename.phpt" role="test" />
@@ -266,6 +268,22 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2018-10-20</date>
+   <version>
+    <release>1.0.9</release>
+    <api>1.0.9</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Fix a crash caused some of the time when using runkit_function_rename to replace an original function with a different one.
+- Fix a few compatibility issues with php 7.4.0-dev (new compatibility issues will come up in the future, and some tests fail)
+   </notes>
+  </release>
   <release>
    <date>2018-09-13</date>
    <version>
