@@ -1,0 +1,38 @@
+# test files
+tests/*.diff
+tests/*.exp
+tests/*.log
+tests/*.out
+tests/*.php
+tests/*.sh
+
+# built files
+*.lo
+*.dll
+*.tgz
+*.ac
+*.in
+*.la
+config.*
+configure
+.deps
+.libs
+Makefile*
+acinclude.m4
+aclocal.m4
+*.cache
+/build
+/modules
+/.libs
+mkinstalldirs
+libtool
+ltmain.sh
+install-sh
+missing
+run-tests.php
+
+
+# editor files
+*.swo
+*.swp
+*.bak
