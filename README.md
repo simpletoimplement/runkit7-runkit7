@@ -140,7 +140,7 @@ Runkit has two groups of features outlined below (Sandboxing was removed in runk
 
 ### CUSTOM SUPERGLOBALS
 A new .ini entry `runkit.superglobal` is defined which may be specified as a simple variable, or list of simple variables to be registered as
-superglobals.  runkit.superglobal is defined as PHP_INI_SYSTEM and must be set in the system-wide php.ini.
+[superglobals](https://secure.php.net/manual/en/language.variables.superglobals.php).  runkit.superglobal is defined as PHP_INI_SYSTEM and must be set in the system-wide php.ini.
 
 Example:
 
