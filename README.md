@@ -172,7 +172,8 @@ Baz is
 
 
 ### USER DEFINED FUNCTION AND CLASS MANIPULATION
-__NOTE: Only a subset of the APIs have been ported to PHP7. Some of these APIs have segmentation faults in corner cases __ (when `runkit.internal_override=On`)
+
+**NOTE: Only a subset of the APIs have been ported to PHP7. Some of these APIs have segmentation faults in corner cases** (when `runkit.internal_override=On`)
 
 User defined functions and user defined methods may now be renamed, delete, and redefined using the API described at http://www.php.net/runkit
 
