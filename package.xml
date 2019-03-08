@@ -16,10 +16,10 @@ Define customized superglobal variables for general purpose use.
   <email></email>
   <active>yes</active>
  </lead>
- <date>2018-10-20</date>
+ <date>2019-03-08</date>
  <version>
-  <release>1.0.9</release>
-  <api>1.0.9</api>
+  <release>1.0.10</release>
+  <api>1.0.10</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -27,8 +27,7 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Fix a crash caused some of the time when using runkit_function_rename to replace an original function with a different one.
-- Fix a few compatibility issues with php 7.4.0-dev (new compatibility issues will come up in the future, and some tests fail)
+- Fix compilation when `--runkit-modify` is disabled.
  </notes>
  <contents>
   <dir name="/">
