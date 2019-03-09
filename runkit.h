@@ -129,8 +129,6 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #define PHP_RUNKIT_MANIPULATION_IMPORT
 #define PHP_RUNKIT_MANIPULATION_PROPERTIES
 #define PHP_RUNKIT_MANIPULATION_CLASSES
-#else
-#error DEBUG - RUNKIT_FEATURE_MODIFY DISABLED
 #endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
@@ -397,6 +395,14 @@ static inline void php_runkit_modify_function_doc_comment(zend_function *fe, zen
 }
 /* }}} */
 
+#define PHP_RUNKIT_FREE_INTERNAL_FUNCTION_NAME(fe) \
+	if ((fe)->type == ZEND_INTERNAL_FUNCTION && (fe)->internal_function.function_name) { \
+		zend_string_release((fe)->internal_function.function_name); \
+		(fe)->internal_function.function_name = NULL; \
+	}
+
+#endif /* PHP_RUNKIT_MANIPULATION */
+
 /* This macro iterates through all instances of objects. */
 #define PHP_RUNKIT_ITERATE_THROUGH_OBJECTS_STORE_BEGIN(i) { \
 	if (EG(objects_store).object_buckets) { \
@@ -412,13 +418,6 @@ static inline void php_runkit_modify_function_doc_comment(zend_function *fe, zen
 	} \
 }
 
-#define PHP_RUNKIT_FREE_INTERNAL_FUNCTION_NAME(fe) \
-	if ((fe)->type == ZEND_INTERNAL_FUNCTION && (fe)->internal_function.function_name) { \
-		zend_string_release((fe)->internal_function.function_name); \
-		(fe)->internal_function.function_name = NULL; \
-	}
-
-#endif /* PHP_RUNKIT_MANIPULATION */
 
 #ifdef PHP_RUNKIT_SANDBOX
 /* runkit_sandbox.c */
