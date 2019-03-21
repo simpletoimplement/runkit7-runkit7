@@ -16,7 +16,7 @@ Define customized superglobal variables for general purpose use.
   <email></email>
   <active>yes</active>
  </lead>
- <date>2019-03-08</date>
+ <date>2019-03-21</date>
  <version>
   <release>1.0.10</release>
   <api>1.0.10</api>
@@ -268,6 +268,22 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2018-03-21</date>
+   <version>
+    <release>1.0.10</release>
+    <api>1.0.10</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Fix compilation when `--runkit-modify` is disabled.
+- Fix compilation for PHP 7.3 with Windows x64.
+   </notes>
+  </release>
   <release>
    <date>2018-10-20</date>
    <version>
