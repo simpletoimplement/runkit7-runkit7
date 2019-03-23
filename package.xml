@@ -28,6 +28,7 @@ Define customized superglobal variables for general purpose use.
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
 - Fix memory corruption in function manipulation with 64-bit builds of php 7.3 (#173, #172)
+- Fix compilation error in 32-bit php 7.3 builds.
  </notes>
  <contents>
   <dir name="/">

@@ -212,7 +212,7 @@ static void php_runkit_set_opcode_constant(const zval *literals, znode_op *op, z
 /* {{{ php_runkit_set_opcode_constant_relative
 		for absolute constant addresses, creates a local copy of that literal.
 		Modifies op's contents. */
-static void php_runkit_set_opcode_constant_relative(const zend_op_array *op_array, const zend_op *opline, znode_op *op, const zval *literalI)
+static void php_runkit_set_opcode_constant_relative(const zend_op_array *op_array, const zend_op *opline, znode_op *op, zval *literalI)
 {
 	debug_printf("php_runkit_set_opcode_constant_relative(%llx, %d), USE_ABS=%d\n", (long long)literalI, (int)sizeof(zval), ZEND_USE_ABS_CONST_ADDR);
 #if ZEND_USE_ABS_CONST_ADDR
