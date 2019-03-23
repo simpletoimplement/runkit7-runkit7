@@ -214,11 +214,11 @@ static void php_runkit_set_opcode_constant(const zval *literals, znode_op *op, z
 		Modifies op's contents. */
 static void php_runkit_set_opcode_constant_relative(const zend_op_array *op_array, const zend_op *opline, znode_op *op, const zval *literalI)
 {
-	debug_printf("php_runkit_set_opcode_constant_relative(%llx, %d), USE_ABS=%d\n", (long long)(long long)literalI, (int)sizeof(zval), ZEND_USE_ABS_CONST_ADDR);
+	debug_printf("php_runkit_set_opcode_constant_relative(%llx, %d), USE_ABS=%d\n", (long long)literalI, (int)sizeof(zval), ZEND_USE_ABS_CONST_ADDR);
 #if ZEND_USE_ABS_CONST_ADDR
 	RUNKIT_RT_CONSTANT(op_array, opline, *op) = literalI;
 #else
-	debug_printf("opcodes=%llx literals=%llx op=%llx literalI=%llx", (long long)op_array->opcodes, (long long)op_array->literals, (long long)op, (long long)literalI);
+	debug_printf("opcodes=%llx literals=%llx opline=%llx op=%llx literalI=%llx\n", (long long)op_array->opcodes, (long long)op_array->literals, (long long)opline, (long long)op, (long long)literalI);
 	// TODO: Assert that this is in a meaningful range.
 	// TODO: is this ever necessary for relative constant addresses?
 	// Opposite of ((zval*)(((char*)(opline)) + (int32_t)(node).constant))
@@ -315,11 +315,13 @@ static zend_op *runkit_allocate_opcode_copy(const zend_op_array *const op_array)
 		size_t bytes_to_allocate = ZEND_MM_ALIGNED_SIZE_EX(sizeof(zend_op) * op_array->last, 16) +
 			sizeof(zval) * op_array->last_literal;
 		zend_op *opcode = (zend_op *)emalloc(bytes_to_allocate);
+		debug_printf("Allocating %d bytes for opcode array last=%d last_literal=%d\n", (int)bytes_to_allocate, (int)op_array->last, (int)op_array->last_literal);
 		memset(opcode, 0, bytes_to_allocate);
 		return opcode;
 		// Skip the memcpy step for the op_array and the literals in php 7.3+
 	}
 #endif
+	debug_printf("Allocating %d bytes for opcode array without literals\n", (int)(sizeof(zend_op) * op_array->last));
 	return safe_emalloc(sizeof(zend_op), op_array->last, 0);
 }
 /* }}} */
@@ -329,15 +331,17 @@ static zval *runkit_allocate_literals(const zend_op_array *const op_array, zend_
 {
 #if PHP_VERSION_ID >= 70300
 	// Adjustment for https://github.com/runkit7/runkit7/issues/126
-	// I assume that PHP's pass_two() from Zend/zend_opcache.c would be done by now
+	// I assume that PHP's pass_two() from Zend/zend_opcode.c would be done by now
 	if (!(ZEND_USE_ABS_CONST_ADDR) &&
 			(op_array->fn_flags & ZEND_ACC_DONE_PASS_TWO)) {
 		// Reuse the extra space allocated for runkit_allocate_opcode_copy
+		debug_printf("Allocating literals at relative offset %d last=%d\n", (int)(ZEND_MM_ALIGNED_SIZE_EX(sizeof(zend_op) * op_array->last, 16)), (int)op_array->last);
 		return (zval *)(((char *)opcode_copy) + ZEND_MM_ALIGNED_SIZE_EX(sizeof(zend_op) * op_array->last, 16));
 	}
 #else
 	(void)opcode_copy;
 #endif
+	debug_printf("Allocating literals with emalloc last_literal=%d\n", op_array->last_literal);
 	return safe_emalloc(op_array->last_literal, sizeof(zval), 0);
 }
 /* }}} */
@@ -354,8 +358,8 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 	zend_string **dupvars;  // Array of zend_string*s
 	zend_op *last_op;
 	zend_op *opcode_copy;
-	uint32_t i;
 	zend_op_array *const op_array = &(fe->op_array);
+	uint32_t i;
 
 	if (newname) {
 		zend_string_addref(newname);
@@ -467,13 +471,11 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 
 		debug_printf("op_array.literals = %llx, last_literal = %d\n", (long long)op_array->literals, op_array->last_literal);
 		if (op_array->literals) {
+			uint32_t k;
 			debug_printf("   old op_array.literals = %llx, opcodes=%llx\n", (long long)op_array->literals, (long long)op_array->opcodes);
-			i = op_array->last_literal;
 			literals = runkit_allocate_literals(op_array, opcode_copy);
 			debug_printf("copied op_array.literals = %llx, opcodes=%llx\n", (long long)literals, (long long)opcode_copy);
-			while (i > 0) {
-				uint32_t k;
-
+			for (i = op_array->last_literal; i > 0; ) {
 				i--;
 				// This code copies the zvals from the original function's op array to the new function's op array.
 				// TODO: Re-examine this line to see if reference counting was done properly.
@@ -481,39 +483,42 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 				literals[i] = op_array->literals[i];
 				Z_TRY_ADDREF(literals[i]);
 				debug_printf("Copying literal of type %d\n", (int)Z_TYPE(literals[i]));
-				// TODO: Check if constants are being replaced properly.
-				// TODO: This may no longer do anything on 64-bit builds of PHP.
-				for (k = 0; k < op_array->last; k++) {
-					zend_op *const new_op = &opcode_copy[k];
-					debug_printf("%d(%s)\ttype=%d %d\n", k, zend_get_opcode_name(new_op->opcode), (int)new_op->op1_type, (int)new_op->op2_type);
-					/*if (opcode_copy[k].OP1_type == IS_CONST) {
-						debug_printf("op1: %llx, %llx\n", (long long)RT_CONSTANT_EX(literals, opcode_copy[k].op1), (long long)&(op_array->literals[i]));
-					}
-					if (opcode_copy[k].op2_type == IS_CONST) {
-						debug_printf("op2: %llx, %llx\n", (long long)RT_CONSTANT_EX(literals, opcode_copy[k].op2), (long long)&(op_array->literals[i]));
-					}*/
+			}
+			for (k = 0; k < op_array->last; k++) {
+				zend_op *const new_op = &opcode_copy[k];
+				zend_bool found_op1 = 0;
+				zend_bool found_op2 = 0;
+				debug_printf("%d(%s)\ttype=%d %d\n", k, zend_get_opcode_name(new_op->opcode), (int)new_op->op1_type, (int)new_op->op2_type);
+				for (i = op_array->last_literal; i > 0; ) {
+					i--;
 					// TODO: This may be completely unnecessary on 64-bit systems. This may be broken on 32-bit systems.
 #ifdef RT_CONSTANT_EX
-					if (new_op->op1_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op1) == &op_array->literals[i]) {
-						debug_printf("old op1 constant = %d\n", new_op->op1.constant);
+					if (!found_op1 && new_op->op1_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op1) == &op_array->literals[i]) {
+						debug_printf("old op1 constant #%d = %d\n", (int)k, new_op->op1.constant);
 						php_runkit_set_opcode_constant(literals, &(new_op->op1), &literals[i]);
-						debug_printf("new op1 constant = %d\n", new_op->op1.constant);
+						debug_printf("new op1 constant #%d = %d\n", (int)k, new_op->op1.constant);
+						found_op1 = 1;
 					}
-					if (new_op->op2_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op2) == &op_array->literals[i]) {
-						debug_printf("old op2 constant = %d\n", new_op->op2.constant);
+					if (!found_op2 && new_op->op2_type == IS_CONST && RT_CONSTANT_EX(literals, new_op->op2) == &op_array->literals[i]) {
+						debug_printf("old op2 constant #%d = %d\n", (int)k, new_op->op2.constant);
 						php_runkit_set_opcode_constant(literals, &(new_op->op2), &literals[i]);
-						debug_printf("new op2 constant = %d\n", new_op->op2.constant);
+						debug_printf("new op2 constant #%d = %d\n", (int)k, new_op->op2.constant);
+						found_op2 = 1;
 					}
 #else
-					if (new_op->op1_type == IS_CONST && RUNKIT_RT_CONSTANT(op_array, &op_array->opcodes[i], new_op->op1) == &op_array->literals[i]) {
-						debug_printf("old op1 constant = %d\n", new_op->op1.constant);
+					// e.g. this is used on 64-bit builds of PHP.
+					// The start of the literals zval array is memory aligned so the relative addressing may be different when copied.
+					if (!found_op1 && new_op->op1_type == IS_CONST && RUNKIT_RT_CONSTANT(op_array, &op_array->opcodes[k], new_op->op1) == &op_array->literals[i]) {
+						debug_printf("old op1 constant #%d = %d (v2)\n", (int)k, new_op->op1.constant);
 						php_runkit_set_opcode_constant_relative(op_array, new_op, &(new_op->op1), &literals[i]);
-						debug_printf("new op1 constant = %d\n", new_op->op1.constant);
+						debug_printf("new op1 constant #%d = %d (v2)\n", (int)k, new_op->op1.constant);
+						found_op1 = 1;
 					}
-					if (new_op->op2_type == IS_CONST && RUNKIT_RT_CONSTANT(op_array, &op_array->opcodes[i], new_op->op2) == &op_array->literals[i]) {
-						debug_printf("old op2 constant = %d\n", new_op->op2.constant);
+					if (!found_op2 && new_op->op2_type == IS_CONST && RUNKIT_RT_CONSTANT(op_array, &op_array->opcodes[k], new_op->op2) == &op_array->literals[i]) {
+						debug_printf("old op2 constant #%d = %d (v2)\n", (int)k, new_op->op2.constant);
 						php_runkit_set_opcode_constant_relative(op_array, new_op, &(new_op->op2), &literals[i]);
-						debug_printf("new op2 constant = %d\n", new_op->op2.constant);
+						debug_printf("new op2 constant #%d = %d (v2)\n", (int)k, new_op->op2.constant);
+						found_op2 = 1;
 					}
 #endif
 				}
