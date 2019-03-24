@@ -7,6 +7,8 @@ if [[ "$PROCESSES" -gt 1 ]]; then
     TESTS="$TESTS -j$PROCESSES"
 fi
 
+export DONT_FAIL_IF_LEAKED=1
+
 cp ci/run-tests-parallel.php run-tests.php
 
 make test
