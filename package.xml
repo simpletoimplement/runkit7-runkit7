@@ -16,7 +16,7 @@ Define customized superglobal variables for general purpose use.
   <email></email>
   <active>yes</active>
  </lead>
- <date>2019-03-23</date>
+ <date>2019-03-24</date>
  <version>
   <release>1.0.11</release>
   <api>1.0.11</api>
@@ -270,7 +270,7 @@ Define customized superglobal variables for general purpose use.
  <extsrcrelease />
  <changelog>
   <release>
-   <date>2018-03-23</date>
+   <date>2018-03-24</date>
    <version>
     <release>1.0.11</release>
     <api>1.0.11</api>
