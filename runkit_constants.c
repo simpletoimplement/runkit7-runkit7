@@ -154,7 +154,6 @@ static zend_bool runkit_copy_constant_zval(zval *dst, zval *src) /* {{{ */
 
 static zend_bool php_runkit_remove_from_constants_table(zend_class_entry *ce, zend_string *cname)
 {
-#if PHP_VERSION_ID >= 70100
 	zend_class_constant *c;
 	c = zend_hash_find_ptr(&ce->constants_table, cname);
 	if (c == NULL) {
@@ -171,8 +170,6 @@ static zend_bool php_runkit_remove_from_constants_table(zend_class_entry *ce, ze
 		ZVAL_NULL(&(c->value));
 		break;
 	}
-// TODO: Anything left for PHP 7.0 support?
-#endif
 	// free() the zend_class_entry
 	return zend_hash_del(&ce->constants_table, cname) == SUCCESS;
 }
@@ -229,7 +226,6 @@ static int php_runkit_fetch_const(zend_string *cname_zs, zend_constant **constan
 }
 /* }}} */
 
-#if PHP_VERSION_ID >= 70100
 /* {{{ php_runkit_class_constant_ctor
 Creates a class constant for a given class entry */
 static zend_class_constant *php_runkit_class_constant_ctor(zval *value, zend_class_entry *ce, int access_type, zend_string *doc_comment)
@@ -250,31 +246,20 @@ static zend_class_constant *php_runkit_class_constant_ctor(zval *value, zend_cla
 	return c;
 }
 /* }}} */
-#endif
 
 static int php_runkit_class_constant_add_raw(zval *value, zend_class_entry *ce, zend_string *constname RUNKIT_CONST_FLAGS_DC(access_type), zend_string *doc_comment)
 {
-#if PHP_VERSION_ID >= 70100
 	zend_class_constant *c;
-#endif
 	if (zend_hash_exists(&ce->constants_table, constname)) {
 		return FAILURE;
 	}
 
-#if PHP_VERSION_ID >= 70100
 	c = php_runkit_class_constant_ctor(value, ce, access_type, doc_comment);
 	if (!zend_hash_add_ptr(&ce->constants_table, constname, c)) {
 		Z_TRY_DELREF(c->value);
 		// TODO: delete
 		return FAILURE;
 	}
-#else
-	Z_TRY_ADDREF_P(value);
-	if (!zend_hash_add(&ce->constants_table, constname, value)) {
-		Z_TRY_DELREF_P(value);
-		return FAILURE;
-	}
-#endif
 	return SUCCESS;
 }
 /* {{{ php_runkit_update_children_consts_foreach
@@ -310,18 +295,10 @@ void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *p
 /* }}} */
 
 /* {{{ php_runkit_class_constant_remove */
-static int php_runkit_class_constant_remove(zend_string *classname, zend_string *constname
-#if PHP_VERSION_ID >= 70100
-		, zend_long *old_access_type
-#endif
-					    )
+static int php_runkit_class_constant_remove(zend_string *classname, zend_string *constname, zend_long *old_access_type)
 {
 	zend_class_entry *ce;
-#if PHP_VERSION_ID >= 70100
 	zend_class_constant *c;
-#else
-	void *c;
-#endif
 
 	if ((ce = php_runkit_fetch_class(classname)) == NULL) {
 		return FAILURE;
@@ -332,11 +309,9 @@ static int php_runkit_class_constant_remove(zend_string *classname, zend_string 
 		php_error_docref(NULL, E_WARNING, "Constant %s::%s does not exist", ZSTR_VAL(classname), ZSTR_VAL(constname));
 		return FAILURE;
 	}
-#if PHP_VERSION_ID >= 70100
 	if (old_access_type != NULL) {
 		*old_access_type = Z_ACCESS_FLAGS(c->value);
 	}
-#endif
 	if (!php_runkit_remove_from_constants_table(ce, constname)) {
 		php_error_docref(NULL, E_WARNING, "Unable to remove constant %s::%s", ZSTR_VAL(classname), ZSTR_VAL(constname));
 		return FAILURE;
@@ -376,18 +351,10 @@ static int php_runkit_global_constant_remove(zend_string *constname)
 
 /* {{{ php_runkit_constant_remove
  */
-static int php_runkit_constant_remove(zend_string *classname, zend_string *constname
-#if PHP_VERSION_ID >= 70100
-		, zend_long *old_access_type
-#endif
-		)
+static int php_runkit_constant_remove(zend_string *classname, zend_string *constname, zend_long *old_access_type)
 {
 	if (classname && ZSTR_LEN(classname) > 0) {
-		return php_runkit_class_constant_remove(classname, constname
-#if PHP_VERSION_ID >= 70100
-				, old_access_type
-#endif
-				);
+		return php_runkit_class_constant_remove(classname, constname, old_access_type);
 	}
 	return php_runkit_global_constant_remove(constname);
 }
@@ -446,7 +413,6 @@ static int php_runkit_class_constant_add(zend_string *classname, zend_string *co
 	}
 
 	// Mirror checks in zend_declare_class_constant_ex
-#if PHP_VERSION_ID >= 70100
 	// Can have only public constants in an interface.
 	if (ce->ce_flags & ZEND_ACC_INTERFACE) {
 		if (access_type != ZEND_ACC_PUBLIC) {
@@ -454,7 +420,6 @@ static int php_runkit_class_constant_add(zend_string *classname, zend_string *co
 			return FAILURE;
 		}
 	}
-#endif
 
 	if (zend_string_equals_literal_ci(constname, "class")) {
 		php_error_docref(NULL, E_WARNING, "A new class constant must not be called 'class'; it is reserved for class name fetching");
@@ -497,17 +462,10 @@ static int php_runkit_constant_add(zend_string *classname, zend_string *constnam
 static zend_bool runkit_check_if_const_flags_are_invalid(zend_bool is_class_constant, zend_long flags)
 {
 	if (is_class_constant) {
-#if PHP_VERSION_ID >= 70100
 		if (flags != ZEND_ACC_PUBLIC && flags != ZEND_ACC_PROTECTED && flags != ZEND_ACC_PRIVATE) {
 			php_error_docref(NULL, E_WARNING, "visibility flags of class constants must be RUNKIT_ACC_PUBLIC, RUNKIT_ACC_PROTECTED, RUNKIT_ACC_PRIVATE, or null");
 			return 1;
 		}
-#else
-		if (flags != ZEND_ACC_PUBLIC) {
-			php_error_docref(NULL, E_WARNING, "visibility flags of class constants must be RUNKIT_ACC_PUBLIC or null prior to php 7.1");
-			return 1;
-		}
-#endif
 	} else {
 		if (flags != ZEND_ACC_PUBLIC) {
 			php_error_docref(NULL, E_WARNING, "visibility flags of global constants must be RUNKIT_ACC_PUBLIC or null");

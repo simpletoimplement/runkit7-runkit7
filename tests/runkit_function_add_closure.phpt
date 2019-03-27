@@ -29,9 +29,6 @@ class test {
 					// In PHP 7.1, they treated $this more consistently. It was also possible to declare variables called $this in php <= 7.0
 					// Since this is a function created by runkit_function_add, not a method,
 					// it is guaranteed that it is not an object context (A function written normally would also throw an Error, so this is expected)
-					if (PHP_VERSION_ID < 70100) {
-						throw $e;
-					}
 					if ($e->getMessage() !== 'Using $this when not in object context') {
 						throw $e;
 					}

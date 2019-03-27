@@ -3,7 +3,6 @@ runkit_constant_redefine() function redefines protected class constants (when ac
 --SKIPIF--
 <?php
 if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
-if (PHP_MAJOR_VERSION == 7 && PHP_MINOR_VERSION == 0) { print "skip no const visibility in 7.0"; }
 ?>
 --FILE--
 <?php

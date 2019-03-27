@@ -186,21 +186,13 @@ static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_ent
 static int php_runkit_import_class_consts(zend_class_entry *dce, zend_class_entry *ce, int override)
 {
 	zend_string *key;
-#if PHP_VERSION_ID >= 70100
 	zend_class_constant *c;
-#endif
 	zval *c_zval;
 
-#if PHP_VERSION_ID >= 70100
 	ZEND_HASH_FOREACH_STR_KEY_PTR(&ce->constants_table, key, c) { /* } */
-#else
-	ZEND_HASH_FOREACH_STR_KEY_VAL(&ce->constants_table, key, c_zval) {
-#endif
 		long action = HASH_ADD;
-#if PHP_VERSION_ID >= 70100
 		zend_long access_type;
 		c_zval = &c->value;
-#endif
 
 		if (key == NULL) {
 			php_error_docref(NULL, E_WARNING, "Constant has invalid key name");
@@ -214,19 +206,13 @@ static int php_runkit_import_class_consts(zend_class_entry *dce, zend_class_entr
 				continue;
 			}
 		}
-#if PHP_VERSION_ID >= 70100
 		access_type = Z_ACCESS_FLAGS(*c_zval);
-#endif
 
 		php_runkit_zval_resolve_class_constant(c_zval, dce);
 		Z_TRY_ADDREF_P(c_zval);
 
 		// TODO: Does this need to create copies of the zend_class_constant?
-#if PHP_VERSION_ID >= 70100
 		if (runkit_zend_hash_add_or_update_ptr(&dce->constants_table, key, c, action) == NULL) { /* } */
-#else
-		if (zend_hash_add_or_update(&dce->constants_table, key, c_zval, action) == NULL) {
-#endif
 			Z_TRY_DELREF_P(c_zval);
 			php_error_docref(NULL, E_WARNING, "Unable to import %s::%s", ZSTR_VAL(dce->name), ZSTR_VAL(key));
 		}

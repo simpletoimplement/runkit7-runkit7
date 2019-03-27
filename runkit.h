@@ -35,6 +35,10 @@
 
 #include "Zend/zend_interfaces.h"
 
+#if PHP_VERSION_ID < 70100
+#error PHP 7.0 support was dropped in runkit7 2.0 - Use the older runkit7 1.x releases instead
+#endif
+
 #if PHP_WIN32
 # include "win32/php_stdint.h"
 # if defined(_MSC_VER) && _MSC_VER >= 1800
@@ -135,15 +139,9 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #include "Zend/zend_object_handlers.h"
 #endif
 
-#if PHP_VERSION_ID >= 70100
 #define RUNKIT_CONST_FLAGS_DC(access_type) , zend_long access_type
 #define RUNKIT_CONST_FLAGS_CC(access_type) , access_type
 #define RUNKIT_CONST_FETCH(access_type) access_type
-#else
-#define RUNKIT_CONST_FLAGS_DC(access_type)
-#define RUNKIT_CONST_FLAGS_CC(access_type)
-#define RUNKIT_CONST_FETCH(access_type) ZEND_ACC_PUBLIC
-#endif
 
 PHP_MINIT_FUNCTION(runkit);
 PHP_MSHUTDOWN_FUNCTION(runkit);
@@ -532,14 +530,12 @@ inline static zend_bool php_runkit_is_valid_return_type(const zend_string *retur
 {
 	const char *it = ZSTR_VAL(return_type);
 	const char *const end = it + ZSTR_LEN(return_type);
-#if PHP_VERSION_ID >= 70100
 	if (it >= end) {
 		return 0;
 	}
 	if (*it == '?') {
 		it++;
 	}
-#endif
 	if (it >= end) {
 		return 0;
 	}
@@ -597,11 +593,7 @@ inline static parsed_return_type php_runkit_parse_return_type_arg(int argc, zval
 			retval.return_type = return_type;
 			return retval;
 		}
-#if PHP_VERSION_ID >= 70100
 		php_error_docref(NULL, E_WARNING, "Return type should match regex ^\\??[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*(\\\\[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*)*$");
-#else
-		php_error_docref(NULL, E_WARNING, "Return type should match regex ^[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*(\\\\[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*)$");
-#endif
 		retval.valid = 0;
 		return retval;
 	} else if (Z_TYPE(args[arg_pos]) != IS_NULL) {
