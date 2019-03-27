@@ -247,7 +247,7 @@ static zend_class_constant *php_runkit_class_constant_ctor(zval *value, zend_cla
 }
 /* }}} */
 
-static int php_runkit_class_constant_add_raw(zval *value, zend_class_entry *ce, zend_string *constname RUNKIT_CONST_FLAGS_DC(access_type), zend_string *doc_comment)
+static int php_runkit_class_constant_add_raw(zval *value, zend_class_entry *ce, zend_string *constname, zend_long access_type, zend_string *doc_comment)
 {
 	zend_class_constant *c;
 	if (zend_hash_exists(&ce->constants_table, constname)) {
@@ -264,18 +264,18 @@ static int php_runkit_class_constant_add_raw(zval *value, zend_class_entry *ce, 
 }
 /* {{{ php_runkit_update_children_consts_foreach
 	Scans each element of the hash table */
-void php_runkit_update_children_consts_foreach(HashTable *ht, zend_class_entry *parent_class, zval *c, zend_string *cname RUNKIT_CONST_FLAGS_DC(access_type))
+void php_runkit_update_children_consts_foreach(HashTable *ht, zend_class_entry *parent_class, zval *c, zend_string *cname, zend_long access_type)
 {
 	zend_class_entry *ce;
 	ZEND_HASH_FOREACH_PTR(ht, ce) {
-		php_runkit_update_children_consts(ce, parent_class, c, cname RUNKIT_CONST_FLAGS_CC(access_type));
+		php_runkit_update_children_consts(ce, parent_class, c, cname, access_type);
 	} ZEND_HASH_FOREACH_END();
 }
 /* }}} */
 
 /* {{{ php_runkit_update_children_consts
 	Scan the class_table for children of the class just updated */
-void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *parent_class, zval *value, zend_string *cname RUNKIT_CONST_FLAGS_DC(access_type))
+void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *parent_class, zval *value, zend_string *cname, zend_long access_type)
 {
 	if (ce->parent != parent_class) {
 		/* Not a child, ignore */
@@ -283,11 +283,11 @@ void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *p
 	}
 
 	/* Process children of this child */
-	php_runkit_update_children_consts_foreach(EG(class_table), ce, value, cname RUNKIT_CONST_FLAGS_CC(access_type));
+	php_runkit_update_children_consts_foreach(EG(class_table), ce, value, cname, access_type);
 
 	// TODO: Garbage collecting?
 	php_runkit_remove_from_constants_table(ce, cname);
-	if (php_runkit_class_constant_add_raw(value, ce, cname RUNKIT_CONST_FLAGS_CC(access_type), NULL) == FAILURE) {
+	if (php_runkit_class_constant_add_raw(value, ce, cname, access_type, NULL) == FAILURE) {
 		php_error_docref(NULL, E_WARNING, "Error updating child class");
 		return;
 	}
@@ -403,7 +403,7 @@ static int php_runkit_global_constant_add(zend_string *constname, zval *value)
 /* }}} */
 
 /* {{{ php_runkit_class_constant_add */
-static int php_runkit_class_constant_add(zend_string *classname, zend_string *constname, zval *value RUNKIT_CONST_FLAGS_DC(access_type))
+static int php_runkit_class_constant_add(zend_string *classname, zend_string *constname, zval *value, zend_long access_type)
 {
 	zend_class_entry *ce;
 
@@ -428,14 +428,14 @@ static int php_runkit_class_constant_add(zend_string *classname, zend_string *co
 
 	// TODO: Is this too many references?
 	// TODO: Could something similar to zend_update_class_constants(zend_class_entry *class_type)
-	if (php_runkit_class_constant_add_raw(value, ce, constname RUNKIT_CONST_FLAGS_CC(access_type), NULL) == FAILURE) {
+	if (php_runkit_class_constant_add_raw(value, ce, constname, access_type, NULL) == FAILURE) {
 		php_error_docref(NULL, E_WARNING, "Unable to add constant %s::%s to class definition", ZSTR_VAL(ce->name), ZSTR_VAL(constname));
 		return FAILURE;
 	}
 
 	// Don't add this constant to subclasses if this constant is private.
-	if (RUNKIT_CONST_FETCH(access_type) != ZEND_ACC_PRIVATE) {
-		php_runkit_update_children_consts_foreach(EG(class_table), ce, value, constname RUNKIT_CONST_FLAGS_CC(access_type));
+	if (access_type != ZEND_ACC_PRIVATE) {
+		php_runkit_update_children_consts_foreach(EG(class_table), ce, value, constname, access_type);
 	}
 
 	return SUCCESS;
@@ -444,7 +444,7 @@ static int php_runkit_class_constant_add(zend_string *classname, zend_string *co
 
 /* {{{ php_runkit_constant_add
        Adds a global or class constant value. This is a global constant if classname is empty or null. */
-static int php_runkit_constant_add(zend_string *classname, zend_string *constname, zval *value RUNKIT_CONST_FLAGS_DC(access_type))
+static int php_runkit_constant_add(zend_string *classname, zend_string *constname, zval *value, zend_long access_type)
 {
 	if (!php_runkit_check_has_constant_type(value)) {
 		return FAILURE;
@@ -454,7 +454,7 @@ static int php_runkit_constant_add(zend_string *classname, zend_string *constnam
 		return php_runkit_global_constant_add(constname, value);
 	}
 
-	return php_runkit_class_constant_add(classname, constname, value RUNKIT_CONST_FLAGS_CC(access_type));
+	return php_runkit_class_constant_add(classname, constname, value, access_type);
 }
 /* }}} */
 
@@ -508,8 +508,8 @@ PHP_FUNCTION(runkit_constant_redefine)
 	}
 
 	// TODO: if the constant doesn't exist, constant_redefine should fail?
-	php_runkit_constant_remove(classname, constname RUNKIT_CONST_FLAGS_CC(flags_is_null ? &flags : NULL));
-	result = php_runkit_constant_add(classname, constname, value RUNKIT_CONST_FLAGS_CC(flags)) == SUCCESS;
+	php_runkit_constant_remove(classname, constname, flags_is_null ? &flags : NULL);
+	result = php_runkit_constant_add(classname, constname, value, flags) == SUCCESS;
 	PHP_RUNKIT_SPLIT_PN_CLEANUP(classname, constname);
 	RETURN_BOOL(result);
 }
@@ -528,7 +528,7 @@ PHP_FUNCTION(runkit_constant_remove)
 
 	PHP_RUNKIT_SPLIT_PN(classname, constname);
 
-	result = php_runkit_constant_remove(classname, constname RUNKIT_CONST_FLAGS_CC(NULL)) == SUCCESS;
+	result = php_runkit_constant_remove(classname, constname, NULL) == SUCCESS;
 	PHP_RUNKIT_SPLIT_PN_CLEANUP(classname, constname)
 	RETURN_BOOL(result);
 }
@@ -559,7 +559,7 @@ PHP_FUNCTION(runkit_constant_add)
 	if (runkit_check_if_const_flags_are_invalid(classname != NULL, flags)) {
 		RETURN_FALSE;
 	}
-	result = php_runkit_constant_add(classname, constname, value RUNKIT_CONST_FLAGS_CC(flags)) == SUCCESS;
+	result = php_runkit_constant_add(classname, constname, value, flags) == SUCCESS;
 	PHP_RUNKIT_SPLIT_PN_CLEANUP(classname, constname);
 	RETURN_BOOL(result);
 }

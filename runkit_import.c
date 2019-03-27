@@ -217,7 +217,7 @@ static int php_runkit_import_class_consts(zend_class_entry *dce, zend_class_entr
 			php_error_docref(NULL, E_WARNING, "Unable to import %s::%s", ZSTR_VAL(dce->name), ZSTR_VAL(key));
 		}
 
-		php_runkit_update_children_consts_foreach(EG(class_table), dce, c_zval, key RUNKIT_CONST_FLAGS_CC(access_type));
+		php_runkit_update_children_consts_foreach(EG(class_table), dce, c_zval, key, access_type);
 	} ZEND_HASH_FOREACH_END();
 	return SUCCESS;
 }

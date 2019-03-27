@@ -139,10 +139,6 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #include "Zend/zend_object_handlers.h"
 #endif
 
-#define RUNKIT_CONST_FLAGS_DC(access_type) , zend_long access_type
-#define RUNKIT_CONST_FLAGS_CC(access_type) , access_type
-#define RUNKIT_CONST_FETCH(access_type) access_type
-
 PHP_MINIT_FUNCTION(runkit);
 PHP_MSHUTDOWN_FUNCTION(runkit);
 PHP_RINIT_FUNCTION(runkit);
@@ -317,8 +313,8 @@ int php_runkit_fetch_interface(zend_string *classname, zend_class_entry **pce);
 #define PHP_RUNKIT_NOT_ENOUGH_MEMORY_ERROR php_error_docref(NULL, E_ERROR, "Not enough memory")
 
 /* runkit_constants.c */
-void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *parent_class, zval *c, zend_string *cname RUNKIT_CONST_FLAGS_DC(access_type));
-void php_runkit_update_children_consts_foreach(HashTable *ht, zend_class_entry *parent_class, zval *c, zend_string *cname RUNKIT_CONST_FLAGS_DC(access_type));
+void php_runkit_update_children_consts(zend_class_entry *ce, zend_class_entry *parent_class, zval *c, zend_string *cname, zend_long access_type);
+void php_runkit_update_children_consts_foreach(HashTable *ht, zend_class_entry *parent_class, zval *c, zend_string *cname, zend_long access_type);
 
 /* runkit_classes.c */
 int php_runkit_class_copy(zend_class_entry *src, zend_string *classname);
