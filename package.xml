@@ -16,10 +16,10 @@ Define customized superglobal variables for general purpose use.
   <email></email>
   <active>yes</active>
  </lead>
- <date>2019-03-24</date>
+ <date>2019-03-27</date>
  <version>
-  <release>1.0.11</release>
-  <api>1.0.11</api>
+  <release>2.0.0</release>
+  <api>2.0.0</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -27,8 +27,7 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Fix memory corruption in function manipulation with 64-bit builds of php 7.3 (#173, #172)
-- Fix compilation error in 32-bit php 7.3 builds.
+- Drop support for PHP 7.0
  </notes>
  <contents>
   <dir name="/">
@@ -259,7 +258,7 @@ Define customized superglobal variables for general purpose use.
  <dependencies>
   <required>
    <php>
-    <min>7.0.0</min>
+    <min>7.1.0</min>
    </php>
    <pearinstaller>
     <min>1.4.0b1</min>
@@ -270,7 +269,22 @@ Define customized superglobal variables for general purpose use.
  <extsrcrelease />
  <changelog>
   <release>
-   <date>2018-03-24</date>
+   <date>2019-03-27</date>
+   <version>
+    <release>2.0.0</release>
+    <api>2.0.0</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Drop support for PHP 7.0
+   </notes>
+  </release>
+  <release>
+   <date>2019-03-24</date>
    <version>
     <release>1.0.11</release>
     <api>1.0.11</api>
@@ -286,7 +300,7 @@ Define customized superglobal variables for general purpose use.
    </notes>
   </release>
   <release>
-   <date>2018-03-21</date>
+   <date>2019-03-21</date>
    <version>
     <release>1.0.10</release>
     <api>1.0.10</api>
