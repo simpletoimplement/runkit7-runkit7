@@ -18,7 +18,7 @@ env:
   - CC=gcc-4.8 CXX=g++-4.8
   - CC=gcc-4.8 CXX=g++-4.8 VALGRIND=1
   # Some bugs in runkit only show up without zts enabled. (aka NTS)
-  # Specifying PHP_VERSION is done to keep up to date versions in 7.0 and 7.1 (Does it work?)
+  # Specifying PHP_VERSION is done to keep up to date versions in 7.1 (Does it work?)
   # Add --enable-session so $_SESSION will exist in runkit superglobal test
   - CC=gcc-4.8 CXX=g++-4.8 VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'
   # The VM implementation is different on 32-bit php. Test those as well.
@@ -31,17 +31,12 @@ php:
   - 7.3
   - 7.2
   - 7.1
-  - 7.0
 
 matrix:
   allow_failures:
     - php: master
     - php: 7.4snapshot
   exclude:
-    - php: 7.0
-      env: CC=gcc-4.8 CXX=g++-4.8
-    - php: 7.0
-      env: CC=clang
     - php: 7.2
       env: CC=gcc-4.8 CXX=g++-4.8
     # Until https://bugs.php.net/bug.php?id=75951 is fixed for PHP 7.3 and master, exclude testing on clang since it won't build.
