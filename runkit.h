@@ -36,7 +36,7 @@
 #include "Zend/zend_interfaces.h"
 
 #if PHP_VERSION_ID < 70100
-#error PHP 7.0 support was dropped in runkit7 2.0 - Use the older runkit7 1.x releases instead
+#error Support for php versions < 7.1 was dropped in runkit7 2.0 - Use the older runkit7 1.x releases from github instead
 #endif
 
 #if PHP_WIN32
@@ -91,7 +91,7 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #define debug_printf(...) do { } while(0)
 #endif
 
-#define PHP_RUNKIT_VERSION					"2.0.0"
+#define PHP_RUNKIT_VERSION					"2.0.1"
 #define PHP_RUNKIT_SANDBOX_CLASSNAME		"Runkit_Sandbox"
 #define PHP_RUNKIT_SANDBOX_PARENT_CLASSNAME	"Runkit_Sandbox_Parent"
 

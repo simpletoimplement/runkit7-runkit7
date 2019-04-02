@@ -3,8 +3,7 @@
 http://pear.php.net/dtd/tasks-1.0.xsd
 http://pear.php.net/dtd/package-2.0
 http://pear.php.net/dtd/package-2.0.xsd">
- <!-- not an actual pecl extension name -->
- <name>runkit</name>
+ <name>runkit7</name>
  <channel>pecl.php.net</channel>
  <summary>Runkit7 : For all those things you.... probably shouldn&apos;t have been doing anyway.... but surely do!</summary>
  <description>Replace, rename, and remove user defined functions, methods, and constants.
@@ -13,13 +12,13 @@ Define customized superglobal variables for general purpose use.
  <lead>
   <name>Tyson Andre</name>
   <user>tandre</user>
-  <email></email>
+  <email>tysonandre775@hotmail.com</email>
   <active>yes</active>
  </lead>
- <date>2019-03-27</date>
+ <date>2019-04-02</date>
  <version>
-  <release>2.0.0</release>
-  <api>2.0.0</api>
+  <release>2.0.1</release>
+  <api>2.0.1</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -27,7 +26,9 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Drop support for PHP 7.0
+- Update extension name in package.xml.
+- Update descriptions of Windows configuration options.
+- Check if php version id is 7.1 or newer in phpize.
  </notes>
  <contents>
   <dir name="/">
@@ -268,6 +269,23 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2019-04-02</date>
+   <version>
+    <release>2.0.1</release>
+    <api>2.0.1</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Update extension name in package.xml.
+- Update Windows configuration option descriptions.
+- Check if php version id is 7.1 or newer in phpize.
+   </notes>
+  </release>
   <release>
    <date>2019-03-27</date>
    <version>

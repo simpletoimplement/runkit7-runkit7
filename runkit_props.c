@@ -3,7 +3,7 @@
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | "runkit7" patches (c) 2015-2018 Tyson Andre                          |
+  | "runkit7" patches (c) 2015-2019 Tyson Andre                          |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -22,8 +22,6 @@ Note: This file is a stub, some functionality hasn't been ported yet.
 
 runkit_property_modify() may be added in the future (will change the value, but won't change the set of properties)
 */
-
-/* $Id$ */
 
 #include "runkit.h"
 #include "php_runkit_zval.h"
