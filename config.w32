@@ -1,9 +1,8 @@
-// $Id$
 // vim:ft=javascript
 
 ARG_ENABLE("runkit", "Enable runkit support", "no");
-ARG_ENABLE("runkit-modify", "Disable runtime manipulation", "yes");
-ARG_ENABLE("runkit-super", "Disable registration of user-defined autoglobals", "yes");
+ARG_ENABLE("runkit-modify", "Enable runtime manipulation", "yes");
+ARG_ENABLE("runkit-super", "Enable registration of user-defined autoglobals", "yes");
 ARG_ENABLE("runkit-spl_object_id", "Enable spl_object_id alias of runkit_object_id in php <= 7.1", "no");
 
 // The sandbox and the associated code was disabled for php 7.

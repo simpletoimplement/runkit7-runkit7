@@ -19,8 +19,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id$ */
-
 #include "runkit.h"
 #include "php_runkit_hash.h"
 #include "php_runkit_zend_execute_API.h"
