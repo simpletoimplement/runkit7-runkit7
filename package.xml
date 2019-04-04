@@ -15,10 +15,10 @@ Define customized superglobal variables for general purpose use.
   <email>tysonandre775@hotmail.com</email>
   <active>yes</active>
  </lead>
- <date>2019-04-02</date>
+ <date>2019-04-04</date>
  <version>
-  <release>2.0.1</release>
-  <api>2.0.1</api>
+  <release>2.0.2</release>
+  <api>2.0.2</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -26,9 +26,7 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Update extension name in package.xml.
-- Update descriptions of Windows configuration options.
-- Check if php version id is 7.1 or newer in phpize.
+- Fix the package version seen in reflection APIs.
  </notes>
  <contents>
   <dir name="/">
@@ -269,6 +267,21 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2019-04-04</date>
+   <version>
+    <release>2.0.2</release>
+    <api>2.0.2</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Fix the package version seen in reflection APIs.
+   </notes>
+  </release>
   <release>
    <date>2019-04-02</date>
    <version>
