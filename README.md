@@ -1,8 +1,8 @@
-[Runkit7](https://github.com/runkit7/runkit7): Unofficial runkit extension fork for PHP 7.0+
-============================================================================================
+[Runkit7](https://github.com/runkit7/runkit7): Independent fork of runkit for PHP 7.1+
+======================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
-__Now with partial support for PHP7.0, 7.1, 7.2, and 7.3!__ (function/method manipulation is recommended only for unit testing. Note that PHP 7.3 has known crashes in `runkit_import()` but other functionality works.)
+__Now with partial support for PHP7.1, 7.2, and 7.3!__ (function/method manipulation is recommended only for unit testing. Note that PHP 7.3 has known crashes in `runkit_import()` but other functionality works.)
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/3jwsf76ge0yo8v74/branch/master?svg=true)](https://ci.appveyor.com/project/TysonAndre/runkit7/branch/master)
@@ -11,7 +11,7 @@ __Now with partial support for PHP7.0, 7.1, 7.2, and 7.3!__ (function/method man
 
 [Building and installing runkit in Windows](#building-and-installing-runkit7-in-windows)
 
-Compatibility: PHP7.0 to PHP 7.3
+Compatibility: PHP7.1 to PHP 7.3
 --------------------------------
 
 **See [runkit-api.php](./runkit-api.php) for the implemented functionality and method signatures.** New functionality was added to support usage with PHP7.
@@ -39,7 +39,7 @@ Class and function manipulation is recommended only for unit tests.
   - For getting/setting properties of **individual objects**, see [ReflectionProperty](https://secure.php.net/manual/en/class.reflectionproperty.php)
     `ReflectionProperty->setAccessible(true)` and `ReflectionProperty->setValue()`, etc.
 - Modifying constants works for constants declared in different files, but does not work for constants within the same file.
-  PHP7.0+ inlines constants within the same file if they are guaranteed to have only one definition.
+  PHP7 inlines constants within the same file if they are guaranteed to have only one definition.
   Patching php-src and/or opcache to not inline constants (e.g. based on a php.ini setting) is possible, but hasn't been tried yet.
 - Sandboxing (and `runkit_lint`) were removed.
 - `runkit_object_id` works. If that function is the only function you need from runkit, see [runkit7/runkit\_object\_id](https://github.com/runkit7/runkit_object_id).
@@ -245,7 +245,7 @@ For 64-bit installations of php7, use "x64" instead of "x86" for the below comma
 
 After completing setup steps mentioned, including for `C:\php-sdk\phpdev\vc14`
 
-extract download of php-7.0.30-src (or any version of php 7) to C:\php-sdk\phpdev\vc14\x86\php-7.0.30-src
+extract download of php-7.1.27-src (or any version of php 7) to C:\php-sdk\phpdev\vc14\x86\php-7.1.27-src
 
 #### Installing runkit7 on windows
 
@@ -260,7 +260,7 @@ Then, execute the following (Add `--enable-runkit` to the configure flags you we
 ```Batchfile
 cd C:\php-sdk
 C:\php-sdk\bin\phpsdk_setvars.bat
-cd phpdev\vc14\x86\php-7.0.30\src
+cd phpdev\vc14\x86\php-7.1.27\src
 buildconf
 configure --enable-runkit
 nmake
