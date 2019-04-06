@@ -96,7 +96,12 @@ ZEND_END_ARG_INFO()
 #endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
-	// TODO runkit_import
+#ifdef PHP_RUNKIT_MANIPULATION_IMPORT
+ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_import, 0, 0, 1)
+ZEND_ARG_INFO(0, filename)
+ZEND_ARG_INFO(0, flags)
+ZEND_END_ARG_INFO()
+#endif
 
 	// two possible signatures
 ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_function_add, 0, 0, 2)
@@ -212,7 +217,7 @@ zend_function_entry runkit_functions[] = {
 
 #ifdef PHP_RUNKIT_MANIPULATION
 #ifdef PHP_RUNKIT_MANIPULATION_IMPORT
-	PHP_FE(runkit_import,											NULL)
+	PHP_FE(runkit_import,											arginfo_runkit_import)
 #endif
 
 	PHP_FE(runkit_function_add,										arginfo_runkit_function_add)

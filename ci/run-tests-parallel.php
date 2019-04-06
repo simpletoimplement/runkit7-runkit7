@@ -25,10 +25,12 @@
    +----------------------------------------------------------------------+
  */
 
-/* $Id: 63ee77cd03e7aa52a6ba285f573d8ef80e8ddb0e $ */
+/* $Id: 58d10967a19ce468973b890e14ba1ea2541fdfbf $ */
 
 /* Let there be no top-level code beyond this point:
  * Only functions and classes, thanks!
+ *
+ * Minimum required PHP version: 7.0.0
  */
 
 /**
@@ -388,6 +390,10 @@ NO_PROC_OPEN_ERROR;
 							error("'$workers' is not a valid number of workers, try e.g. -j16 for 16 workers");
 						}
 						$workers = intval($workers, 10);
+						// Don't use parallel testing infrastructure if there is only one worker.
+						if ($workers === 1) {
+							$workers = null;
+						}
 						break;
 					case 'r':
 					case 'l':
@@ -519,7 +525,7 @@ NO_PROC_OPEN_ERROR;
 						$html_output = is_resource($html_file);
 						break;
 					case '--version':
-						echo '$Id: 63ee77cd03e7aa52a6ba285f573d8ef80e8ddb0e $' . "\n";
+						echo '$Id: 58d10967a19ce468973b890e14ba1ea2541fdfbf $' . "\n";
 						exit(1);
 
 					default:
@@ -1578,7 +1584,7 @@ escape:
 							$test_idx++;
 							clear_show_test();
 							echo $resultText;
-							show_test($test_idx, "⚡️[" . count($workerProcs) . "/$workers concurrent test workers running]⚡️");
+							show_test($test_idx, count($workerProcs) . "/$workers concurrent test workers running");
 
 							if (!is_array($name) && $result != 'REDIR') {
 								$test_results[$index] = $result;

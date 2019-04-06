@@ -15,10 +15,10 @@ Define customized superglobal variables for general purpose use.
   <email>tysonandre775@hotmail.com</email>
   <active>yes</active>
  </lead>
- <date>2019-04-04</date>
+ <date>2019-04-06</date>
  <version>
-  <release>2.0.2</release>
-  <api>2.0.2</api>
+  <release>2.0.3</release>
+  <api>2.0.3</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -26,7 +26,7 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Fix the package version seen in reflection APIs.
+- Add missing Reflection parameter information of runkit_import().
  </notes>
  <contents>
   <dir name="/">
@@ -267,6 +267,21 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2019-04-06</date>
+   <version>
+    <release>2.0.3</release>
+    <api>2.0.3</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Add missing Reflection parameter information of runkit_import().
+   </notes>
+  </release>
   <release>
    <date>2019-04-04</date>
    <version>

@@ -1,9 +1,10 @@
 <?php
 // The runkit7 fork has a slightly different API from what is documented at https://secure.php.net/runkit
 //
-// - Return types were added for php7.0
+// - Return types were added for php7 support.
 // - Some functions are unsupported
 
+// Flags for manipulation of elements of classes (methods and constants)
 // These constants depend on the php version, and may change.
 const RUNKIT_ACC_RETURN_REFERENCE = 0x4000000;
 const RUNKIT_ACC_PUBLIC           = 0x100;
@@ -11,8 +12,25 @@ const RUNKIT_ACC_PROTECTED        = 0x200;
 const RUNKIT_ACC_PRIVATE          = 0x400;
 const RUNKIT_ACC_STATIC           = 0x1;
 
-const RUNKIT_VERSION              = "1.0.11";
+// Flags for runkit_import()
+const RUNKIT_IMPORT_FUNCTIONS = 1;
 
+const RUNKIT_IMPORT_CLASS_CONSTS = 4;
+const RUNKIT_IMPORT_CLASS_METHODS = 2;
+const RUNKIT_IMPORT_CLASS_PROPS = 8;
+const RUNKIT_IMPORT_CLASS_STATIC_PROPS = 16;
+const RUNKIT_IMPORT_CLASSES = RUNKIT_IMPORT_CLASS_CONSTS | RUNKIT_IMPORT_CLASS_METHODS | RUNKIT_IMPORT_CLASS_PROPS | RUNKIT_IMPORT_CLASS_STATIC_PROPS;
+const RUNKIT_OVERRIDE_OBJECTS = 32768;
+
+const RUNKIT_IMPORT_FUNCTIONS = 1;
+const RUNKIT_VERSION = "2.0.2";
+
+// Feature identifying constants (defaults).
+// These are 1 if enabled by configuration options, and 0 if disabled.
+const RUNKIT_FEATURE_MANIPULATION = 1;
+// RUNKIT_FEATURE_SANDBOX is always 0; it's impractical to implement this in php 7.
+const RUNKIT_FEATURE_SANDBOX = 0;
+const RUNKIT_FEATURE_SUPERGLOBALS = 1;
 
 /**
  * Similar to define(), but allows defining in class definitions as well.
@@ -240,6 +258,25 @@ function runkit_method_remove(string $classname, string $methodname) : bool {
  * @return bool - True on success or false on failure.
  */
 function runkit_method_rename(string $classname, string $methodname, string $newname) : bool {
+}
+
+/**
+ * Process a PHP file importing function and class definitions, overwriting where appropriate.
+ *
+ * @param string $filename Filename to import function and class definitions from.
+ * @param int $flags Bitwise OR of the RUNKIT_IMPORT_* family of constants.
+ * @return bool - True on success or false on failure.
+ */
+function runkit_import(string $filename, int $flags = RUNKIT_IMPORT_CLASS_METHODS) : bool {
+}
+
+/**
+ * Returns information about the data type, reference counts, etc.
+ *
+ * @param mixed $val
+ * @return array - has the fields address (hex string), type (int), is_ref (optional bool), and refcount (optional int)
+ */
+function runkit_zval_inspect($value) {
 }
 
 /**
