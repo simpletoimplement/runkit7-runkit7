@@ -23,7 +23,7 @@ const RUNKIT_IMPORT_CLASSES = RUNKIT_IMPORT_CLASS_CONSTS | RUNKIT_IMPORT_CLASS_M
 const RUNKIT_OVERRIDE_OBJECTS = 32768;
 
 const RUNKIT_IMPORT_FUNCTIONS = 1;
-const RUNKIT_VERSION = "2.0.2";
+const RUNKIT_VERSION = "2.0.3";
 
 // Feature identifying constants (defaults).
 // These are 1 if enabled by configuration options, and 0 if disabled.
