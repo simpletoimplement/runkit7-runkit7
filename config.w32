@@ -35,7 +35,7 @@ if (PHP_RUNKIT != "no") {
 
     AC_DEFINE('HAVE_RUNKIT', 1);
 
-    PHP_INSTALL_HEADERS('ext/runkit', 'php_runkit.h php_runkit_hash.h php_runkit_sandbox.h php_runkit_zend_execute_API.h php_runkit_zval.h runkit.h');
+    PHP_INSTALL_HEADERS('ext/runkit', 'php_runkit.h php_runkit_hash.h php_runkit_zend_execute_API.h php_runkit_zval.h runkit.h');
 
     EXTENSION("runkit", "runkit.c " +
                         "runkit_common.c " +
