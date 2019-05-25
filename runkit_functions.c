@@ -378,13 +378,19 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 			op_array->vars = dupvars;
 		}
 
+		// TODO: Remove ZEND_ACC_IMMUTABLE from func.common.fn_flags, like php 7.4?
+		// TODO: Look into other php 7.4 changes required for d57cd36e47b627dee5b825760163f8e62e23ab28
+
 		if (op_array->static_variables) {
-			// Similar to zend_compile.c's zend_create_closure copying static variables, zend_compile.c's do_bind_function
+			// Similar to zend_closures.c's zend_create_closure copying static variables, zend_compile.c's do_bind_function
 			// TODO: Does that work with references?
 			// 979: This seems to be calling an internal function returning a reference, then crashing?
 			// ZEND_ASSERT((call->func->common.fn_flags & ZEND_ACC_RETURN_REFERENCE)
 			// 	? Z_ISREF_P(ret) : !Z_ISREF_P(ret));
 			op_array->static_variables = zend_array_dup(op_array->static_variables);
+#if PHP_VERSION_ID >= 70400
+			ZEND_MAP_PTR_INIT(op_array->static_variables_ptr, &(op_array->static_variables));
+#endif
 		}
 
 		if (RUNKIT_RUN_TIME_CACHE(op_array)) {
@@ -862,26 +868,33 @@ void php_runkit_fix_all_hardcoded_stack_sizes(zend_string *called_name_lower, ze
 /* }}} */
 
 /* {{{ php_runkit_reflection_update_property */
-static void php_runkit_reflection_update_property(zval *object, const char *name, zval *value)
+static void php_runkit_reflection_update_property(zend_object *object, const char *name, zval *value)
 {
 	// Copied from ext/reflection's reflection_update_property
+#if PHP_VERSION_ID >= 80000
+	zend_string *name_string = zend_string_init(name, strlen(name), 0);
+	zend_std_write_property(object, name_string, value, NULL);
+	zend_string_release(name_string);
+#else
+	zval obj;
 	zval member;
+	ZVAL_OBJ(&obj, object);
 	ZVAL_STRING(&member, name);
-	zend_std_write_property(object, &member, value, NULL);
+	zend_std_write_property(&obj, &member, value, NULL);
+	zval_ptr_dtor(&member);
+#endif
 	if (Z_REFCOUNTED_P(value)) {
 		Z_DELREF_P(value);
 	}
-	zval_ptr_dtor(&member);
 }
 /* }}} */
 
 /* {{{ php_runkit_update_reflection_object_name */
 void php_runkit_update_reflection_object_name(zend_object *object, int handle, const char *name)
 {
-	zval obj, prop_value;
-	ZVAL_OBJ(&obj, object);
+	zval prop_value;
 	ZVAL_STRING(&prop_value, name);
-	php_runkit_reflection_update_property(&obj, RUNKIT_G(name_str), &prop_value);
+	php_runkit_reflection_update_property(object, RUNKIT_G(name_str), &prop_value);
 }
 /* }}} */
 
