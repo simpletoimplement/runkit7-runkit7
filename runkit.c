@@ -25,9 +25,9 @@
 ZEND_DECLARE_MODULE_GLOBALS(runkit)
 
 #ifdef PHP_RUNKIT_SUPERGLOBALS
-/* {{{ proto array runkit_superglobals(void)
+/* {{{ proto array runkit7_superglobals(void)
 	Return numerically indexed array of registered superglobals */
-PHP_FUNCTION(runkit_superglobals)
+PHP_FUNCTION(runkit7_superglobals)
 {
 	zend_string *key;
 
@@ -42,9 +42,9 @@ PHP_FUNCTION(runkit_superglobals)
 /* }}} */
 #endif /* PHP_RUNKIT_SUPERGLOBALS */
 
-/* {{{ proto array runkit_zval_inspect(mixed var)
+/* {{{ proto array runkit7_zval_inspect(mixed var)
  */
-PHP_FUNCTION(runkit_zval_inspect)
+PHP_FUNCTION(runkit7_zval_inspect)
 {
 	// TODO: Specify what this should do for php7 (e.g. primitives are no longer refcounted)
 	zval *value;
@@ -194,56 +194,95 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_constant_add, 0, 0, 2)
 	ZEND_ARG_INFO(0, newVisibility)
 ZEND_END_ARG_INFO()
 
-	// PHP_FE(runkit_default_property_add,								NULL)
-	// PHP_FE(runkit_default_property_remove,							NULL)
+	// PHP_FE(runkit7_default_property_add,								NULL)
+	// PHP_FE(runkit7_default_property_remove,							NULL)
 #endif /* PHP_RUNKIT_MANIPULATION */
 
 /** end of arginfo */
 /* }}} */
 
-/* {{{ runkit_functions[]
- */
-zend_function_entry runkit_functions[] = {
+#define PHP_FE_AND_FALIAS(runkit_function_name, runkit7_function_name, arginfo_for_function_name) \
+	PHP_FE(runkit7_function_name,									arginfo_for_function_name) \
+	PHP_FALIAS(runkit_function_name, runkit7_function_name,			arginfo_for_function_name)
 
-	PHP_FE(runkit_zval_inspect,										arginfo_runkit_zval_inspect)
-	PHP_FE(runkit_object_id,										arginfo_runkit_object_id)
-#ifdef PHP_RUNKIT_PROVIDES_SPL_OBJECT_ID
-	PHP_FE(spl_object_id,											arginfo_runkit_object_id)
-#endif
+PHP_FUNCTION(runkit7_zval_inspect);
+PHP_FUNCTION(runkit7_object_id);
 
 #ifdef PHP_RUNKIT_SUPERGLOBALS
-	PHP_FE(runkit_superglobals,										arginfo_runkit_superglobals)
+PHP_FUNCTION(runkit7_superglobals);
 #endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
 #ifdef PHP_RUNKIT_MANIPULATION_IMPORT
-	PHP_FE(runkit_import,											arginfo_runkit_import)
+PHP_FUNCTION(runkit7_import);
 #endif
 
-	PHP_FE(runkit_function_add,										arginfo_runkit_function_add)
-	PHP_FE(runkit_function_remove,									arginfo_runkit_function_remove)
-	PHP_FE(runkit_function_rename,									arginfo_runkit_function_rename)
-	PHP_FE(runkit_function_redefine,								arginfo_runkit_function_redefine)
-	PHP_FE(runkit_function_copy,									arginfo_runkit_function_copy)
+PHP_FUNCTION(runkit7_function_add);
+PHP_FUNCTION(runkit7_function_remove);
+PHP_FUNCTION(runkit7_function_rename);
+PHP_FUNCTION(runkit7_function_redefine);
+PHP_FUNCTION(runkit7_function_copy);
 
-	PHP_FE(runkit_method_add,										arginfo_runkit_method_add)
-	PHP_FE(runkit_method_redefine,									arginfo_runkit_method_redefine)
-	PHP_FE(runkit_method_remove,									arginfo_runkit_method_remove)
-	PHP_FE(runkit_method_rename,									arginfo_runkit_method_rename)
-	PHP_FE(runkit_method_copy,										arginfo_runkit_method_copy)
+PHP_FUNCTION(runkit7_method_add);
+PHP_FUNCTION(runkit7_method_redefine);
+PHP_FUNCTION(runkit7_method_remove);
+PHP_FUNCTION(runkit7_method_rename);
+PHP_FUNCTION(runkit7_method_copy);
+
+PHP_FUNCTION(runkit7_constant_redefine);
+PHP_FUNCTION(runkit7_constant_remove);
+PHP_FUNCTION(runkit7_constant_add);
+#endif /* PHP_RUNKIT_MANIPULATION */
+
+#ifdef PHP_RUNKIT_SANDBOX
+	// FIXME re-enable for sandbox
+PHP_FUNCTION(runkit7_lint);
+PHP_FUNCTION(runkit7_lint_file);
+#endif
+
+/* {{{ runkit_functions[]
+ */
+zend_function_entry runkit_functions[] = {
+
+	PHP_FE_AND_FALIAS(runkit_zval_inspect, 		runkit7_zval_inspect,		arginfo_runkit_zval_inspect)
+	PHP_FE_AND_FALIAS(runkit_object_id,			runkit7_object_id,			arginfo_runkit_object_id)
+#ifdef PHP_RUNKIT_PROVIDES_SPL_OBJECT_ID
+	PHP_FE(spl_object_id,													arginfo_runkit_object_id)
+#endif
+
+#ifdef PHP_RUNKIT_SUPERGLOBALS
+	PHP_FE_AND_FALIAS(runkit_superglobals,		runkit7_superglobals,		arginfo_runkit_superglobals)
+#endif
+
+#ifdef PHP_RUNKIT_MANIPULATION
+#ifdef PHP_RUNKIT_MANIPULATION_IMPORT
+	PHP_FE_AND_FALIAS(runkit_import,			runkit7_import,				arginfo_runkit_import)
+#endif
+
+	PHP_FE_AND_FALIAS(runkit_function_add,		runkit7_function_add,		arginfo_runkit_function_add)
+	PHP_FE_AND_FALIAS(runkit_function_remove,				runkit7_function_remove,	arginfo_runkit_function_remove)
+	PHP_FE_AND_FALIAS(runkit_function_rename,				runkit7_function_rename,	arginfo_runkit_function_rename)
+	PHP_FE_AND_FALIAS(runkit_function_redefine,				runkit7_function_redefine,	arginfo_runkit_function_redefine)
+	PHP_FE_AND_FALIAS(runkit_function_copy,				runkit7_function_copy,	arginfo_runkit_function_copy)
+
+	PHP_FE_AND_FALIAS(runkit_method_add,				runkit7_method_add,	arginfo_runkit_method_add)
+	PHP_FE_AND_FALIAS(runkit_method_redefine,				runkit7_method_redefine,	arginfo_runkit_method_redefine)
+	PHP_FE_AND_FALIAS(runkit_method_remove,				runkit7_method_remove,	arginfo_runkit_method_remove)
+	PHP_FE_AND_FALIAS(runkit_method_rename,				runkit7_method_rename,	arginfo_runkit_method_rename)
+	PHP_FE_AND_FALIAS(runkit_method_copy,				runkit7_method_copy,	arginfo_runkit_method_copy)
 
 #ifdef PHP_RUNKIT_CLASSKIT_COMPAT
-	PHP_FALIAS(classkit_method_add,			runkit_method_add,		arginfo_runkit_method_add)
-	PHP_FALIAS(classkit_method_redefine,	runkit_method_redefine,	arginfo_runkit_method_redefine)
-	PHP_FALIAS(classkit_method_remove,		runkit_method_remove,	arginfo_runkit_method_remove)
-	PHP_FALIAS(classkit_method_rename,		runkit_method_rename,	arginfo_runkit_method_rename)
-	PHP_FALIAS(classkit_method_copy,		runkit_method_copy,		arginfo_runkit_method_copy)
-	PHP_FALIAS(classkit_import,				runkit_import,			arginfo_runkit_import)
+	PHP_FALIAS(classkit_method_add,			runkit7_method_add,		arginfo_runkit_method_add)
+	PHP_FALIAS(classkit_method_redefine,	runkit7_method_redefine,	arginfo_runkit_method_redefine)
+	PHP_FALIAS(classkit_method_remove,		runkit7_method_remove,	arginfo_runkit_method_remove)
+	PHP_FALIAS(classkit_method_rename,		runkit7_method_rename,	arginfo_runkit_method_rename)
+	PHP_FALIAS(classkit_method_copy,		runkit7_method_copy,		arginfo_runkit_method_copy)
+	PHP_FALIAS(classkit_import,				runkit7_import,			arginfo_runkit_import)
 #endif
 
-	PHP_FE(runkit_constant_redefine,								arginfo_runkit_constant_redefine)
-	PHP_FE(runkit_constant_remove,									arginfo_runkit_constant_remove)
-	PHP_FE(runkit_constant_add,										arginfo_runkit_constant_add)
+	PHP_FE_AND_FALIAS(runkit_constant_redefine,				runkit7_constant_redefine,	arginfo_runkit_constant_redefine)
+	PHP_FE_AND_FALIAS(runkit_constant_remove,				runkit7_constant_remove,	arginfo_runkit_constant_remove)
+	PHP_FE_AND_FALIAS(runkit_constant_add,				runkit7_constant_add,	arginfo_runkit_constant_add)
 
 /*
 // We support this **partially** just so that runkit_import will compile, but it's in progress.
@@ -256,9 +295,8 @@ zend_function_entry runkit_functions[] = {
 
 #ifdef PHP_RUNKIT_SANDBOX
 	// FIXME re-enable for sandbox
-	// PHP_FE(runkit_sandbox_output_handler,							NULL)
-	PHP_FE(runkit_lint,												arginfo_runkit_lint)
-	PHP_FE(runkit_lint_file,										arginfo_runkit_lint_file)
+	PHP_FE_AND_FALIAS(runkit_lint,				runkit7_lint,	arginfo_runkit_lint)
+	PHP_FE_AND_FALIAS(runkit_lint_file,				runkit7_lint_file,	arginfo_runkit_lint_file)
 #endif
 
 	{NULL, NULL, NULL}
@@ -343,6 +381,10 @@ static void php_runkit_globals_ctor(void *pDest)
 }
 #endif
 
+#define REGISTER_RUNKIT7_LONG_CONSTANT(runkit_const_name, runkit7_const_name, value) \
+	REGISTER_LONG_CONSTANT(runkit_const_name,  value, CONST_CS | CONST_PERSISTENT); \
+	REGISTER_LONG_CONSTANT(runkit7_const_name, value, CONST_CS | CONST_PERSISTENT);
+
 /* {{{ PHP_MINIT_FUNCTION
  */
 PHP_MINIT_FUNCTION(runkit)
@@ -361,22 +403,23 @@ PHP_MINIT_FUNCTION(runkit)
 	REGISTER_INI_ENTRIES();
 #endif
 
-	REGISTER_LONG_CONSTANT("RUNKIT_IMPORT_FUNCTIONS",          PHP_RUNKIT_IMPORT_FUNCTIONS,             CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("RUNKIT_IMPORT_CLASS_METHODS",      PHP_RUNKIT_IMPORT_CLASS_METHODS,         CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("RUNKIT_IMPORT_CLASS_CONSTS",       PHP_RUNKIT_IMPORT_CLASS_CONSTS,          CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("RUNKIT_IMPORT_CLASS_PROPS",        PHP_RUNKIT_IMPORT_CLASS_PROPS,           CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("RUNKIT_IMPORT_CLASS_STATIC_PROPS", PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS,    CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("RUNKIT_IMPORT_CLASSES",            PHP_RUNKIT_IMPORT_CLASSES,               CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("RUNKIT_IMPORT_OVERRIDE",           PHP_RUNKIT_IMPORT_OVERRIDE,              CONST_CS | CONST_PERSISTENT);
-	REGISTER_STRING_CONSTANT("RUNKIT_VERSION",                 PHP_RUNKIT_VERSION,                      CONST_CS | CONST_PERSISTENT);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_IMPORT_FUNCTIONS", "RUNKIT7_IMPORT_FUNCTIONS", PHP_RUNKIT_IMPORT_FUNCTIONS);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_IMPORT_CLASS_METHODS", "RUNKIT7_IMPORT_CLASS_METHODS", PHP_RUNKIT_IMPORT_CLASS_METHODS);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_IMPORT_CLASS_CONSTS", "RUNKIT7_IMPORT_CLASS_CONSTS", PHP_RUNKIT_IMPORT_CLASS_CONSTS);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_IMPORT_CLASS_PROPS", "RUNKIT7_IMPORT_CLASS_PROPS", PHP_RUNKIT_IMPORT_CLASS_PROPS);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_IMPORT_CLASS_STATIC_PROPS", "RUNKIT7_IMPORT_CLASS_STATIC_PROPS", PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_IMPORT_CLASSES", "RUNKIT7_IMPORT_CLASSES", PHP_RUNKIT_IMPORT_CLASSES);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_IMPORT_OVERRIDE", "RUNKIT7_IMPORT_OVERRIDE", PHP_RUNKIT_IMPORT_OVERRIDE);
+	REGISTER_STRING_CONSTANT("RUNKIT_VERSION", PHP_RUNKIT_VERSION, CONST_CS | CONST_PERSISTENT);
+	REGISTER_STRING_CONSTANT("RUNKIT7_VERSION", PHP_RUNKIT_VERSION, CONST_CS | CONST_PERSISTENT);
 
-	REGISTER_LONG_CONSTANT("RUNKIT_ACC_RETURN_REFERENCE",      PHP_RUNKIT_ACC_RETURN_REFERENCE,         CONST_CS | CONST_PERSISTENT);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_ACC_RETURN_REFERENCE", "RUNKIT7_ACC_RETURN_REFERENCE", PHP_RUNKIT_ACC_RETURN_REFERENCE);
 
-	REGISTER_LONG_CONSTANT("RUNKIT_ACC_PUBLIC",                ZEND_ACC_PUBLIC,                         CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("RUNKIT_ACC_PROTECTED",             ZEND_ACC_PROTECTED,                      CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("RUNKIT_ACC_PRIVATE",               ZEND_ACC_PRIVATE,                        CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("RUNKIT_ACC_STATIC",                ZEND_ACC_STATIC,                         CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("RUNKIT_OVERRIDE_OBJECTS",          PHP_RUNKIT_OVERRIDE_OBJECTS,             CONST_CS | CONST_PERSISTENT);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_ACC_PUBLIC", "RUNKIT7_ACC_PUBLIC", ZEND_ACC_PUBLIC);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_ACC_PROTECTED", "RUNKIT7_ACC_PROTECTED", ZEND_ACC_PROTECTED);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_ACC_PRIVATE", "RUNKIT7_ACC_PRIVATE", ZEND_ACC_PRIVATE);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_ACC_STATIC", "RUNKIT7_ACC_STATIC", ZEND_ACC_STATIC);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_OVERRIDE_OBJECTS", "RUNKIT7_OVERRIDE_OBJECTS", PHP_RUNKIT_OVERRIDE_OBJECTS);
 
 #ifdef PHP_RUNKIT_CLASSKIT_COMPAT
 	REGISTER_LONG_CONSTANT("CLASSKIT_ACC_PUBLIC",              ZEND_ACC_PUBLIC,                         CONST_CS | CONST_PERSISTENT);
@@ -388,19 +431,19 @@ PHP_MINIT_FUNCTION(runkit)
 
 	/* Feature Identifying constants */
 #ifdef PHP_RUNKIT_MANIPULATION
-	REGISTER_LONG_CONSTANT("RUNKIT_FEATURE_MANIPULATION",      1,                                        CONST_CS | CONST_PERSISTENT);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_FEATURE_MANIPULATION", "RUNKIT7_FEATURE_MANIPULATION", 1);
 #else
-	REGISTER_LONG_CONSTANT("RUNKIT_FEATURE_MANIPULATION",      0,                                        CONST_CS | CONST_PERSISTENT);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_FEATURE_MANIPULATION", "RUNKIT7_FEATURE_MANIPULATION", 0);
 #endif
 #ifdef PHP_RUNKIT_SUPERGLOBALS
-	REGISTER_LONG_CONSTANT("RUNKIT_FEATURE_SUPERGLOBALS",      1,                                        CONST_CS | CONST_PERSISTENT);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_FEATURE_SUPERGLOBALS", "RUNKIT7_FEATURE_SUPERGLOBALS", 1);
 #else
-	REGISTER_LONG_CONSTANT("RUNKIT_FEATURE_SUPERGLOBALS",      0,                                        CONST_CS | CONST_PERSISTENT);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_FEATURE_SUPERGLOBALS", "RUNKIT7_FEATURE_SUPERGLOBALS", 0);
 #endif
 #ifdef PHP_RUNKIT_SANDBOX
-	REGISTER_LONG_CONSTANT("RUNKIT_FEATURE_SANDBOX",           1,                                        CONST_CS | CONST_PERSISTENT);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_FEATURE_SANDBOX", "RUNKIT7_FEATURE_SANDBOX", 1);
 #else
-	REGISTER_LONG_CONSTANT("RUNKIT_FEATURE_SANDBOX",           0,                                        CONST_CS | CONST_PERSISTENT);
+	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_FEATURE_SANDBOX", "RUNKIT7_FEATURE_SANDBOX", 0);
 #endif
 
 	return (1)

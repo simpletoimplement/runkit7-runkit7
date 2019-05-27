@@ -2,14 +2,14 @@
 ======================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
-__Now with partial support for PHP7.1, 7.2, and 7.3!__ (function/method manipulation is recommended only for unit testing. Note that PHP 7.3 has known crashes in `runkit_import()` but other functionality works.)
+__Supports PHP7.1, 7.2, and 7.3!__ (function/method manipulation is recommended only for unit testing. Note that PHP 7.3 has known crashes in `runkit7_import()` but all other functionality works.)
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/3jwsf76ge0yo8v74/branch/master?svg=true)](https://ci.appveyor.com/project/TysonAndre/runkit7/branch/master)
 
-[Building and installing runkit in unix](#building-and-installing-runkit7-in-unix)
+[Building and installing runkit7 in unix](#building-and-installing-runkit7-in-unix)
 
-[Building and installing runkit in Windows](#building-and-installing-runkit7-in-windows)
+[Building and installing runkit7 in Windows](#building-and-installing-runkit7-in-windows)
 
 Compatibility: PHP7.1 to PHP 7.3
 --------------------------------
@@ -23,7 +23,7 @@ Superglobals work reliably when tested on web servers and tests.
 Class and function manipulation is recommended only for unit tests.
 
 - The `runkit.superglobal` ini setting works reliably in PHP 7.
-- Manipulating user-defined (i.e. not builtin or part of extensions) functions and methods via `runkit_method_*` and `runkit_function_*` generally works, **but is recommended only in unit tests** (unlikely to crash, but will cause memory leaks)
+- Manipulating user-defined (i.e. not builtin or part of extensions) functions and methods via `runkit7_method_*` and `runkit7_function_*` generally works, **but is recommended only in unit tests** (unlikely to crash, but will cause memory leaks)
 - Manipulating built in functions may cause segmentation faults in rare cases.
   File a bug report if you see this.
   **Function and method manipulation is recommended only for debugging or unit tests, because of the possibility of crashes**.
@@ -34,7 +34,7 @@ Class and function manipulation is recommended only for unit tests.
   See the reasons for disabling property manipulation at [PROPERTY\_MANIPULATION.md](./PROPERTY_MANIPULATION.md)
   As a substitute, user code can do the following things:
 
-  - rename (or add) `__construct` with `runkit_method_rename`/`runkit_method_add`,
+  - rename (or add) `__construct` with `runkit7_method_rename`/`runkit7_method_add`,
     and create a new version of `__construct` that sets the properties, then calls the original constructor.
   - For getting/setting properties of **individual objects**, see [ReflectionProperty](https://secure.php.net/manual/en/class.reflectionproperty.php)
     `ReflectionProperty->setAccessible(true)` and `ReflectionProperty->setValue()`, etc.
@@ -42,23 +42,22 @@ Class and function manipulation is recommended only for unit tests.
   PHP7 inlines constants within the same file if they are guaranteed to have only one definition.
   Patching php-src and/or opcache to not inline constants (e.g. based on a php.ini setting) is possible, but hasn't been tried yet.
 - Sandboxing (and `runkit_lint`) were removed.
-- `runkit_object_id` works. If that function is the only function you need from runkit, see [runkit7/runkit\_object\_id](https://github.com/runkit7/runkit_object_id).
+- `runkit7_object_id` works. If that function is the only function you need from runkit7, see [runkit7/runkit\_object\_id](https://github.com/runkit7/runkit_object_id).
 
 The following contributions are welcome:
 
 -   Pull requests with  PHP5 -> PHP7 code migration of functions
 -   New test cases for features that no longer work in PHP7, or bug reports containing code crashing runkit7.
 -   Issues for PHP language features that worked in PHP5, but no longer work in PHP7,
-    for the implemented methods (`runkit_function_*` and `runkit_method_*`)
+    for the implemented methods (`runkit7_function_*` and `runkit7_method_*`)
 -   Fixes and documentation.
 
-Most of the runkit tests for method manipulation and function manipulation are passing.
 Other methods and corresponding tests are disabled/skipped because changes to php internals in php7 made them impractical.
 
 Examples
 --------
 
-The following mocking libraries work with the runkit7 fork
+The following mocking libraries work with runkit7.
 
 - [![Build Status](https://travis-ci.org/runkit7/Timecop-PHP.svg?branch=master)](https://travis-ci.org/runkit7/Timecop-PHP) [timecop-PHP (Fork)](https://github.com/runkit7/Timecop-PHP), a time testing library inspired by the ruby timecop gem (requires `runkit.internal_override=1`, suggested only for unit tests)
 - [![Build Status](https://travis-ci.org/tototoshi/staticmock.svg?branch=master)](https://travis-ci.org/tototoshi/staticmock) [staticmock](https://github.com/tototoshi/staticmock), a mockery-like DSL to replace static methods in tests.
@@ -67,9 +66,9 @@ The following mocking libraries work with the runkit7 fork
 
 ## PHP7 SPECIFIC DETAILS
 
-### Bugs in PHP7 runkit
+### Bugs in runkit7
 
--   There are segumentation faults in `runkit_import()` in PHP 7.3 (confirmed on NTS)
+-   There are segmentation faults in `runkit7_import()` in PHP 7.3 (confirmed on NTS)
 -   There are segmentation faults when manipulating internal functions
     (a.k.a. "runkit.internal_override=1")
     (when you rename/redefine/(copy?) internal functions, and call internal functions with user functions' implementation, or vice versa)
@@ -85,12 +84,14 @@ The following mocking libraries work with the runkit7 fork
 
 #### Implemented APIs for PHP7
 
--   `runkit_function_*`: Most tests are passing. There are some memory leaks when renaming internal functions.
--   `runkit_method_*`: Most tests are passing. There are some memory leaks when renaming internal functions.
--   `runkit_zval_inspect`: Partly passing, and needs to be rewritten because of PHP7's zval changes.
--   `runkit_constant_add` works. Other constant manipulation functions don't work for constants accessed within the same file due to the compiler inlining their values for performance.
+NOTE: Most `runkit7_*()` functions have aliases of `runkit_*()`.
+
+-   `runkit7_function_*`: Most tests are passing. There are some memory leaks when renaming internal functions.
+-   `runkit7_method_*`: Most tests are passing. There are some memory leaks when renaming internal functions.
+-   `runkit7_zval_inspect`: Partly passing, and needs to be rewritten because of PHP7's zval changes.
+-   `runkit7_constant_add` works. Other constant manipulation functions don't work for constants accessed within the same file due to the compiler inlining their values for performance.
 -   Runkit superglobals.
--   `runkit_import`
+-   `runkit7_import`
     Some flags are missing for PHP 7.x, especially properties, and other tests have known failures.
     See https://github.com/runkit7/runkit7/issues/73
 
@@ -101,7 +102,7 @@ The following mocking libraries work with the runkit7 fork
     Disabled because of [bugs related to properties](./PROPERTY_MANIPULATION.md).
 -   `runkit_lint*`
     Might be possible if this is rewritten to use actual threading: See [issue #114](https://github.com/runkit7/runkit7/issues/114)
--   `runkit_constant_*` : `runkit_constant_add` works reliably, other methods don't.
+-   `runkit7_constant_*` : `runkit7_constant_add` works reliably, other methods don't.
     This works better when the constants are declared in a file separate from the file accessing that constant.
 -   `runkit_default_property_*`
     Disabled because of [bugs related to properties](./PROPERTY_MANIPULATION.md)
@@ -131,7 +132,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on issues and pull reque
 UPSTREAM DOCUMENTATION
 ======================
 
-**(runkit7 is an unofficial fork of https://github.com/zenovich/runkit, adding php7 support)**
+**([runkit7](https://pecl.php.net/package/runkit7) is a fork of https://github.com/zenovich/runkit, implementing php7.1+ support)**
 
 Features
 ========
@@ -207,7 +208,13 @@ Installation
 ============
 
 
-### BUILDING AND INSTALLING RUNKIT(7) IN UNIX
+### BUILDING AND INSTALLING RUNKIT7 IN UNIX
+
+`pecl install runkit7` can be used to install [runkit7 releases published on PECL](https://pecl.php.net/package/runkit7).
+
+Tarballs can be downloaded from [PECL](https://github.com/runkit7/runkit7/releases) or [GitHub](https://github.com/runkit7/runkit7/releases).
+
+An example of how to build the latest master branch from source is below:
 
 ```bash
 git clone https://github.com/runkit7/runkit7.git
@@ -216,17 +223,12 @@ phpize
 # The sandbox related code and flags have been removed, no need to disable them.
 # (--enable-runkit-modify (on by default) controls function, method, class, manipulation, and will control property manipulation)
 # (--enable-runkit-super (on by default) allows you to add custom superglobals)
+# ./configure --help lists available configuration options.
 ./configure
 make
 make test
 sudo make install
 ```
-
-Pecl tars are also included with newer GitHub releases.
-
-1. Go to https://github.com/runkit7/runkit7/releases
-2. Download the tgz file from the link (e.g. runkit-1.0.11.tgz)
-3. `pecl install ./runkit-1.0.11.tgz`
 
 ### BUILDING AND INSTALLING RUNKIT7 IN WINDOWS
 
@@ -253,7 +255,7 @@ There are currently no sources providing DLLs of this fork. Runkit7 and other ex
 
 Create subdirectory C:\php-sdk\phpdev\vc14\x86\pecl, adjacent to php source directory)
 
-extract download of runkit7 to C:\php-sdk\phpdev\vc14\x86\pecl\runkit7 (all of the c files and h files should be within runkit7, pecl is
+extract download of runkit7 to C:\php-sdk\phpdev\vc14\x86\pecl\runkit7 (all of the c files and h files should be within runkit7)
 
 Then, execute the following (Add `--enable-runkit` to the configure flags you were already using)
 

@@ -15,7 +15,8 @@
   +----------------------------------------------------------------------+
   | Author: Sara Golemon <pollita@php.net>                               |
   | Modified by Dmitry Zenovich <dzenovich@gmail.com>                    |
-  | Modifications for php7 (in progress) by Tyson Andre                  |
+  | Modifications for php7 property manipulation (in progress)           |
+  | by Tyson Andre                                                       |
   +----------------------------------------------------------------------+
 Note: This file is a stub, some functionality hasn't been ported yet.
 (Will be used for runkit_import in the future)
@@ -569,10 +570,10 @@ void php_runkit_remove_property_from_reflection_objects(zend_class_entry *ce, ze
    * Properties API *
    ****************** */
 
-/* {{{ proto bool runkit_default_property_add(string classname, string propname, mixed initialvalue[, int visibility])
+/* {{{ proto bool runkit7_default_property_add(string classname, string propname, mixed initialvalue[, int visibility])
 Add a property to a class with a given visibility
  */
-PHP_FUNCTION(runkit_default_property_add)
+PHP_FUNCTION(runkit7_default_property_add)
 {
 	zend_string *classname;
 	zend_string *propname;
@@ -595,10 +596,10 @@ PHP_FUNCTION(runkit_default_property_add)
 }
 /* }}} */
 
-/* {{{ proto bool runkit_default_property_remove(string classname, string propname)
+/* {{{ proto bool runkit7_default_property_remove(string classname, string propname)
 Remove a property from a class
  */
-PHP_FUNCTION(runkit_default_property_remove)
+PHP_FUNCTION(runkit7_default_property_remove)
 {
 	zend_string *classname;
 	zend_string *propname;

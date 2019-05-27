@@ -3,7 +3,7 @@
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | (c) 2015-2018 Tyson Andre                                            |
+  | (c) 2015-2019 Tyson Andre                                            |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -82,9 +82,9 @@ static inline const void *php_runkit_memrchr(const void *s, int c, size_t n)
 }
 /* }}} */
 
-/* {{{ proto bool runkit_class_emancipate(string classname)
+/* {{{ proto bool runkit7_class_emancipate(string classname)
 	Convert an inherited class to a base class, removes any method whose scope is ancestral */
-PHP_FUNCTION(runkit_class_emancipate)
+PHP_FUNCTION(runkit7_class_emancipate)
 {
 	zend_class_entry *ce;
 	zend_string *classname;
@@ -234,9 +234,9 @@ int php_runkit_class_copy(zend_class_entry *src, zend_string *classname)
 }
 /* }}} */
 
-/* {{{ proto bool runkit_class_adopt(string classname, string parentname)
+/* {{{ proto bool runkit7_class_adopt(string classname, string parentname)
 	Convert a base class to an inherited class, add ancestral methods when appropriate */
-PHP_FUNCTION(runkit_class_adopt)
+PHP_FUNCTION(runkit7_class_adopt)
 {
 	zend_class_entry *ce, *parent;
 	zend_string *classname, *parentname;

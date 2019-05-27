@@ -21,9 +21,9 @@
 
 #include "runkit.h"
 
-/* {{{ proto int runkit_object_id(object instance)
+/* {{{ proto int runkit7_object_id(object instance)
 Fetch the Object Handle ID from an instance */
-PHP_FUNCTION(runkit_object_id)
+PHP_FUNCTION(runkit7_object_id)
 {
 	zval *obj;
 

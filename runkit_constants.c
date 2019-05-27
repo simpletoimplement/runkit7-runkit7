@@ -478,9 +478,9 @@ static zend_bool runkit_check_if_const_flags_are_invalid(zend_bool is_class_cons
    * Constants API *
    ***************** */
 
-/* {{{ proto bool runkit_constant_redefine(string constname, mixed newvalue)
+/* {{{ proto bool runkit7_constant_redefine(string constname, mixed newvalue)
  */
-PHP_FUNCTION(runkit_constant_redefine)
+PHP_FUNCTION(runkit7_constant_redefine)
 {
 	zend_string *classname, *constname;
 	zval *value;
@@ -513,9 +513,9 @@ PHP_FUNCTION(runkit_constant_redefine)
 }
 /* }}} */
 
-/* {{{ proto bool runkit_constant_remove(string constname)
+/* {{{ proto bool runkit7_constant_remove(string constname)
  */
-PHP_FUNCTION(runkit_constant_remove)
+PHP_FUNCTION(runkit7_constant_remove)
 {
 	zend_string *classname, *constname;
 	ZEND_RESULT_CODE result;
@@ -532,10 +532,10 @@ PHP_FUNCTION(runkit_constant_remove)
 }
 /* }}} */
 
-/* {{{ proto bool runkit_constant_add(string constname, mixed value)
+/* {{{ proto bool runkit7_constant_add(string constname, mixed value)
 	Similar to define(), but allows defining in class definitions as well
  */
-PHP_FUNCTION(runkit_constant_add)
+PHP_FUNCTION(runkit7_constant_add)
 {
 	zend_string *classname, *constname;
 	zval *value = NULL;
