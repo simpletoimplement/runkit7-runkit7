@@ -24,11 +24,11 @@ ParentClass::foo();
 Child::foo();
 
 echo "Importing\n";
-runkit7_import(dirname(__FILE__) . '/runkit_import_methods2.inc', RUNKIT_IMPORT_CLASS_METHODS);
+runkit7_import(dirname(__FILE__) . '/runkit_import_methods2.inc', RUNKIT7_IMPORT_CLASS_METHODS);
 Child::foo();
 
 echo "Importing\n";
-runkit7_import(dirname(__FILE__) . '/runkit_import_methods2.inc', RUNKIT_IMPORT_CLASS_METHODS | RUNKIT_IMPORT_OVERRIDE);
+runkit7_import(dirname(__FILE__) . '/runkit_import_methods2.inc', RUNKIT7_IMPORT_CLASS_METHODS | RUNKIT7_IMPORT_OVERRIDE);
 Child::foo();
 
 --EXPECTF--

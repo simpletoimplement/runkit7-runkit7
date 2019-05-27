@@ -1,7 +1,7 @@
 --TEST--
 runkit7_method_remove() function
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 display_errors=on
 --FILE--

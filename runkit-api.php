@@ -6,31 +6,33 @@
 
 // Flags for manipulation of elements of classes (methods and constants)
 // These constants depend on the php version, and may change.
-const RUNKIT_ACC_RETURN_REFERENCE = 0x4000000;
-const RUNKIT_ACC_PUBLIC           = 0x100;
-const RUNKIT_ACC_PROTECTED        = 0x200;
-const RUNKIT_ACC_PRIVATE          = 0x400;
-const RUNKIT_ACC_STATIC           = 0x1;
+const RUNKIT7_ACC_RETURN_REFERENCE = 0x4000000;
+const RUNKIT7_ACC_PUBLIC           = 0x100;
+const RUNKIT7_ACC_PROTECTED        = 0x200;
+const RUNKIT7_ACC_PRIVATE          = 0x400;
+const RUNKIT7_ACC_STATIC           = 0x1;
 
 // Flags for runkit_import()
-const RUNKIT_IMPORT_FUNCTIONS = 1;
+// NOTE: All RUNKIT7_* constants have corresponding RUNKIT_* constants with the same values.
+const RUNKIT7_IMPORT_FUNCTIONS = 1;
 
-const RUNKIT_IMPORT_CLASS_CONSTS = 4;
-const RUNKIT_IMPORT_CLASS_METHODS = 2;
-const RUNKIT_IMPORT_CLASS_PROPS = 8;
-const RUNKIT_IMPORT_CLASS_STATIC_PROPS = 16;
-const RUNKIT_IMPORT_CLASSES = RUNKIT_IMPORT_CLASS_CONSTS | RUNKIT_IMPORT_CLASS_METHODS | RUNKIT_IMPORT_CLASS_PROPS | RUNKIT_IMPORT_CLASS_STATIC_PROPS;
-const RUNKIT_OVERRIDE_OBJECTS = 32768;
+const RUNKIT7_IMPORT_CLASS_CONSTS = 4;
+const RUNKIT7_IMPORT_CLASS_METHODS = 2;
+const RUNKIT7_IMPORT_CLASS_PROPS = 8;
+const RUNKIT7_IMPORT_CLASS_STATIC_PROPS = 16;
+const RUNKIT7_IMPORT_CLASSES = RUNKIT7_IMPORT_CLASS_CONSTS | RUNKIT7_IMPORT_CLASS_METHODS | RUNKIT7_IMPORT_CLASS_PROPS | RUNKIT7_IMPORT_CLASS_STATIC_PROPS;
+const RUNKIT7_OVERRIDE_OBJECTS = 32768;
 
-const RUNKIT_IMPORT_FUNCTIONS = 1;
-const RUNKIT_VERSION = "2.0.3";
+const RUNKIT7_IMPORT_FUNCTIONS = 1;
+
+const RUNKIT7_VERSION = "2.1.0dev";
 
 // Feature identifying constants (defaults).
 // These are 1 if enabled by configuration options, and 0 if disabled.
-const RUNKIT_FEATURE_MANIPULATION = 1;
-// RUNKIT_FEATURE_SANDBOX is always 0; it's impractical to implement this in php 7.
-const RUNKIT_FEATURE_SANDBOX = 0;
-const RUNKIT_FEATURE_SUPERGLOBALS = 1;
+const RUNKIT7_FEATURE_MANIPULATION = 1;
+// RUNKIT7_FEATURE_SANDBOX is always 0; it's impractical to implement this in php 7.
+const RUNKIT7_FEATURE_SANDBOX = 0;
+const RUNKIT7_FEATURE_SUPERGLOBALS = 1;
 
 /**
  * Similar to define(), but allows defining in class definitions as well.
@@ -45,7 +47,7 @@ const RUNKIT_FEATURE_SUPERGLOBALS = 1;
  * @param int $visibility - Visibility of the constant. Public by default.
  * @return bool - TRUE on success or FALSE on failure.
  */
-function runkit7_constant_add(string $constname, $value, int $visibility = RUNKIT_ACC_PUBLIC) : bool {
+function runkit7_constant_add(string $constname, $value, int $visibility = RUNKIT7_ACC_PUBLIC) : bool {
 }
 
 /**
@@ -191,14 +193,14 @@ function runkit7_function_rename(string $funcname, string $newname) : bool {
  * @param string $methodname The name of the method to add
  * @param string $arglist Comma separated argument list
  * @param string $code The code to be evaluated when $methodname is called
- * @param int $flags The type of method to create, can be RUNKIT_ACC_PUBLIC, RUNKIT_ACC_PROTECTED or RUNKIT_ACC_PRIVATE
- *                   optionally combined via bitwise OR with RUNKIT_ACC_STATIC (since 1.0.1)
+ * @param int $flags The type of method to create, can be RUNKIT7_ACC_PUBLIC, RUNKIT7_ACC_PROTECTED or RUNKIT7_ACC_PRIVATE
+ *                   optionally combined via bitwise OR with RUNKIT7_ACC_STATIC (since 1.0.1)
  * @param ?string $doc_comment The doc comment of the method
  * @param ?string $return_type Return type of this method (e.g. `stdClass`, `?string`(php 7.1))
  * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit7_method_add(string $classname, string $methodname, string $arglist, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
+function runkit7_method_add(string $classname, string $methodname, string $arglist, string $code, int $flags = RUNKIT7_ACC_PUBLIC, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
 }
 
 /**
@@ -210,13 +212,13 @@ function runkit7_method_add(string $classname, string $methodname, string $argli
  * @param string $classname The class to which this method will be added
  * @param string $methodname The name of the method to add
  * @param Closure $closure A closure to use as the source for this function. Static variables and `use` variables and return types are copied.
- * @param int $flags The type of method to create, can be RUNKIT_ACC_PUBLIC, RUNKIT_ACC_PROTECTED or RUNKIT_ACC_PRIVATE
- *                   optionally combined via bitwise OR with RUNKIT_ACC_STATIC (since 1.0.1)
+ * @param int $flags The type of method to create, can be RUNKIT7_ACC_PUBLIC, RUNKIT7_ACC_PROTECTED or RUNKIT7_ACC_PRIVATE
+ *                   optionally combined via bitwise OR with RUNKIT7_ACC_STATIC (since 1.0.1)
  * @param ?string $doc_comment The doc comment of the method
  * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit7_method_add(string $classname, string $methodname, Closure $closure, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, bool $is_strict = null) : bool {
+function runkit7_method_add(string $classname, string $methodname, Closure $closure, int $flags = RUNKIT7_ACC_PUBLIC, string $doc_comment = null, bool $is_strict = null) : bool {
 }
 
 /**
@@ -242,14 +244,14 @@ function runkit7_method_copy(string $dClass, string $dMethod, string $sClass, st
  * @param string $methodname The name of the method to redefine
  * @param string $arglist Comma separated argument list for the redefined method
  * @param string $code The new code to be evaluated when methodname is called
- * @param int $flags The type of method to create, can be RUNKIT_ACC_PUBLIC, RUNKIT_ACC_PROTECTED or RUNKIT_ACC_PRIVATE
- *                   optionally combined via bitwise OR with RUNKIT_ACC_STATIC (since 1.0.1)
+ * @param int $flags The type of method to create, can be RUNKIT7_ACC_PUBLIC, RUNKIT7_ACC_PROTECTED or RUNKIT7_ACC_PRIVATE
+ *                   optionally combined via bitwise OR with RUNKIT7_ACC_STATIC (since 1.0.1)
  * @param ?string $doc_comment The doc comment of the method
  * @param ?string $return_type Return type of this method (e.g. `stdClass`, `?string`(php 7.1))
  * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit7_method_redefine(string $classname, string $methodname, string $args, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
+function runkit7_method_redefine(string $classname, string $methodname, string $args, string $code, int $flags = RUNKIT7_ACC_PUBLIC, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
 }
 
 /**
@@ -299,10 +301,10 @@ function runkit7_method_rename(string $classname, string $methodname, string $ne
  * Aliases: runkit_import
  *
  * @param string $filename Filename to import function and class definitions from.
- * @param int $flags Bitwise OR of the RUNKIT_IMPORT_* family of constants.
+ * @param int $flags Bitwise OR of the RUNKIT7_IMPORT_* family of constants.
  * @return bool - True on success or false on failure.
  */
-function runkit7_import(string $filename, int $flags = RUNKIT_IMPORT_CLASS_METHODS) : bool {
+function runkit7_import(string $filename, int $flags = RUNKIT7_IMPORT_CLASS_METHODS) : bool {
 }
 
 /**

@@ -2,7 +2,7 @@
 runkit7_constant_redefine() function redefines protected class constants (when accessing other files, not working for same file)
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+if(!extension_loaded("runkit") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --FILE--
 <?php
@@ -40,7 +40,7 @@ try {
 } catch (Error $e) {
 	printf("Caught %s from get_foo: %s\n", get_class($e), $e->getMessage());
 }
-runkit7_constant_add($const, 'roh', RUNKIT_ACC_PROTECTED);
+runkit7_constant_add($const, 'roh', RUNKIT7_ACC_PROTECTED);
 var_dump($const);
 var_dump(TestClass::get_foo());
 var_dump(TestSubclass::get_foo());
@@ -61,7 +61,7 @@ try {
 } catch (Error $e) {
 	printf("Caught %s from TestSubclass::get_parent_foo: %s\n", get_class($e), $e->getMessage());
 }
-runkit7_constant_add($const, 'dah', RUNKIT_ACC_PRIVATE);
+runkit7_constant_add($const, 'dah', RUNKIT7_ACC_PRIVATE);
 var_dump($const);
 var_dump(TestClass::get_foo());
 var_dump(TestSubclass::get_foo());
