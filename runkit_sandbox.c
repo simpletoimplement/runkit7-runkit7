@@ -1814,7 +1814,7 @@ static void php_runkit_lint_compile(INTERNAL_FUNCTION_PARAMETERS, int filemode)
 // The implementation of compile_string changed. It expects raw PHP without tags instead of PHP contents of tags.
 // zend_language_scanner.c doesn't expose enough to create a stable implementation, unless one were to duplicate it.
 
-/* {{{ proto bool runkit_lint(string code)
+/* {{{ proto bool runkit7_lint(string code)
 	Attempts to compile a string of code within a sub-interpreter */
 PHP_FUNCTION(runkit7_lint)
 {
@@ -1822,7 +1822,7 @@ PHP_FUNCTION(runkit7_lint)
 }
 /* }}} */
 
-/* {{{ proto bool runkit_lint_file(string filename)
+/* {{{ proto bool runkit7_lint_file(string filename)
 	Attempts to compile a file within a sub-interpreter */
 PHP_FUNCTION(runkit7_lint_file)
 {
