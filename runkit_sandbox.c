@@ -1280,94 +1280,6 @@ static unsigned int php_runkit_sandbox_sapi_input_filter(int arg, char *var, cha
 }
 /* }}} */
 
-/* ********************
-   * Output Buffering *
-   ******************** */
-
-/* {{{ proto mixed runkit_sandbox_output_handler(Runkit_Sandbox sandbox[, mixed callback])
-	Returns the output handler which was active prior to calling this method,
-	or false if no output handler is active
-
-	If no callback is passed, the current output handler is not changed
-	If a non-true output handler is passed(NULL,false,0,0.0,'',array()), output handling is turned off
-
-	If an error occurs (such as callback is not callable), NULL is returned
-
-	DEPRECATED!  THIS WILL BE REMOVED PRIOR TO THE RELEASE OF RUNKIT VERSION 1.0!!! */
-PHP_FUNCTION(runkit_sandbox_output_handler)
-{
-	zval *sandbox;
-	zval *callback = NULL;
-	php_runkit_sandbox_object *objval;
-	char *name = NULL;
-	int callback_is_true = 0;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O|z", &sandbox, php_runkit_sandbox_class_entry, &callback) == FAILURE) {
-		RETURN_NULL();
-	}
-	php_error_docref(NULL, E_NOTICE, "Use of runkit_sandbox_output_handler() is deprecated.  Use $sandbox['output_handler'] instead.");
-
-	objval = PHP_RUNKIT_SANDBOX_FETCHBOX(sandbox);
-	if (!objval->active) {
-		php_error_docref(NULL, E_WARNING, "Current sandbox is no longer active");
-		RETURN_NULL();
-	}
-
-	if (callback) {
-		zval callback_copy = *callback;
-
-		zval_copy_ctor(&callback_copy);
-		callback_copy.RUNKIT_IS_REF = 0;
-		callback_copy.RUNKIT_REFCOUNT = 1;
-		callback_is_true = zval_is_true(&callback_copy);
-		zval_dtor(&callback_copy);
-	}
-
-	if (callback && callback_is_true &&
-		!RUNKIT_IS_CALLABLE(callback, IS_CALLABLE_CHECK_NO_ACCESS, &name)) {
-		php_error_docref1(NULL, name, E_WARNING, "Second argument (%s) is expected to be a valid callback", name);
-		if (name) {
-			efree(name);
-		}
-		RETURN_FALSE;
-	}
-	if (name) {
-		efree(name);
-	}
-
-	if (objval->output_handler && return_value_used) {
-		*return_value = *objval->output_handler;
-		zval_copy_ctor(return_value);
-		return_value->RUNKIT_REFCOUNT = 1;
-		return_value->RUNKIT_IS_REF = 0;
-	} else {
-		RETVAL_FALSE;
-	}
-
-	if (!callback) {
-		return;
-	}
-
-	if (objval->output_handler) {
-		zval_ptr_dtor(&objval->output_handler);
-		objval->output_handler = NULL;
-	}
-
-	if (callback && callback_is_true) {
-		zval *cb = callback;
-		if (callback->RUNKIT_IS_REF) {
-			MAKE_STD_ZVAL(cb);
-			*cb = *callback;
-			zval_copy_ctor(cb);
-			cb->RUNKIT_REFCOUNT = 0;
-			cb->RUNKIT_IS_REF = 0;
-		}
-		cb->RUNKIT_REFCOUNT++;
-		objval->output_handler = cb;
-	}
-}
-/* }}} */
-
 /* **********************
    * Dimension Handlers *
    ********************** */
@@ -1904,7 +1816,7 @@ static void php_runkit_lint_compile(INTERNAL_FUNCTION_PARAMETERS, int filemode)
 
 /* {{{ proto bool runkit_lint(string code)
 	Attempts to compile a string of code within a sub-interpreter */
-PHP_FUNCTION(runkit_lint)
+PHP_FUNCTION(runkit7_lint)
 {
 	php_runkit_lint_compile(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
@@ -1912,7 +1824,7 @@ PHP_FUNCTION(runkit_lint)
 
 /* {{{ proto bool runkit_lint_file(string filename)
 	Attempts to compile a file within a sub-interpreter */
-PHP_FUNCTION(runkit_lint_file)
+PHP_FUNCTION(runkit7_lint_file)
 {
 	php_runkit_lint_compile(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }

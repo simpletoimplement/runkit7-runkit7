@@ -3,7 +3,7 @@
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | (c) 2015-2018 Tyson Andre                                            |
+  | (c) 2015-2019 Tyson Andre                                            |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -517,27 +517,27 @@ static int php_runkit_method_copy(zend_string *dclass, zend_string *dfunc, zend_
    * Method API *
    ************** */
 
-/* {{{ proto bool runkit_method_add(string classname, string methodname, string args, string code[, long flags[, string doc_comment[, string return_type]])
-       proto bool runkit_method_add(string classname, string methodname, closure code[, long flags[, string doc_comment]])
+/* {{{ proto bool runkit7_method_add(string classname, string methodname, string args, string code[, long flags[, string doc_comment[, string return_type]])
+       proto bool runkit7_method_add(string classname, string methodname, closure code[, long flags[, string doc_comment]])
        Add a method to an already defined class */
-PHP_FUNCTION(runkit_method_add)
+PHP_FUNCTION(runkit7_method_add)
 {
 	php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAM_PASSTHRU, HASH_ADD);
 }
 /* }}} */
 
-/* {{{ proto bool runkit_method_redefine(string classname, string methodname, string args, string code[, long flags[, string doc_comment, string return_type]]])
-       proto bool runkit_method_redefine(string classname, string methodname, closure code[, long flags[, string doc_comment]])
+/* {{{ proto bool runkit7_method_redefine(string classname, string methodname, string args, string code[, long flags[, string doc_comment, string return_type]]])
+       proto bool runkit7_method_redefine(string classname, string methodname, closure code[, long flags[, string doc_comment]])
        Redefine an already defined class method */
-PHP_FUNCTION(runkit_method_redefine)
+PHP_FUNCTION(runkit7_method_redefine)
 {
 	php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAM_PASSTHRU, HASH_UPDATE);
 }
 /* }}} */
 
-/* {{{ proto bool runkit_method_remove(string classname, string methodname)
+/* {{{ proto bool runkit7_method_remove(string classname, string methodname)
 	Remove a method from a class definition */
-PHP_FUNCTION(runkit_method_remove)
+PHP_FUNCTION(runkit7_method_remove)
 {
 	zend_class_entry *ce, *ancestor_class = NULL;
 	zend_function *fe;
@@ -583,9 +583,9 @@ PHP_FUNCTION(runkit_method_remove)
 }
 /* }}} */
 
-/* {{{ proto bool runkit_method_rename(string classname, string methodname, string newname)
+/* {{{ proto bool runkit7_method_rename(string classname, string methodname, string newname)
 	Rename a method within a class */
-PHP_FUNCTION(runkit_method_rename)
+PHP_FUNCTION(runkit7_method_rename)
 {
 	zend_class_entry *ce, *ancestor_class = NULL;
 	zend_function *fe, *func, *old_fe;
@@ -671,9 +671,9 @@ PHP_FUNCTION(runkit_method_rename)
 }
 /* }}} */
 
-/* {{{ proto bool runkit_method_copy(string destclass, string destmethod, string srcclass[, string srcmethod])
+/* {{{ proto bool runkit7_method_copy(string destclass, string destmethod, string srcclass[, string srcmethod])
 	Copy a method from one name to another or from one class to another */
-PHP_FUNCTION(runkit_method_copy)
+PHP_FUNCTION(runkit7_method_copy)
 {
 	zend_string *dclass, *dfunc, *sclass, *sfunc = NULL;
 

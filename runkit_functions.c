@@ -1327,19 +1327,19 @@ static void php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int 
    * Functions API *
    ***************** */
 
-/* {{{  proto bool runkit_function_add(string funcname, string arglist, string code[, bool return_by_reference=false[, string doc_comment]])
-	proto bool runkit_function_add(string funcname, closure code[, string doc_comment])
+/* {{{  proto bool runkit7_function_add(string funcname, string arglist, string code[, bool return_by_reference=false[, string doc_comment = null, [string return_type = null, [bool is_strict = null]]]])
+	proto bool runkit7_function_add(string funcname, closure code[, string doc_comment, [bool is_strict]])
 	Add a new function, similar to create_function, but allows specifying name
 	*/
-PHP_FUNCTION(runkit_function_add)
+PHP_FUNCTION(runkit7_function_add)
 {
 	php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAM_PASSTHRU, HASH_ADD);
 }
 /* }}} */
 
-/* {{{ proto bool runkit_function_remove(string funcname)
+/* {{{ proto bool runkit7_function_remove(string funcname)
  */
-PHP_FUNCTION(runkit_function_remove)
+PHP_FUNCTION(runkit7_function_remove)
 {
 	zend_string *fname;
 	zend_string *fname_lower;
@@ -1415,9 +1415,9 @@ static void record_misplaced_internal_function(zend_string *fname_lower)
 }
 /* }}} */
 
-/* {{{ proto bool runkit_function_rename(string funcname, string newname)
+/* {{{ proto bool runkit7_function_rename(string funcname, string newname)
  */
-PHP_FUNCTION(runkit_function_rename)
+PHP_FUNCTION(runkit7_function_rename)
 {
 	zend_function *func, *sfe;
 	zend_bool was_internal_function;
@@ -1523,18 +1523,18 @@ PHP_FUNCTION(runkit_function_rename)
 }
 /* }}} */
 
-/* {{{ proto bool runkit_function_redefine(string funcname, string arglist, string code[, bool return_by_reference=false[, string doc_comment[, string return_type]]])
- *     proto bool runkit_function_redefine(string funcname, closure code[, string doc_comment])
+/* {{{ proto bool runkit7_function_redefine(string funcname, string arglist, string code[, bool return_by_reference=false[, string doc_comment[, string return_type]]])
+ *     proto bool runkit7_function_redefine(string funcname, closure code[, string doc_comment])
  */
-PHP_FUNCTION(runkit_function_redefine)
+PHP_FUNCTION(runkit7_function_redefine)
 {
 	php_runkit_function_add_or_update(INTERNAL_FUNCTION_PARAM_PASSTHRU, HASH_UPDATE);
 }
 /* }}} */
 
-/* {{{ proto bool runkit_function_copy(string funcname, string targetname)
+/* {{{ proto bool runkit7_function_copy(string funcname, string targetname)
  */
-PHP_FUNCTION(runkit_function_copy)
+PHP_FUNCTION(runkit7_function_copy)
 {
 	zend_function *fe, *sfe;
 	PHP_RUNKIT_FUNCTION_PARSE_RENAME_COPY_PARAMS;

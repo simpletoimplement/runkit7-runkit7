@@ -38,12 +38,14 @@ const RUNKIT_FEATURE_SUPERGLOBALS = 1;
  * NOTE: Constants and class constants within the same file may be inlined by the Zend VM optimizer,
  * and this may or may not have an effect if the constant already exists.
  *
+ * Aliases: runkit_constant_add
+ *
  * @param string $constname Name of constant to declare. Either a string to indicate a global constant, or classname::constname to indicate a class constant.
  * @param mixed $value null, Bool, Long, Double, String, Resource, or Array value to store in the new constant.
  * @param int $visibility - Visibility of the constant. Public by default.
  * @return bool - TRUE on success or FALSE on failure.
  */
-function runkit_constant_add(string $constname, $value, int $visibility = RUNKIT_ACC_PUBLIC) : bool {
+function runkit7_constant_add(string $constname, $value, int $visibility = RUNKIT_ACC_PUBLIC) : bool {
 }
 
 /**
@@ -52,12 +54,14 @@ function runkit_constant_add(string $constname, $value, int $visibility = RUNKIT
  * NOTE: Constants and class constants within the same file may be inlined by the Zend VM optimizer,
  * and this may or may not have an effect if the constant already exists.
  *
+ * Aliases: runkit_constant_redefine
+ *
  * @param string $constname Name of constant to declare. Either a string to indicate a global constant, or classname::constname to indicate a class constant.
  * @param mixed $value null, Bool, Long, Double, String, Resource, or Array value to store in the new constant.
  * @param int|null $newVisibility The new visibility of the constant. Unchanged by default.
  * @return bool - TRUE on success or FALSE on failure.
  */
-function runkit_constant_redefine(string $constname, $value, int $newVisibility = null) : bool {
+function runkit7_constant_redefine(string $constname, $value, int $newVisibility = null) : bool {
 }
 
 /**
@@ -66,16 +70,20 @@ function runkit_constant_redefine(string $constname, $value, int $newVisibility 
  * NOTE: Constants and class constants within the same file may be inlined by the Zend VM optimizer,
  * and this may or may not have an effect if the constant already exists.
  *
+ * Aliases: runkit_constant_remove
+ *
  * @param string $constname Name of constant to declare. Either a string to indicate a global constant, or classname::constname to indicate a class constant.
  * @return bool - TRUE on success or FALSE on failure.
  */
-function runkit_constant_remove(string $constname) : bool {
+function runkit7_constant_remove(string $constname) : bool {
 }
 
 /**
  * Add a new function, similar to create_function()
  * Gives you more control over the type of function being created
  * (Signature 1 of 2)
+ *
+ * Aliases: runkit_function_add
  *
  * @param string $funcname Name of function to be created
  * @param string $arglist Comma separated argument list
@@ -85,7 +93,7 @@ function runkit_constant_remove(string $constname) : bool {
  * @param ?string $return_type Return type of this function (e.g. `stdClass`, `?string`(php 7.1))
  * @return bool - True on success or false on failure.
  */
-function runkit_function_add(string $funcname, string $arglist, string $code, bool $return_by_reference = null, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
+function runkit7_function_add(string $funcname, string $arglist, string $code, bool $return_by_reference = null, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
 }
 
 /**
@@ -93,27 +101,34 @@ function runkit_function_add(string $funcname, string $arglist, string $code, bo
  * Gives you more control over the type of function being created
  * (Signature 2 of 2)
  *
+ * Aliases: runkit_function_add
+ *
  * @param string $funcname Name of function to be created
  * @param Closure $closure A closure to use as the source for this function. Static variables and `use` variables are copied.
  * @param ?string $doc_comment The doc comment of the function
  * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_function_add(string $funcname, Closure $closure, string $doc_comment = null, bool $is_strict = null) : bool {
+function runkit7_function_add(string $funcname, Closure $closure, string $doc_comment = null, bool $is_strict = null) : bool {
 }
 
 /**
  * Copy a function to a new function name
+ *
+ * Aliases: runkit_function_copy
+ *
  * @param string $funcname - Name of existing function
  * @param string $targetname - Name of new function to copy definition to
  * @return bool - True on success or false on failure.
  */
-function runkit_function_copy(string $funcname, string $targetname) : bool {
+function runkit7_function_copy(string $funcname, string $targetname) : bool {
 }
 
 /**
  * Replace a function definition with a new implementation. (Should be equivalent to remove() then add())
  * (Signature 1 of 2)
+ *
+ * Aliases: runkit_function_redefine
  *
  * @param string $funcname Name of function to redefine
  * @param string $arglist New list of arguments to be accepted by function
@@ -124,12 +139,14 @@ function runkit_function_copy(string $funcname, string $targetname) : bool {
  * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_function_redefine(string $funcname, string $arglist, string $code, bool $return_by_reference = null, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
+function runkit7_function_redefine(string $funcname, string $arglist, string $code, bool $return_by_reference = null, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
 }
 
 /**
  * Replace a function definition with a new implementation. (Should be equivalent to remove() then add())
  * (Signature 2 of 2)
+ *
+ * Aliases: runkit_function_redefine
  *
  * @param string $funcname Name of function to redefine
  * @param Closure $closure A closure to use as the new definition for this function. Static variables and `use` variables are copied.
@@ -137,32 +154,38 @@ function runkit_function_redefine(string $funcname, string $arglist, string $cod
  * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_function_redefine(string $funcname, Closure $closure, string $doc_comment = null, bool $is_strict = null) : bool {
+function runkit7_function_redefine(string $funcname, Closure $closure, string $doc_comment = null, bool $is_strict = null) : bool {
 }
 
 /**
  * Remove a function definition.
  *
+ * Aliases: runkit_function_remove
+ *
  * @param string $funcname Name of function to be deleted
  * @return bool - True on success or false on failure.
  */
-function runkit_function_remove(string $funcname) : bool {
+function runkit7_function_remove(string $funcname) : bool {
 }
 
 /**
  * Change a function's name
+ *
+ * Aliases: runkit_function_rename
  *
  * @param string $funcname Current function name
  * @param string $newname New function name
  *
  * @return bool - True on success or false on failure.
  */
-function runkit_function_rename(string $funcname, string $newname) : bool {
+function runkit7_function_rename(string $funcname, string $newname) : bool {
 }
 
 /**
  * Dynamically adds a new method to a given class
  * (Signature 1 of 2)
+ *
+ * Aliases: runkit_method_add
  *
  * @param string $classname The class to which this method will be added
  * @param string $methodname The name of the method to add
@@ -175,13 +198,14 @@ function runkit_function_rename(string $funcname, string $newname) : bool {
  * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_method_add(string $classname, string $methodname, string $arglist, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
+function runkit7_method_add(string $classname, string $methodname, string $arglist, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
 }
 
 /**
- * Add a new function, similar to create_function()
- * Gives you more control over the type of function being created
+ * Dynamically adds a new method to a given class, similar to create_function()
  * (Signature 2 of 2)
+ *
+ * Aliases: runkit_method_add
  *
  * @param string $classname The class to which this method will be added
  * @param string $methodname The name of the method to add
@@ -192,23 +216,27 @@ function runkit_method_add(string $classname, string $methodname, string $arglis
  * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_method_add(string $classname, string $methodname, Closure $closure, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, bool $is_strict = null) : bool {
+function runkit7_method_add(string $classname, string $methodname, Closure $closure, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, bool $is_strict = null) : bool {
 }
 
 /**
  * Copies a method from class to another
+ *
+ * Aliases: runkit_method_copy
  * @param string $dClass Destination class for copied method
  * @param string $dMethod Destination method name
  * @param string $sClass Source class of the method to copy
  * @param string $sMethod Name of the method to copy from the source class. If this parameter is omitted, the value of $dMethod is assumed.
  * @return bool - True on success or false on failure.
  */
-function runkit_method_copy(string $dClass, string $dMethod, string $sClass, string $sMethod = null) : bool {
+function runkit7_method_copy(string $dClass, string $dMethod, string $sClass, string $sMethod = null) : bool {
 }
 
 /**
  * Replace a method definition with a new implementation. (Should be equivalent to remove() then add())
  * (Signature 1 of 2)
+ *
+ * Aliases: runkit_method_redefine
  *
  * @param string $classname The class in which to redefine the method
  * @param string $methodname The name of the method to redefine
@@ -221,12 +249,14 @@ function runkit_method_copy(string $dClass, string $dMethod, string $sClass, str
  * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_method_redefine(string $classname, string $methodname, string $args, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
+function runkit7_method_redefine(string $classname, string $methodname, string $args, string $code, int $flags = RUNKIT_ACC_PUBLIC, string $doc_comment = null, string $return_type = null, bool $is_strict = null) : bool {
 }
 
 /**
  * Replace a method definition with a new implementation. (Should be equivalent to remove() then add())
  * (Signature 2 of 2)
+ *
+ * Aliases: runkit_method_redefine
  *
  * @param string $classname The class in which to redefine the method
  * @param string $methodname The name of the method to redefine
@@ -235,48 +265,55 @@ function runkit_method_redefine(string $classname, string $methodname, string $a
  * @param ?bool $is_strict Set to true to make the redefined function use strict types.
  * @return bool - True on success or false on failure.
  */
-function runkit_method_redefine(string $classname, string $methodname, Closure $closure, string $doc_comment = null, bool $is_strict = null) : bool {
+function runkit7_method_redefine(string $classname, string $methodname, Closure $closure, string $doc_comment = null, bool $is_strict = null) : bool {
 }
 
 /**
  * Dynamically removes the given method
  * (Signature 2 of 2)
  *
+ * Aliases: runkit_method_rename
+ *
  * @param string $classname The class in which to remove the method
  * @param string $methodname The name of the method to remove
  * @return bool - True on success or false on failure.
  */
-function runkit_method_remove(string $classname, string $methodname) : bool {
+function runkit7_method_remove(string $classname, string $methodname) : bool {
 }
 
 /**
  * Dynamically changes the name of the given method
  *
+ * Aliases: runkit_method_rename
  * @param string $classname The class in which to rename the method
  * @param string $methodname The name of the method to rename
  * @param string $newname The new name to give to the renamed method
  * @return bool - True on success or false on failure.
  */
-function runkit_method_rename(string $classname, string $methodname, string $newname) : bool {
+function runkit7_method_rename(string $classname, string $methodname, string $newname) : bool {
 }
 
 /**
  * Process a PHP file importing function and class definitions, overwriting where appropriate.
  *
+ * Aliases: runkit_import
+ *
  * @param string $filename Filename to import function and class definitions from.
  * @param int $flags Bitwise OR of the RUNKIT_IMPORT_* family of constants.
  * @return bool - True on success or false on failure.
  */
-function runkit_import(string $filename, int $flags = RUNKIT_IMPORT_CLASS_METHODS) : bool {
+function runkit7_import(string $filename, int $flags = RUNKIT_IMPORT_CLASS_METHODS) : bool {
 }
 
 /**
  * Returns information about the data type, reference counts, etc.
  *
+ * Aliases: runkit_zval_inspect
+ *
  * @param mixed $val
  * @return array - has the fields address (hex string), type (int), is_ref (optional bool), and refcount (optional int)
  */
-function runkit_zval_inspect($value) {
+function runkit7_zval_inspect($value) {
 }
 
 /**
@@ -284,10 +321,11 @@ function runkit_zval_inspect($value) {
  * This is identical to `spl_object_id`, which will be built into PHP 7.2+.
  * Similar to `spl_object_hash`, but returns an int instead of a string.
  *
+ * Aliases: runkit_object_id
  * @param object $obj - The object
  * @return int|false - Returns false if given a non-object.
  */
-function runkit_object_id($obj) : int {
+function runkit7_object_id($obj) : int {
 }
 
 /**
@@ -305,7 +343,9 @@ function spl_object_id($obj) : int {
 
 /**
  * Return numerically indexed array of registered superglobals.
+ *
+ * Aliases: runkit_superglobals
  * @return string[]
  */
-function runkit_superglobals() : array {
+function runkit7_superglobals() : array {
 }

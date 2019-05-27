@@ -504,10 +504,10 @@ uint32_t compute_early_binding_opline_num(const zend_op_array *op_array) /* {{{ 
 }
 /* }}} */
 
-/* {{{ array runkit_import(string filename[, long flags])
+/* {{{ array runkit7_import(string filename[, long flags])
 	Import functions and class definitions from a file
 	Similar to include(), but doesn't execute root op_array, and allows pre-existing functions/methods to be overridden */
-PHP_FUNCTION(runkit_import)
+PHP_FUNCTION(runkit7_import)
 {
 	zend_op_array *new_op_array;
 	zval *filename;
