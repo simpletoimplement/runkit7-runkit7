@@ -9,9 +9,7 @@
   | that is bundled with this package in the file LICENSE, and is        |
   | available through the world-wide-web at the following url:           |
   | http://www.opensource.org/licenses/BSD-3-Clause                      |
-  | If you did not receive a copy of the license and are unable to       |
-  | obtain it through the world-wide-web, please send a note to          |
-  | license@php.net so we can mail you a copy immediately.               |
+  | or at https://github.com/runkit7/runkit7/blob/master/LICENSE         |
   +----------------------------------------------------------------------+
   | Author: Sara Golemon <pollita@php.net>                               |
   | Props:  Wez Furlong                                                  |
