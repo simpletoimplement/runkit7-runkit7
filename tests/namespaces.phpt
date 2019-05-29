@@ -2,7 +2,7 @@
 runkit_method_add(), runkit_method_redefine(), runkit_method_rename() & runkit_method_copy() functions with namespaces
 --SKIPIF--
 <?php
-	if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+	if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL

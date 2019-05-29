@@ -1,7 +1,7 @@
 --TEST--
 runkit_method_remove() function with reflection and inheritance
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 class RunkitClass {
@@ -41,4 +41,4 @@ object(ReflectionMethod)#%d (2) {
   string(11) "RunkitClass"
 }
 
-Fatal error: RunkitClass::__method_removed_by_runkit__(): A method removed by runkit was somehow invoked in %s on line %d
+Fatal error: RunkitClass::__method_removed_by_runkit__(): A method removed by runkit7 was somehow invoked in %s on line %d

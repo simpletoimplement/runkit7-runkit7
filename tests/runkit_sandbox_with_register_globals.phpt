@@ -2,7 +2,7 @@
 Runkit_Sandbox with register_globals
 --SKIPIF--
 <?php
-  if(!extension_loaded("runkit") || !RUNKIT_FEATURE_SANDBOX) echo "skip";
+  if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_SANDBOX) echo "skip";
   if(version_compare(PHP_VERSION, '5.3.999', '>')) echo "skip";
 ?>
 --INI--

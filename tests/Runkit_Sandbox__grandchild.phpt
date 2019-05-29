@@ -1,7 +1,7 @@
 --TEST--
 Runkit_Sandbox Nesting
 --SKIPIF--
-<?php if(!extension_loaded("runkit")) print "skip"; 
+<?php if(!extension_loaded("runkit7")) print "skip"; 
       /* May not be available due to lack of TSRM interpreter support */
       if(!function_exists("runkit_lint")) print "skip"; ?>
 --FILE--

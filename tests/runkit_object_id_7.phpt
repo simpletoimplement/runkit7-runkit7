@@ -2,7 +2,7 @@
 runkit7_object_id should fetch the object handle.
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit")) print "skip";
+if(!extension_loaded("runkit7")) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL

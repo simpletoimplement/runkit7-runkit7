@@ -2,7 +2,7 @@
 runkit_import() Importing and overriding non-static and static properties with static properties
 --SKIPIF--
 <?php
-	if (!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) {
+	if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) {
 		echo "skip";
 	}
 	if (!function_exists('runkit_import')) {

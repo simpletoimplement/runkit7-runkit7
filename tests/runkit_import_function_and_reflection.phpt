@@ -1,7 +1,7 @@
 --TEST--
 runkit_import() imports function with reflection
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip"; ?>
 --FILE--
 <?php
 function runkitFunction($param) {
@@ -21,4 +21,4 @@ object(ReflectionFunction)#%d (1) {
   string(30) "__function_removed_by_runkit__"
 }
 
-Fatal error: __function_removed_by_runkit__(): A function removed by runkit was somehow invoked in %s on line %d
+Fatal error: __function_removed_by_runkit__(): A function removed by runkit7 was somehow invoked in %s on line %d

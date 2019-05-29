@@ -1,7 +1,7 @@
 --TEST--
 runkit7_zval_inspect() function
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 error_reporting=E_ALL
 display_errors=on
