@@ -25,7 +25,7 @@ const RUNKIT7_OVERRIDE_OBJECTS = 32768;
 
 const RUNKIT7_IMPORT_FUNCTIONS = 1;
 
-const RUNKIT7_VERSION = "2.1.0dev";
+const RUNKIT7_VERSION = "2.1.0";
 
 // Feature identifying constants (defaults).
 // These are 1 if enabled by configuration options, and 0 if disabled.
