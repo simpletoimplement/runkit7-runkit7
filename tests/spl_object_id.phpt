@@ -3,7 +3,7 @@ spl_object_id should fetch the object handle.
 --SKIPIF--
 <?php
 if (PHP_VERSION_ID >= 70200) exit("skip redundant test in php 7.2");
-if (!extension_loaded("runkit")) exit("skip");
+if (!extension_loaded("runkit7")) exit("skip");
 if (!function_exists("spl_object_id")) exit("skip");
 ?>
 --INI--

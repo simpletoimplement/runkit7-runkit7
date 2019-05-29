@@ -1,7 +1,7 @@
 --TEST--
 runkit_method_redefine() & runkit_method_add() for methods returning a value by reference
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT) & (~E_NOTICE));

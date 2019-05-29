@@ -1,7 +1,7 @@
 --TEST--
 runkit_import() method and reflection
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip"; ?>
 --FILE--
 <?php
 class RunkitClass {
@@ -29,4 +29,4 @@ object(ReflectionMethod)#%d (2) {
   string(11) "RunkitClass"
 }
 
-Fatal error: RunkitClass::__method_removed_by_runkit__(): A method removed by runkit was somehow invoked in %s on line %d
+Fatal error: RunkitClass::__method_removed_by_runkit__(): A method removed by runkit7 was somehow invoked in %s on line %d

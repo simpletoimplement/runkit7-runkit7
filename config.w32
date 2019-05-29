@@ -1,43 +1,44 @@
 // vim:ft=javascript
+/* eslint-disable no-undef */
 
-ARG_ENABLE("runkit", "Enable runkit support", "no");
-ARG_ENABLE("runkit-modify", "Enable runtime manipulation", "yes");
-ARG_ENABLE("runkit-super", "Enable registration of user-defined autoglobals", "yes");
-ARG_ENABLE("runkit-spl_object_id", "Enable spl_object_id alias of runkit_object_id in php <= 7.1", "no");
+ARG_ENABLE("runkit7", "Enable runkit7 support", "no");
+ARG_ENABLE("runkit7-modify", "Enable runtime manipulation", "yes");
+ARG_ENABLE("runkit7-super", "Enable registration of user-defined autoglobals", "yes");
+ARG_ENABLE("runkit7-spl_object_id", "Enable spl_object_id alias of runkit_object_id in php <= 7.1", "no");
 
 // The sandbox and the associated code was disabled for php 7.
-// ARG_ENABLE("runkit-sandbox", "Disable Runkit_Sandbox (Requires ZTS)", "yes");
+// ARG_ENABLE("runkit7-sandbox", "Disable Runkit_Sandbox (Requires ZTS)", "yes");
 
-if (PHP_RUNKIT != "no") {
+if (PHP_RUNKIT7 != "no") {
     var dll = get_define('PHPDLL');
     var is_php5 = null != dll.match(/^php5/);
     if (is_php5) {
-        ERROR("Runkit7 supports PHP 7 and newer. It does not support PHP 5");
+        ERROR("Runkit7 supports PHP 7.1 and newer. It does not support PHP 5");
     }
 
     // TODO: Why isn't HAVE_CONFIG_H being set all of the time?
-    if (PHP_RUNKIT_MODIFY != "no") {
+    if (PHP_RUNKIT7_MODIFY != "no") {
         // Hackish way to enable these CFLAGS to include the necessary flags
-        ADD_FLAG('CFLAGS_RUNKIT', ' /D PHP_RUNKIT_FEATURE_MODIFY');
-        AC_DEFINE("PHP_RUNKIT_FEATURE_MODIFY", 1, "Runkit Manipulation");
+        ADD_FLAG('CFLAGS_RUNKIT7', ' /D PHP_RUNKIT7_FEATURE_MODIFY');
+        AC_DEFINE("PHP_RUNKIT7_FEATURE_MODIFY", 1, "Runkit Manipulation");
     }
-    if (PHP_RUNKIT_SUPER != "no") {
-        ADD_FLAG('CFLAGS_RUNKIT', ' /D PHP_RUNKIT_FEATURE_SUPER');
-        AC_DEFINE("PHP_RUNKIT_FEATURE_SUPER", 1, "Runkit Superglobals");
+    if (PHP_RUNKIT7_SUPER != "no") {
+        ADD_FLAG('CFLAGS_RUNKIT7', ' /D PHP_RUNKIT7_FEATURE_SUPER');
+        AC_DEFINE("PHP_RUNKIT7_FEATURE_SUPER", 1, "Runkit Superglobals");
     }
-    if (PHP_RUNKIT_SPL_OBJECT_ID != "no") {
-        ADD_FLAG('CFLAGS_RUNKIT', ' /D PHP_RUNKIT_SPL_OBJECT_ID');
-        AC_DEFINE("PHP_RUNKIT_SPL_OBJECT_ID", 1, "Runkit spl_object_id substitute");
+    if (PHP_RUNKIT7_SPL_OBJECT_ID != "no") {
+        ADD_FLAG('CFLAGS_RUNKIT7', ' /D PHP_RUNKIT7_SPL_OBJECT_ID');
+        AC_DEFINE("PHP_RUNKIT7_SPL_OBJECT_ID", 1, "Runkit spl_object_id substitute");
     }
 
 
-    // AC_DEFINE("PHP_RUNKIT_FEATURE_SANDBOX", PHP_RUNKIT_SANDBOX != "no", "Runkit Sandbox");
+    // AC_DEFINE("PHP_RUNKIT7_FEATURE_SANDBOX", PHP_RUNKIT7_SANDBOX != "no", "Runkit Sandbox");
 
-    AC_DEFINE('HAVE_RUNKIT', 1);
+    AC_DEFINE('HAVE_RUNKIT7', 1);
 
-    PHP_INSTALL_HEADERS('ext/runkit', 'php_runkit.h php_runkit_hash.h php_runkit_zend_execute_API.h php_runkit_zval.h runkit.h');
+    PHP_INSTALL_HEADERS('ext/runkit7', 'php_runkit7.h php_runkit_hash.h php_runkit_zend_execute_API.h php_runkit_zval.h runkit.h');
 
-    EXTENSION("runkit", "runkit.c " +
+    EXTENSION("runkit7", "runkit.c " +
                         "runkit_common.c " +
                         "runkit_functions.c " +
                         "runkit_methods.c " +

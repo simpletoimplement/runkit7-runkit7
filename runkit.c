@@ -20,7 +20,7 @@
 #include "runkit.h"
 #include "SAPI.h"
 
-ZEND_DECLARE_MODULE_GLOBALS(runkit)
+ZEND_DECLARE_MODULE_GLOBALS(runkit7)
 
 #ifdef PHP_RUNKIT_SUPERGLOBALS
 /* {{{ proto array runkit7_superglobals(void)
@@ -238,9 +238,9 @@ PHP_FUNCTION(runkit7_lint);
 PHP_FUNCTION(runkit7_lint_file);
 #endif
 
-/* {{{ runkit_functions[]
+/* {{{ runkit7_functions[]
  */
-zend_function_entry runkit_functions[] = {
+zend_function_entry runkit7_functions[] = {
 
 	PHP_FE_AND_FALIAS(runkit_zval_inspect, 		runkit7_zval_inspect,		arginfo_runkit_zval_inspect)
 	PHP_FE_AND_FALIAS(runkit_object_id,			runkit7_object_id,			arginfo_runkit_object_id)
@@ -269,15 +269,6 @@ zend_function_entry runkit_functions[] = {
 	PHP_FE_AND_FALIAS(runkit_method_rename,				runkit7_method_rename,	arginfo_runkit_method_rename)
 	PHP_FE_AND_FALIAS(runkit_method_copy,				runkit7_method_copy,	arginfo_runkit_method_copy)
 
-#ifdef PHP_RUNKIT_CLASSKIT_COMPAT
-	PHP_FALIAS(classkit_method_add,			runkit7_method_add,		arginfo_runkit_method_add)
-	PHP_FALIAS(classkit_method_redefine,	runkit7_method_redefine,	arginfo_runkit_method_redefine)
-	PHP_FALIAS(classkit_method_remove,		runkit7_method_remove,	arginfo_runkit_method_remove)
-	PHP_FALIAS(classkit_method_rename,		runkit7_method_rename,	arginfo_runkit_method_rename)
-	PHP_FALIAS(classkit_method_copy,		runkit7_method_copy,		arginfo_runkit_method_copy)
-	PHP_FALIAS(classkit_import,				runkit7_import,			arginfo_runkit_import)
-#endif
-
 	PHP_FE_AND_FALIAS(runkit_constant_redefine,				runkit7_constant_redefine,	arginfo_runkit_constant_redefine)
 	PHP_FE_AND_FALIAS(runkit_constant_remove,				runkit7_constant_remove,	arginfo_runkit_constant_remove)
 	PHP_FE_AND_FALIAS(runkit_constant_add,				runkit7_constant_add,	arginfo_runkit_constant_add)
@@ -301,18 +292,18 @@ zend_function_entry runkit_functions[] = {
 };
 /* }}} */
 
-/* {{{ runkit_module_entry
+/* {{{ runkit7_module_entry
  */
-zend_module_entry runkit_module_entry = {
+zend_module_entry runkit7_module_entry = {
 	STANDARD_MODULE_HEADER,
-	"runkit",
-	runkit_functions,
-	PHP_MINIT(runkit),
-	PHP_MSHUTDOWN(runkit),
-	PHP_RINIT(runkit),
-	PHP_RSHUTDOWN(runkit),
-	PHP_MINFO(runkit),
-	PHP_RUNKIT_VERSION,
+	"runkit7",
+	runkit7_functions,
+	PHP_MINIT(runkit7),
+	PHP_MSHUTDOWN(runkit7),
+	PHP_RINIT(runkit7),
+	PHP_RSHUTDOWN(runkit7),
+	PHP_MINFO(runkit7),
+	PHP_RUNKIT7_VERSION,
 	STANDARD_MODULE_PROPERTIES
 };
 /* }}} */
@@ -323,23 +314,23 @@ PHP_INI_BEGIN()
 	PHP_INI_ENTRY("runkit.superglobal", "", PHP_INI_SYSTEM | PHP_INI_PERDIR, NULL)
 #endif
 #ifdef PHP_RUNKIT_MANIPULATION
-	STD_PHP_INI_BOOLEAN("runkit.internal_override", "0", PHP_INI_SYSTEM, OnUpdateBool, internal_override, zend_runkit_globals, runkit_globals)
+	STD_PHP_INI_BOOLEAN("runkit.internal_override", "0", PHP_INI_SYSTEM, OnUpdateBool, internal_override, zend_runkit7_globals, runkit7_globals)
 #endif
 PHP_INI_END()
 #endif
 
-#ifdef COMPILE_DL_RUNKIT
-ZEND_GET_MODULE(runkit)
+#ifdef COMPILE_DL_RUNKIT7
+ZEND_GET_MODULE(runkit7)
 #endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
 ZEND_FUNCTION(_php_runkit_removed_function)
 {
-	php_error_docref(NULL, E_ERROR, "A function removed by runkit was somehow invoked");
+	php_error_docref(NULL, E_ERROR, "A function removed by runkit7 was somehow invoked");
 }
 ZEND_FUNCTION(_php_runkit_removed_method)
 {
-	php_error_docref(NULL, E_ERROR, "A method removed by runkit was somehow invoked");
+	php_error_docref(NULL, E_ERROR, "A method removed by runkit7 was somehow invoked");
 }
 
 static inline void _php_runkit_init_stub_function(const char *name, ZEND_NAMED_FUNCTION(handler), zend_function **result)
@@ -353,14 +344,14 @@ static inline void _php_runkit_init_stub_function(const char *name, ZEND_NAMED_F
 	(*result)->common.fn_flags = ZEND_ACC_PUBLIC | ZEND_ACC_STATIC;
 	(*result)->common.arg_info = NULL;
 	(*result)->internal_function.handler = handler;
-	(*result)->internal_function.module = &runkit_module_entry;
+	(*result)->internal_function.module = &runkit7_module_entry;
 }
 #endif
 
 #if defined(PHP_RUNKIT_SANDBOX) || defined(PHP_RUNKIT_MANIPULATION)
-static void php_runkit_globals_ctor(void *pDest)
+static void php_runkit7_globals_ctor(void *pDest)
 {
-	zend_runkit_globals *runkit_global = (zend_runkit_globals *)pDest;
+	zend_runkit7_globals *runkit_global = (zend_runkit7_globals *)pDest;
 #ifdef PHP_RUNKIT_SANDBOX
 	runkit_global->current_sandbox = NULL;
 #endif
@@ -385,15 +376,15 @@ static void php_runkit_globals_ctor(void *pDest)
 
 /* {{{ PHP_MINIT_FUNCTION
  */
-PHP_MINIT_FUNCTION(runkit)
+PHP_MINIT_FUNCTION(runkit7)
 {
 #ifdef ZTS
 #if defined(PHP_RUNKIT_SANDBOX) || defined(PHP_RUNKIT_MANIPULATION)
-	ts_allocate_id(&runkit_globals_id, sizeof(zend_runkit_globals), php_runkit_globals_ctor, NULL);
+	ts_allocate_id(&runkit7_globals_id, sizeof(zend_runkit7_globals), php_runkit7_globals_ctor, NULL);
 #endif
 #else
 #if defined(PHP_RUNKIT_SANDBOX) || defined(PHP_RUNKIT_MANIPULATION)
-	php_runkit_globals_ctor(&runkit_globals);
+	php_runkit7_globals_ctor(&runkit7_globals);
 #endif
 #endif
 
@@ -408,8 +399,8 @@ PHP_MINIT_FUNCTION(runkit)
 	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_IMPORT_CLASS_STATIC_PROPS", "RUNKIT7_IMPORT_CLASS_STATIC_PROPS", PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS);
 	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_IMPORT_CLASSES", "RUNKIT7_IMPORT_CLASSES", PHP_RUNKIT_IMPORT_CLASSES);
 	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_IMPORT_OVERRIDE", "RUNKIT7_IMPORT_OVERRIDE", PHP_RUNKIT_IMPORT_OVERRIDE);
-	REGISTER_STRING_CONSTANT("RUNKIT_VERSION", PHP_RUNKIT_VERSION, CONST_CS | CONST_PERSISTENT);
-	REGISTER_STRING_CONSTANT("RUNKIT7_VERSION", PHP_RUNKIT_VERSION, CONST_CS | CONST_PERSISTENT);
+	REGISTER_STRING_CONSTANT("RUNKIT_VERSION", PHP_RUNKIT7_VERSION, CONST_CS | CONST_PERSISTENT);
+	REGISTER_STRING_CONSTANT("RUNKIT7_VERSION", PHP_RUNKIT7_VERSION, CONST_CS | CONST_PERSISTENT);
 
 	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_ACC_RETURN_REFERENCE", "RUNKIT7_ACC_RETURN_REFERENCE", PHP_RUNKIT_ACC_RETURN_REFERENCE);
 
@@ -418,14 +409,6 @@ PHP_MINIT_FUNCTION(runkit)
 	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_ACC_PRIVATE", "RUNKIT7_ACC_PRIVATE", ZEND_ACC_PRIVATE);
 	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_ACC_STATIC", "RUNKIT7_ACC_STATIC", ZEND_ACC_STATIC);
 	REGISTER_RUNKIT7_LONG_CONSTANT("RUNKIT_OVERRIDE_OBJECTS", "RUNKIT7_OVERRIDE_OBJECTS", PHP_RUNKIT_OVERRIDE_OBJECTS);
-
-#ifdef PHP_RUNKIT_CLASSKIT_COMPAT
-	REGISTER_LONG_CONSTANT("CLASSKIT_ACC_PUBLIC",              ZEND_ACC_PUBLIC,                         CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("CLASSKIT_ACC_PROTECTED",           ZEND_ACC_PROTECTED,                      CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("CLASSKIT_ACC_PRIVATE",             ZEND_ACC_PRIVATE,                        CONST_CS | CONST_PERSISTENT);
-	REGISTER_STRING_CONSTANT("CLASSKIT_VERSION",               PHP_RUNKIT_VERSION,                      CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("CLASSKIT_AGGREGATE_OVERRIDE",      PHP_RUNKIT_IMPORT_OVERRIDE,              CONST_CS | CONST_PERSISTENT);
-#endif
 
 	/* Feature Identifying constants */
 #ifdef PHP_RUNKIT_MANIPULATION
@@ -456,7 +439,7 @@ PHP_MINIT_FUNCTION(runkit)
 
 /* {{{ PHP_MSHUTDOWN_FUNCTION
  */
-PHP_MSHUTDOWN_FUNCTION(runkit)
+PHP_MSHUTDOWN_FUNCTION(runkit7)
 {
 #ifdef PHP_RUNKIT_MANIPULATION
 	pefree(RUNKIT_G(removed_function), 1);
@@ -551,7 +534,7 @@ static void php_runkit_rinit_register_superglobals(const char *ini_s)
 
 /* {{{ PHP_RINIT_FUNCTION
  */
-PHP_RINIT_FUNCTION(runkit)
+PHP_RINIT_FUNCTION(runkit7)
 {
 #ifdef PHP_RUNKIT_SUPERGLOBALS
 	php_runkit_rinit_register_superglobals(INI_STR("runkit.superglobal"));
@@ -586,7 +569,7 @@ static int php_runkit_superglobal_dtor(zval *zv)
 
 /* {{{ PHP_RSHUTDOWN_FUNCTION
  */
-PHP_RSHUTDOWN_FUNCTION(runkit)
+PHP_RSHUTDOWN_FUNCTION(runkit7)
 {
 	// #ifdef PHP_RUNKIT_MANIPULATION
 	// php_runkit_default_class_members_list_element *el;
@@ -659,15 +642,11 @@ PHP_RSHUTDOWN_FUNCTION(runkit)
 
 /* {{{ PHP_MINFO_FUNCTION
  */
-PHP_MINFO_FUNCTION(runkit)
+PHP_MINFO_FUNCTION(runkit7)
 {
 	php_info_print_table_start();
-	php_info_print_table_header(2, "runkit support", "enabled");
-	php_info_print_table_header(2, "version", PHP_RUNKIT_VERSION);
-
-#ifdef PHP_RUNKIT_CLASSKIT_COMPAT
-	php_info_print_table_header(2, "classkit compatibility", "enabled");
-#endif
+	php_info_print_table_header(2, "runkit7 support", "enabled");
+	php_info_print_table_header(2, "version", PHP_RUNKIT7_VERSION);
 
 #ifdef PHP_RUNKIT_SUPERGLOBALS
 	php_info_print_table_header(2, "Custom Superglobal support", "enabled");

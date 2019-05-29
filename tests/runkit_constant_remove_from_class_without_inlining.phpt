@@ -4,7 +4,7 @@ runkit_constant_remove() function removes constant from class (Easier to do: no 
 x=1
 --SKIPIF--
 <?php
-	if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+	if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
 ?>
 --FILE--
 <?php

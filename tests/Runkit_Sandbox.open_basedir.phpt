@@ -1,7 +1,7 @@
 --TEST--
 Runkit_Sandbox - Prevent overriding open_basedir when a bogus path is present
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_SANDBOX) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_SANDBOX) print "skip"; ?>
 --INI--
 open_basedir="/bogus-does-not-exist-runkit-test-dir"
 --FILE--

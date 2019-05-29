@@ -1,7 +1,7 @@
 --TEST--
 Bug #64496 - Runkit_Sandbox override of open_basedir when parent uses multiple paths
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_SANDBOX) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_SANDBOX) print "skip";
       if(version_compare(PHP_VERSION, '5.3.0', '<')) print "skip";
 ?>
 --FILE--

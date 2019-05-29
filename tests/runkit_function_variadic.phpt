@@ -1,7 +1,7 @@
 --TEST--
 runkit_function_redefine() function and runkit_function_remove(), with variadic functions
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 display_errors=on
 --FILE--

@@ -2,7 +2,7 @@
 runkit_function_redefine() closure and doc_comment
 --SKIPIF--
 <?php
-	if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+	if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
 ?>
 --INI--
 display_errors=on

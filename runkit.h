@@ -89,7 +89,7 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #define debug_printf(...) do { } while(0)
 #endif
 
-#define PHP_RUNKIT_VERSION					"2.1.0"
+#define PHP_RUNKIT7_VERSION					"3.0.0a1"
 #define PHP_RUNKIT_SANDBOX_CLASSNAME		"Runkit_Sandbox"
 #define PHP_RUNKIT_SANDBOX_PARENT_CLASSNAME	"Runkit_Sandbox_Parent"
 
@@ -103,8 +103,9 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #define PHP_RUNKIT_IMPORT_OVERRIDE            0x0020
 #define PHP_RUNKIT_OVERRIDE_OBJECTS           0x8000
 
-/* Hardcoded. TODO should not be. */
+#ifdef PHP_RUNKIT7_FEATURE_SUPER
 #define PHP_RUNKIT_SUPERGLOBALS
+#endif
 
 #ifdef PHP_RUNKIT_SPL_OBJECT_ID
 #if PHP_VERSION_ID < 70200
@@ -115,8 +116,8 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 /* The TSRM interpreter patch required by runkit_sandbox was added in 5.1, but this package includes diffs for older versions
  * Those diffs include an additional #define to indicate that they've been applied
  */
-#ifdef PHP_RUNKIT_FEATURE_SANDBOX
-#if (defined ZTS) && (defined PHP_RUNKIT_FEATURE_SANDBOX)
+#ifdef PHP_RUNKIT7_FEATURE_SANDBOX
+#if (defined ZTS) && (defined PHP_RUNKIT7_FEATURE_SANDBOX)
 #define PHP_RUNKIT_SANDBOX
 #else
 // debugging code
@@ -124,7 +125,7 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #endif
 #endif
 
-#ifdef PHP_RUNKIT_FEATURE_MODIFY
+#ifdef PHP_RUNKIT7_FEATURE_MODIFY
 #define PHP_RUNKIT_MANIPULATION
 // TODO: Enable these macros once the corresponding functions/files compile and pass some of the tests.
 // TODO: Clean up these macros once the corresponding functions/files are 100% correct.
@@ -137,11 +138,11 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #include "Zend/zend_object_handlers.h"
 #endif
 
-PHP_MINIT_FUNCTION(runkit);
-PHP_MSHUTDOWN_FUNCTION(runkit);
-PHP_RINIT_FUNCTION(runkit);
-PHP_RSHUTDOWN_FUNCTION(runkit);
-PHP_MINFO_FUNCTION(runkit);
+PHP_MINIT_FUNCTION(runkit7);
+PHP_MSHUTDOWN_FUNCTION(runkit7);
+PHP_RINIT_FUNCTION(runkit7);
+PHP_RSHUTDOWN_FUNCTION(runkit7);
+PHP_MINFO_FUNCTION(runkit7);
 
 PHP_FUNCTION(runkit_object_id);
 #ifdef PHP_RUNKIT_PROVIDES_SPL_OBJECT_ID
@@ -204,7 +205,7 @@ typedef struct _php_runkit_sandbox_object php_runkit_sandbox_object;
 #endif
 
 #if defined(PHP_RUNKIT_SUPERGLOBALS) || defined(PHP_RUNKIT_SANDBOX) || defined(PHP_RUNKIT_MANIPULATION)
-ZEND_BEGIN_MODULE_GLOBALS(runkit)
+ZEND_BEGIN_MODULE_GLOBALS(runkit7)
 #ifdef PHP_RUNKIT_SUPERGLOBALS
 	HashTable *superglobals;
 #endif
@@ -220,15 +221,15 @@ ZEND_BEGIN_MODULE_GLOBALS(runkit)
 	zend_function *removed_function, *removed_method;
 	zend_bool module_moved_to_front;
 #endif
-ZEND_END_MODULE_GLOBALS(runkit)
+ZEND_END_MODULE_GLOBALS(runkit7)
 #endif
 
-extern ZEND_DECLARE_MODULE_GLOBALS(runkit)
+extern ZEND_DECLARE_MODULE_GLOBALS(runkit7)
 
 #ifdef ZTS
-#define		RUNKIT_G(v)		TSRMG(runkit_globals_id, zend_runkit_globals *, v)
+#define		RUNKIT_G(v)		TSRMG(runkit7_globals_id, zend_runkit7_globals *, v)
 #else
-#define		RUNKIT_G(v)		(runkit_globals.v)
+#define		RUNKIT_G(v)		(runkit7_globals.v)
 #endif
 
 #define RUNKIT_IS_CALLABLE(cb_zv, flags, cb_sp) zend_is_callable((cb_zv), (flags), (cb_sp))

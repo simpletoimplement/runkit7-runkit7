@@ -2,7 +2,7 @@
 runkit7_import() Importing and overriding class methods
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit") || !function_exists('runkit7_import')) print "skip";
+if(!extension_loaded("runkit7") || !function_exists('runkit7_import')) print "skip";
 if ((DIRECTORY_SEPARATOR === "\\" && !ZEND_THREAD_SAFE) || PHP_VERSION_ID >= 70300) {
 	print "skip TODO: Fix PHP 7.3 NTS runkit7_import(). https://github.com/runkit7/runkit7/issues/135 was filed to investigate this\n";
 }

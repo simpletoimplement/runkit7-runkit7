@@ -1,7 +1,7 @@
 --TEST--
 runkit_function_add() function
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 $name = 'runkitSample';
