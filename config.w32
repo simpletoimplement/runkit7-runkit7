@@ -9,7 +9,7 @@ ARG_ENABLE("runkit7-spl_object_id", "Enable spl_object_id alias of runkit_object
 // The sandbox and the associated code was disabled for php 7.
 // ARG_ENABLE("runkit7-sandbox", "Disable Runkit_Sandbox (Requires ZTS)", "yes");
 
-if (PHP_RUNKIT77 != "no") {
+if (PHP_RUNKIT7 != "no") {
     var dll = get_define('PHPDLL');
     var is_php5 = null != dll.match(/^php5/);
     if (is_php5) {
