@@ -221,8 +221,8 @@ git clone https://github.com/runkit7/runkit7.git
 cd runkit7
 phpize
 # The sandbox related code and flags have been removed, no need to disable them.
-# (--enable-runkit-modify (on by default) controls function, method, class, manipulation, and will control property manipulation)
-# (--enable-runkit-super (on by default) allows you to add custom superglobals)
+# (--enable-runkit7-modify (on by default) controls function, method, class, manipulation, and will control property manipulation)
+# (--enable-runkit7-super (on by default) allows you to add custom superglobals)
 # ./configure --help lists available configuration options.
 ./configure
 make
@@ -257,14 +257,14 @@ Create subdirectory C:\php-sdk\phpdev\vc14\x86\pecl, adjacent to php source dire
 
 extract download of runkit7 to C:\php-sdk\phpdev\vc14\x86\pecl\runkit7 (all of the c files and h files should be within runkit7)
 
-Then, execute the following (Add `--enable-runkit` to the configure flags you were already using)
+Then, execute the following (Add `--enable-runkit7` to the configure flags you were already using)
 
 ```Batchfile
 cd C:\php-sdk
 C:\php-sdk\bin\phpsdk_setvars.bat
 cd phpdev\vc14\x86\php-7.1.27\src
 buildconf
-configure --enable-runkit
+configure --enable-runkit7
 nmake
 ```
 
