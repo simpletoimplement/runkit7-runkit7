@@ -1,4 +1,5 @@
 <?php
+// API for runkit7 3.0.0dev
 // The runkit7 fork has a slightly different API from what is documented at https://secure.php.net/runkit
 //
 // - Return types were added for php7 support.
@@ -24,8 +25,6 @@ const RUNKIT7_IMPORT_CLASSES = RUNKIT7_IMPORT_CLASS_CONSTS | RUNKIT7_IMPORT_CLAS
 const RUNKIT7_OVERRIDE_OBJECTS = 32768;
 
 const RUNKIT7_IMPORT_FUNCTIONS = 1;
-
-const RUNKIT7_VERSION = "3.0.0dev";
 
 // Feature identifying constants (defaults).
 // These are 1 if enabled by configuration options, and 0 if disabled.

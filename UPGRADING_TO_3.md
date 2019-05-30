@@ -13,3 +13,4 @@ This change was made at the request of PECL admins, to comply with naming and pa
 
 Other changes:
 - Classkit compatibility functions/constants have been removed.
+- The RUNKIT_VERSION constant was removed. (use ReflectionExtension->getVersion())

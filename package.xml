@@ -38,6 +38,7 @@ This change was made at the request of PECL admins, to comply with naming and pa
 
 Changes in 3.0.0a2
 - Update documentation
+- Remove RUNKIT_VERSION
  </notes>
  <contents>
   <dir name="/">
@@ -321,6 +322,7 @@ This change was made at the request of PECL admins, to comply with naming and pa
 
 Changes in 3.0.0a2
 - Update documentation
+- Remove RUNKIT_VERSION
    </notes>
   </release>
   <release>
