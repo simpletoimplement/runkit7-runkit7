@@ -69,4 +69,6 @@ runkit_zend_execute_API.c \
 runkit_classes.c \
 runkit_props.c \
 , $ext_shared,, -Wdeclaration-after-statement -Werror -Wall -Wno-deprecated-declarations -Wno-pedantic)
+dnl use Makefile.frag to echo notice about upgrading to runkit7 3.x
+  PHP_ADD_MAKEFILE_FRAGMENT
 fi
