@@ -2,7 +2,7 @@
 Bug #4519 Unable to override class definitions of a derived class
 --SKIPIF--
 <?php
-if (!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip";
+if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip";
 elseif (PHP_VERSION_ID >= 70300) print "skip TODO Fix https://github.com/runkit7/runkit7/issues/135";
 ?>
 --FILE--

@@ -1,7 +1,7 @@
 --TEST--
 Bug#56976 - Failure adding __call method
 --SKIPIF--
-<?php if(!extension_loaded("runkit")) print "skip"; ?>
+<?php if(!extension_loaded("runkit7")) print "skip"; ?>
 --FILE--
 <?php
 class ParentClass

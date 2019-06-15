@@ -2,7 +2,7 @@
 Test for caching issues on manipulations with constants
 --SKIPIF--
 <?php
-  if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+  if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL

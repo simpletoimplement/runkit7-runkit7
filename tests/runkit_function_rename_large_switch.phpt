@@ -1,7 +1,7 @@
 --TEST--
 runkit_function_rename() function with large switch statements
 --SKIPIF--
-<?php if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 // See https://derickrethans.nl/php7.2-switch.html for an explanation of this optimization.

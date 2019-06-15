@@ -64,7 +64,7 @@ inline static void php_runkit_hash_move_runkit_to_front()
 {
 	zend_ulong numkey;
 	zend_string *strkey;
-	zend_string *runkit_str;
+	zend_string *runkit7_str;
 	dtor_func_t oldPDestructor;
 	zend_module_entry *module;
 	int num = 0;
@@ -75,23 +75,23 @@ inline static void php_runkit_hash_move_runkit_to_front()
 	}
 	RUNKIT_G(module_moved_to_front) = 1;
 
-	runkit_str = zend_string_init("runkit", sizeof("runkit") - 1, 0);
+	runkit7_str = zend_string_init("runkit7", sizeof("runkit7") - 1, 0);
 	// 1. If runkit is not part of the module registry, warn and do nothing.
-	if (!zend_hash_exists(&module_registry, runkit_str)) {
-		php_error_docref(NULL, E_WARNING, "Failed to find \"runkit\" module when attempting to change module unloading order - The lifetime of internal function overrides will be unexpected");
-		zend_string_release(runkit_str);
+	if (!zend_hash_exists(&module_registry, runkit7_str)) {
+		php_error_docref(NULL, E_WARNING, "Failed to find \"runkit7\" module when attempting to change module unloading order - The lifetime of internal function overrides will be unexpected");
+		zend_string_release(runkit7_str);
 		return;
 	}
 	// php_error_docref(NULL, E_WARNING, "In php_runkit_hash_move_to_front size=%d", (int)zend_hash_num_elements(&module_registry));
 
-	// 2. Create a temporary table with "runkit" at the front.
+	// 2. Create a temporary table with "runkit7" at the front.
 	ZEND_HASH_FOREACH_KEY_PTR(&module_registry, numkey, strkey, module) {
 		// php_error_docref(NULL, E_WARNING, "In php_runkit_hash_move_to_front numkey=%d strkey=%s refcount=%d zv=%llx", (int)numkey, strkey != NULL ? ZSTR_VAL(strkey) : "null", (int)(strkey != NULL ? zend_string_refcount(strkey) : 0), (long long) (uintptr_t)module);
 		if (num++ == 0) {
 			zend_bool first_is_core = 0;
 			Bucket *b;
 			zend_hash_init(&tmp, zend_hash_num_elements(&module_registry), NULL, NULL, 0);
-			// add "core" first, then "runkit", then the remaining modules.
+			// add "core" first, then "runkit7", then the remaining modules.
 			// If core isn't first, core tries to free the memory of strings that runkit allocated.
 			first_is_core = strkey != NULL && zend_string_equals_literal(strkey, "core");
 			if (first_is_core) {
@@ -100,7 +100,7 @@ inline static void php_runkit_hash_move_runkit_to_front()
 				php_error_docref(NULL, E_WARNING, "unexpected module order: \"core\" isn't first");
 			}
 			// Otherwise, initialize the temporary table (with no destructor function)
-			b = php_runkit_zend_hash_find_bucket(&module_registry, runkit_str);
+			b = php_runkit_zend_hash_find_bucket(&module_registry, runkit7_str);
 
 			zend_hash_add_ptr(&tmp, b->key, Z_PTR(b->val));
 			if (first_is_core) {
@@ -108,8 +108,8 @@ inline static void php_runkit_hash_move_runkit_to_front()
 			}
 		}
 		if (strkey != NULL) {
-			if (zend_string_equals(runkit_str, strkey)) {
-				// Already added persistent string for "runkit" to the front.
+			if (zend_string_equals(runkit7_str, strkey)) {
+				// Already added persistent string for "runkit7" to the front.
 				continue;
 			}
 			zend_hash_add_ptr(&tmp, strkey, module);
@@ -117,8 +117,8 @@ inline static void php_runkit_hash_move_runkit_to_front()
 			zend_hash_index_add_ptr(&tmp, numkey, module);
 		}
 	} ZEND_HASH_FOREACH_END();
-	zend_string_release(runkit_str);
-	runkit_str = NULL;
+	zend_string_release(runkit7_str);
+	runkit7_str = NULL;
 
 	oldPDestructor = module_registry.pDestructor;
 	module_registry.pDestructor = NULL;

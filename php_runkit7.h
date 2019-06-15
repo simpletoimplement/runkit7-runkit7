@@ -17,14 +17,11 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef PHP_RUNKIT_H
-#define PHP_RUNKIT_H
+#ifndef PHP_RUNKIT7_H
+#define PHP_RUNKIT7_H
 
-#ifndef phpext_runkit_ptr
-extern zend_module_entry runkit_module_entry;
-#define phpext_runkit_ptr &runkit_module_entry
+#ifndef phpext_runkit7_ptr
+extern zend_module_entry runkit7_module_entry;
+#define phpext_runkit7_ptr &runkit7_module_entry
 #endif
-
-// TODO: Move function declarations back here?
-// TODO: Change the name of this (and the ifdef) to php_runkit7.h if the DSO name changes
-#endif	/* PHP_RUNKIT_H */
+#endif	/* PHP_RUNKIT7_H */

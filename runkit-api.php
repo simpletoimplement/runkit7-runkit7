@@ -1,7 +1,8 @@
 <?php
+// API for runkit7 3.0.0
 // The runkit7 fork has a slightly different API from what is documented at https://secure.php.net/runkit
 //
-// - Return types were added for php7 support.
+// - Parameters for return types were added for php7 support.
 // - Some functions are unsupported
 
 // Flags for manipulation of elements of classes (methods and constants)
@@ -12,7 +13,7 @@ const RUNKIT7_ACC_PROTECTED        = 0x200;
 const RUNKIT7_ACC_PRIVATE          = 0x400;
 const RUNKIT7_ACC_STATIC           = 0x1;
 
-// Flags for runkit_import()
+// Flags for runkit7_import()
 // NOTE: All RUNKIT7_* constants have corresponding RUNKIT_* constants with the same values.
 const RUNKIT7_IMPORT_FUNCTIONS = 1;
 
@@ -24,8 +25,6 @@ const RUNKIT7_IMPORT_CLASSES = RUNKIT7_IMPORT_CLASS_CONSTS | RUNKIT7_IMPORT_CLAS
 const RUNKIT7_OVERRIDE_OBJECTS = 32768;
 
 const RUNKIT7_IMPORT_FUNCTIONS = 1;
-
-const RUNKIT7_VERSION = "2.1.0";
 
 // Feature identifying constants (defaults).
 // These are 1 if enabled by configuration options, and 0 if disabled.

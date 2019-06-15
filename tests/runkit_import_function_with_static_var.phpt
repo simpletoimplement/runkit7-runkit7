@@ -2,7 +2,7 @@
 runkit_import() Importing and overriding function with a static variable
 --SKIPIF--
 <?php
-    if(!extension_loaded("runkit") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip";
+    if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip";
 ?>
 --FILE--
 <?php
