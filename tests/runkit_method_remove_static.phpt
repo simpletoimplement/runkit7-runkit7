@@ -12,10 +12,10 @@ display_errors=on
 ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT));
 
 class runkit_class {
-	function runkit_method() {
+	static function runkit_method() {
 		echo "Runkit Method\n";
 	}
-	function runkitMethod() {
+	static function runkitMethod() {
 		echo "Runkit Method\n";
 	}
 }

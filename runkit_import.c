@@ -418,16 +418,18 @@ static zend_op_array *php_runkit_compile_filename(int type, zval *filename)
 	zend_string *opened_path = NULL;
 
 	if (Z_TYPE_P(filename) != IS_STRING) {
-		tmp = *filename;
-		zval_copy_ctor(&tmp);
-		convert_to_string(&tmp);
+		ZVAL_STR(&tmp, zval_get_string(filename));
 		filename = &tmp;
 	}
+#if PHP_VERSION_ID >= 70400
+	zend_stream_init_filename(&file_handle, Z_STRVAL_P(filename));
+#else
 	file_handle.filename = filename->value.str->val;
 	file_handle.free_filename = 0;
 	file_handle.type = ZEND_HANDLE_FILENAME;
 	file_handle.opened_path = NULL;
 	file_handle.handle.fp = NULL;
+#endif
 
 	/* Use builtin compiler only -- bypass accelerators and whatnot */
 	retval = compile_file(&file_handle, type);
@@ -445,7 +447,7 @@ static zend_op_array *php_runkit_compile_filename(int type, zval *filename)
 	}
 	zend_destroy_file_handle(&file_handle);
 
-	if (filename == &tmp) {
+	if (UNEXPECTED(filename == &tmp)) {
 		zval_dtor(&tmp);
 	}
 	return retval;
@@ -476,6 +478,13 @@ void php_runkit_error_cb(int type, const char *error_filename, const uint error_
 }
 */
 /* }}} */
+
+// Handle change to zend_build_delayed_early_binding_list in php 7.4
+#if PHP_VERSION_ID >= 70400
+#ifndef ZEND_DECLARE_INHERITED_CLASS_DELAYED
+#define ZEND_DECLARE_INHERITED_CLASS_DELAYED ZEND_DECLARE_CLASS_DELAYED
+#endif
+#endif
 
 uint32_t compute_early_binding_opline_num(const zend_op_array *op_array) /* {{{ */
 {
@@ -606,7 +615,7 @@ PHP_FUNCTION(runkit7_import)
 			// TODO: Check if this is the same in php 7.0
             if (pce != NULL) {
 #if PHP_VERSION_ID >= 70400
-                do_bind_inherited_class(key, pce);
+                do_bind_class(key, Z_STR_P(parent_name));
 #else
                 do_bind_inherited_class(new_op_array, &new_op_array->opcodes[opline_num], tmp_class_table, pce, 0);
 #endif

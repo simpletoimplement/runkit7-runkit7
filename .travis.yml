@@ -27,7 +27,7 @@ env:
 # Defined at https://github.com/php-build/php-build/tree/master/share/php-build/definitions
 php:
   - master
-  - 7.4snapshot
+  - 7.4
   - 7.3
   - 7.2
   - 7.1
@@ -35,7 +35,7 @@ php:
 matrix:
   allow_failures:
     - php: master
-    - php: 7.4snapshot
+    - php: 7.4
   exclude:
     - php: 7.2
       env: CC=gcc-4.8 CXX=g++-4.8
@@ -43,9 +43,9 @@ matrix:
     # This affects both the newer clang-5.0 and the default Travis version.
     - php: 7.3
       env: CC=clang
-    - php: 7.4snapshot
+    - php: 7.4
       env: CC=gcc-4.8 CXX=g++-4.8 VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'
-    - php: 7.4snapshot
+    - php: 7.4
       env: CC=clang
     - php: master
       env: CC=gcc-4.8 CXX=g++-4.8 VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'

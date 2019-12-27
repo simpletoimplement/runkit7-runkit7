@@ -1,11 +1,16 @@
 --TEST--
 runkit_method_add() function
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php
+if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip\n";
+if(PHP_VERSION_ID >= 80000) print "skip using parent in class with no parent\n";
+?>
 --INI--
 display_errors=on
+error_reporting = E_ALL & ~E_DEPRECATED
 --FILE--
 <?php
+// TODO: Write an alternative test version that isn't an Error in php 8.0-dev
 class Class0 {
     function method3() {
         parent::method3();
