@@ -1,11 +1,16 @@
 --TEST--
 Bug in runkit_method_add (runkit7 issue #173)
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php
+if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip\n";
+if(PHP_VERSION_ID >= 80000) print "skip calls non-static method statically\n";
+?>
 --INI--
 display_errors=on
+error_reporting = E_ALL & ~E_DEPRECATED
 --FILE--
 <?php declare(strict_types=1);
+// Calling non-static method CacheWidget::_init_host statically is deprecated in php 7.4, suppressed E_DEPRECATED
 class Cache {
 
     private $_cacheWidget;

@@ -418,16 +418,18 @@ static zend_op_array *php_runkit_compile_filename(int type, zval *filename)
 	zend_string *opened_path = NULL;
 
 	if (Z_TYPE_P(filename) != IS_STRING) {
-		tmp = *filename;
-		zval_copy_ctor(&tmp);
-		convert_to_string(&tmp);
+		ZVAL_STR(&tmp, zval_get_string(filename));
 		filename = &tmp;
 	}
+#if PHP_VERSION_ID >= 70400
+	zend_stream_init_filename(&file_handle, Z_STRVAL_P(filename));
+#else
 	file_handle.filename = filename->value.str->val;
 	file_handle.free_filename = 0;
 	file_handle.type = ZEND_HANDLE_FILENAME;
 	file_handle.opened_path = NULL;
 	file_handle.handle.fp = NULL;
+#endif
 
 	/* Use builtin compiler only -- bypass accelerators and whatnot */
 	retval = compile_file(&file_handle, type);
@@ -445,7 +447,7 @@ static zend_op_array *php_runkit_compile_filename(int type, zval *filename)
 	}
 	zend_destroy_file_handle(&file_handle);
 
-	if (filename == &tmp) {
+	if (UNEXPECTED(filename == &tmp)) {
 		zval_dtor(&tmp);
 	}
 	return retval;

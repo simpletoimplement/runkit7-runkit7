@@ -6,13 +6,13 @@ Bug#56662 - Wrong access level with RUNKIT_ACC_PUBLIC
 <?php
 class A {}
 runkit_method_add ('A', 'x', '', '', RUNKIT_ACC_PUBLIC);
-Reflection::export(new ReflectionMethod('A', 'x'));
+echo new ReflectionMethod('A', 'x') . "\n";
 
 class B extends A { public function x() {} }
-Reflection::export(new ReflectionMethod('B', 'x'));
+echo new ReflectionMethod('B', 'x') . "\n";
 
 eval("class C extends A { public function x() {} }");
-Reflection::export(new ReflectionMethod('C', 'x'));
+echo new ReflectionMethod('C', 'x');
 
 --EXPECTF--
 Method [ <user%S> public method x ] {
