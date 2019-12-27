@@ -2,7 +2,7 @@
 ======================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
-__Supports PHP7.1, 7.2, and 7.3!__ (function/method manipulation is recommended only for unit testing. Note that PHP 7.3 has known crashes in `runkit7_import()` but all other functionality works.)
+__Supports PHP7.1, 7.2, 7.3, and 7.4!__ (function/method manipulation is recommended only for unit testing. Note that PHP 7.3+ has known crashes in `runkit7_import()` but all other functionality works.)
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/3jwsf76ge0yo8v74/branch/master?svg=true)](https://ci.appveyor.com/project/TysonAndre/runkit7/branch/master)
@@ -11,7 +11,7 @@ __Supports PHP7.1, 7.2, and 7.3!__ (function/method manipulation is recommended 
 
 [Building and installing runkit7 in Windows](#building-and-installing-runkit7-in-windows)
 
-Compatibility: PHP7.1 to PHP 7.3
+Compatibility: PHP7.1 to PHP 7.4
 --------------------------------
 
 **See [runkit-api.php](./runkit-api.php) for the implemented functionality and method signatures.** New functionality was added to support usage with PHP7.
@@ -68,7 +68,7 @@ The following mocking libraries work with runkit7.
 
 ### Bugs in runkit7
 
--   There are segmentation faults in `runkit7_import()` in PHP 7.3 (confirmed on NTS)
+-   There are segmentation faults in `runkit7_import()` in PHP 7.3+ (confirmed on NTS)
 -   There are segmentation faults when manipulating internal functions
     (a.k.a. "runkit.internal_override=1")
     (when you rename/redefine/(copy?) internal functions, and call internal functions with user functions' implementation, or vice versa)
