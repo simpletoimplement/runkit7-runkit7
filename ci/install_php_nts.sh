@@ -38,7 +38,7 @@ if [[ "$PHP_NTS_NORMAL_VERSION" == "7.4.0" || "$PHP_NTS_NORMAL_VERSION" == "8.0.
     ./buildconf --force
     popd
 else
-    curl --verbose https://secure.php.net/distributions/$PHP_TAR_FILE -o $PHP_TAR_FILE
+    curl --location --verbose https://secure.php.net/distributions/$PHP_TAR_FILE -o $PHP_TAR_FILE
     tar xjf $PHP_TAR_FILE
 fi
 
