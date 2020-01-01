@@ -3,7 +3,7 @@
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | "runkit7" patches (c) 2015-2019 Tyson Andre                          |
+  | "runkit7" patches (c) 2015-2020 Tyson Andre                          |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -562,12 +562,37 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 				if (tmpArginfo[i].class_name) {
 					zend_string_addref(tmpArginfo[i].class_name);
 				}
-#else
+#elif PHP_VERSION_ID < 80000
 				// php >= 7.2.0
 				if (ZEND_TYPE_IS_CLASS(tmpArginfo[i].type)) {
 					// This works as the opposite for both php 7.2 and 7.3 (zend_string_release or zend_string_release_ex
 					zend_string_addref(ZEND_TYPE_NAME(tmpArginfo[i].type));
 				}
+#else
+				// php >= 8.0.0 - opposite of zend_type_release
+				{
+					// Modify the tmpArginfo by pointer when duplicating union types, not a copy of the value.
+					zend_type *type = &(tmpArginfo[i].type);
+					if (ZEND_TYPE_HAS_LIST(*type)) {
+						void *entry;
+						ZEND_TYPE_LIST_FOREACH(ZEND_TYPE_LIST(*type), entry) {
+							if (ZEND_TYPE_LIST_IS_NAME(entry)) {
+								zend_string_addref(ZEND_TYPE_LIST_GET_NAME(entry));
+							}
+						} ZEND_TYPE_LIST_FOREACH_END();
+						if (!ZEND_TYPE_USES_ARENA(*type)) {
+							zend_type_list* old_list = ZEND_TYPE_LIST(*type);
+							size_t new_size = ZEND_TYPE_LIST_SIZE(old_list->num_types);
+							zend_type_list* new_list = pemalloc(new_size, 1);
+							memcpy(new_list, old_list, new_size);
+							// i.e. ZEND_TYPE_LIST(*type) = new_list;
+							type->ptr = new_list;
+						}
+					} else if (ZEND_TYPE_HAS_NAME(*type)) {
+						zend_string_addref(ZEND_TYPE_NAME(*type));
+					}
+				}
+
 #endif
 			}
 			op_array->arg_info = &tmpArginfo[offset];

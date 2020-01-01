@@ -3,7 +3,7 @@
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2012 Dmitry Zenovich |
-  | "runkit7" patches (c) 2015-2019 Tyson Andre                          |
+  | "runkit7" patches (c) 2015-2020 Tyson Andre                          |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,6 +18,15 @@
 */
 
 #include "runkit.h"
+
+/* zend_class_implements_interface(zend_class_entry *class_ce, zend_class_entry *interface_ce) {{{ */
+#if PHP_VERSION_ID < 80000
+zend_bool zend_class_implements_interface(zend_class_entry *class_ce, zend_class_entry *interface_ce)
+{
+	return instanceof_function_ex(class_ce, interface_ce, 1);
+}
+#endif
+/* }}} */
 
 /* {{{ */
 void ensure_all_objects_of_class_have_magic_methods(zend_class_entry *ce)
@@ -85,9 +94,9 @@ void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string *lcmname, zen
 		(ce)->__tostring = (fe);
 	} else if (zend_string_equals_literal(lcmname, ZEND_DEBUGINFO_FUNC_NAME)) {
 		(ce)->__debugInfo = (fe);
-	} else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && zend_string_equals_literal(lcmname, "serialize")) {
+	} else if (zend_class_implements_interface(ce, zend_ce_serializable) && zend_string_equals_literal(lcmname, "serialize")) {
 		(ce)->serialize_func = (fe);
-	} else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && zend_string_equals_literal(lcmname, "unserialize")) {
+	} else if (zend_class_implements_interface(ce, zend_ce_serializable) && zend_string_equals_literal(lcmname, "unserialize")) {
 		(ce)->unserialize_func = (fe);
 	} else if (zend_string_equals_ci(lcmname, (ce)->name)) {
 		// TODO: Re-examine the changes to the constructor code for any bugs.
@@ -126,9 +135,9 @@ void PHP_RUNKIT_DEL_MAGIC_METHOD(zend_class_entry *ce, const zend_function *fe)
 		ce->__debugInfo = NULL;
 	} else if (ce->clone == fe) {
 		ce->clone = NULL;
-	} else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && ce->serialize_func == fe) {
+	} else if (zend_class_implements_interface(ce, zend_ce_serializable) && ce->serialize_func == fe) {
 		ce->serialize_func = NULL;
-	} else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && ce->unserialize_func == fe) {
+	} else if (zend_class_implements_interface(ce, zend_ce_serializable) && ce->unserialize_func == fe) {
 		ce->unserialize_func = NULL;
 	}
 }

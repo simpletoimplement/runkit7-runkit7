@@ -8,7 +8,11 @@ if(!extension_loaded("runkit7")) print "skip";
 error_reporting=E_ALL
 --FILE--
 <?php
-var_dump(runkit7_object_id([]));
+try {
+    var_dump(runkit7_object_id([]));
+} catch (Error $e) {
+    echo "Warning: {$e->getMessage()} in {$e->getFile()} on line {$e->getLine()}\n";
+}
 $x = new stdClass();
 $y = new stdClass();
 var_dump(runkit7_object_id($x));

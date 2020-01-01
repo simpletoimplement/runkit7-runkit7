@@ -3,7 +3,7 @@
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | "runkit7" patches (c) 2015-2019 Tyson Andre                          |
+  | "runkit7" patches (c) 2015-2020 Tyson Andre                          |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -734,6 +734,10 @@ inline static zend_object *php_runkit_zend_object_store_get(const zval *zobject)
 	return EG(objects_store).object_buckets[handle];
 }
 /* }}} */
+#endif
+
+#if PHP_VERSION_ID < 80000
+zend_bool zend_class_implements_interface(zend_class_entry *class_ce, zend_class_entry *interface_ce);
 #endif
 
 #if PHP_VERSION_ID >= 70300

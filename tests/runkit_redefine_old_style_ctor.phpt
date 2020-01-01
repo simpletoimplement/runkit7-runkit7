@@ -1,7 +1,10 @@
 --TEST--
 redefine old-style parent ctor
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php
+if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip\n";
+if(PHP_VERSION_ID < 80000) print "skip fallback constructor removed in php 8\n";
+?>
 --FILE--
 <?php
 

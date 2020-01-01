@@ -7,6 +7,7 @@ display_errors=on
 runkit.superglobal=foo,bar
 --FILE--
 <?php
+// Undefined variables are notices in php < 8 and warnings in php 8
 function testme() {
 	echo "Foo is $foo\n";
 	echo "Bar is $bar\n";
@@ -24,5 +25,5 @@ testme();
 Foo is 1
 Bar is 2
 
-Notice: Undefined variable: %wbaz in %s on line %d
+%s: Undefined variable: %wbaz in %s on line %d
 Baz is
