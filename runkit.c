@@ -475,9 +475,6 @@ static void php_runkit_register_auto_global(char *s, int len)
 	if (zend_register_auto_global(globalName,
 			0,
 		    NULL) == SUCCESS) {
-		// FIXME: This is broken.
-
-		// TODO: How do I get an auto global out of a zend_hash????
 		if ((auto_global = zend_hash_find_ptr(CG(auto_globals), globalName)) == NULL) {
 			php_error_docref(NULL, E_ERROR, "Cannot locate the newly created autoglobal");
 			return;
