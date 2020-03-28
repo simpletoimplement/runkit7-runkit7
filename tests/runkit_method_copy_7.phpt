@@ -6,14 +6,14 @@ runkit7_method_copy() function
 display_errors=on
 --FILE--
 <?php
-ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT));
+ini_set('error_reporting', E_ALL);
 
 class runkit7_one {
-	function runkit7_method($n) {
+	public static function runkit7_method($n) {
 		echo "Runkit Method: $n\n";
 	}
 
-	function runkitMethod($n) {
+	public static function runkitMethod($n) {
 		echo "Runkit Method: $n\n";
 	}
 }

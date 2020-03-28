@@ -6,10 +6,10 @@ runkit_method_rename() function and inheritance
 display_errors=on
 --FILE--
 <?php
-ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT));
+ini_set('error_reporting', E_ALL);
 
 class runkit_class {
-	function runkit_original($a) {
+	public static function runkit_original($a) {
 		echo "Runkit Original: a is $a\n";
 	}
 }

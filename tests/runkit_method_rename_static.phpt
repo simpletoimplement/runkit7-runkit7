@@ -2,17 +2,14 @@
 runkit_method_rename() function
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
-if (PHP_VERSION_ID >= 80000) print "skip php >= 8.0";
+if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
 ?>
 --INI--
 display_errors=on
 --FILE--
 <?php
-ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT));
-
 class runkit_class {
-	function runkit_original($a) {
+	static function runkit_original($a) {
 		echo "Runkit Original: a is $a\n";
 	}
 }

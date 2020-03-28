@@ -2,7 +2,7 @@
 reflection should pick up runkit7 arginfo
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit7") || !function_exists('runkit_superglobals') || !PHP_RUNKIT_MANIPULATION) print "skip";
+if(!extension_loaded("runkit7") || !function_exists('runkit_superglobals') || !RUNKIT_FEATURE_MANIPULATION) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL

@@ -85,11 +85,13 @@ void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string *lcmname, zen
 		(ce)->__tostring = (fe);
 	} else if (zend_string_equals_literal(lcmname, ZEND_DEBUGINFO_FUNC_NAME)) {
 		(ce)->__debugInfo = (fe);
-	} else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && zend_string_equals_literal(lcmname, "serialize")) {
+	} else if (zend_class_implements_interface(ce, zend_ce_serializable) && zend_string_equals_literal(lcmname, "serialize")) {
 		(ce)->serialize_func = (fe);
-	} else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && zend_string_equals_literal(lcmname, "unserialize")) {
+	} else if (zend_class_implements_interface(ce, zend_ce_serializable) && zend_string_equals_literal(lcmname, "unserialize")) {
 		(ce)->unserialize_func = (fe);
+#if PHP_VERSION_ID < 80000
 	} else if (zend_string_equals_ci(lcmname, (ce)->name)) {
+        /* Only support class name as alias for constructor in php < 8 */
 		// TODO: Re-examine the changes to the constructor code for any bugs.
 		if (!(ce)->constructor || (ce)->constructor == (orig_fe)) {
 			(ce)->constructor = (fe);
@@ -97,6 +99,7 @@ void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string *lcmname, zen
 			(fe)->common.fn_flags |= ZEND_ACC_CTOR;
 #endif
 		}
+#endif
 	}
 }
 /** }}} */
@@ -126,9 +129,9 @@ void PHP_RUNKIT_DEL_MAGIC_METHOD(zend_class_entry *ce, const zend_function *fe)
 		ce->__debugInfo = NULL;
 	} else if (ce->clone == fe) {
 		ce->clone = NULL;
-	} else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && ce->serialize_func == fe) {
+	} else if (zend_class_implements_interface(ce, zend_ce_serializable) && ce->serialize_func == fe) {
 		ce->serialize_func = NULL;
-	} else if (instanceof_function_ex(ce, zend_ce_serializable, 1) && ce->unserialize_func == fe) {
+	} else if (zend_class_implements_interface(ce, zend_ce_serializable) && ce->unserialize_func == fe) {
 		ce->unserialize_func = NULL;
 	}
 }

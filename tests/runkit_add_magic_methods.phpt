@@ -153,11 +153,11 @@ __destruct
 __destruct
 after removing
 
-Notice: Undefined property: %s in %s on line %d
+%s: Undefined property: %s in %s on line %d
 
-Notice: Undefined property: %s in %s on line %d
+%s: Undefined property: %s in %s on line %d
 
-Notice: Undefined property: %s in %s on line %d
+%s: Undefined property: %s in %s on line %d
 object(Test)#3 (0) {
 }
 object(FOO_test)#2 (0) {

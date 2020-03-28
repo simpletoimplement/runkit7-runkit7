@@ -1,5 +1,5 @@
 --TEST--
-runkit_function_redefine() function with undefined 
+runkit_function_redefine() function with undefined
 --SKIPIF--
 <?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
@@ -23,11 +23,11 @@ echo "Done\n";
 call
 var_dump
 
-Notice: Undefined variable: missing in %s on line %d
+%s: Undefined variable: missing in %s on line %d
 NULL
 second call
 var_dump
 
-Notice: Undefined variable: missing in %s on line %d
+%s: Undefined variable: missing in %s on line %d
 NULL
 Done

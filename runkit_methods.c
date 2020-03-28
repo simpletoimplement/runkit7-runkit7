@@ -149,7 +149,6 @@ void php_runkit_update_children_methods_foreach(HashTable *ht, zend_class_entry 
 }
 /* }}} */
 
-
 /* {{{ php_runkit_inherit_magic */
 inline static void php_runkit_inherit_magic(zend_class_entry *ce, const zend_function *fe, const zend_function *orig_fe)
 {
@@ -179,10 +178,10 @@ inline static void php_runkit_inherit_magic(zend_class_entry *ce, const zend_fun
 		(ce)->constructor  = (ce)->parent->constructor;
 	} else if ((ce)->__debugInfo  == (orig_fe) && (ce)->parent->__debugInfo == (fe)) {
 		(ce)->__debugInfo  = (ce)->parent->__debugInfo;
-	} else if (instanceof_function_ex(ce, zend_ce_serializable, 1) &&
+	} else if (zend_class_implements_interface(ce, zend_ce_serializable) &&
 		   (ce)->serialize_func == (orig_fe) && (ce)->parent->serialize_func == (fe)) {
 		(ce)->serialize_func = (ce)->parent->serialize_func;
-	} else if (instanceof_function_ex(ce, zend_ce_serializable, 1) &&
+	} else if (zend_class_implements_interface(ce, zend_ce_serializable) &&
 		   (ce)->unserialize_func == (orig_fe) && (ce)->parent->unserialize_func == (fe)) {
 		(ce)->unserialize_func = (ce)->parent->unserialize_func;
 	}

@@ -3,6 +3,7 @@ runkit_object_id should fetch the object handle.
 --SKIPIF--
 <?php
 if(!extension_loaded("runkit7")) print "skip";
+if(PHP_VERSION_ID >= 80000) print "skip php >= 8.0";
 ?>
 --INI--
 error_reporting=E_ALL

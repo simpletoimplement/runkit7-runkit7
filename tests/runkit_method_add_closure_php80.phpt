@@ -3,13 +3,12 @@ runkit_method_add() function with closure
 --SKIPIF--
 <?php
 if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip\n";
-if (PHP_VERSION_ID >= 80000) print "skip php >= 8.0\n";
 ?>
 --INI--
 display_errors=on
 --FILE--
 <?php
-ini_set('error_reporting', E_ALL & ~E_DEPRECATED);
+ini_set('error_reporting', E_ALL);
 
 class runkit_class {}
 
@@ -25,15 +24,7 @@ class test {
 			echo "c $is $c\nd $is $d\n";
 			echo "g $is $g\n";
 			$d .= ' modified';
-			echo '$this=';
-			try {
-				var_dump($this);
-			} catch(Error $e) {
-				// PHP 7.1 would also throw an Error if this was the actual implementation of runkit_method.
-				printf("\nError: %s\n", $e->getMessage());
-				printf("NULL\n");
-			}
-		});
+		}, RUNKIT_ACC_STATIC);
 		runkit_class::runkit_method('foo', 'bar');
 		echo "d after call is $d\n";
 	}
@@ -50,14 +41,9 @@ b is bar
 c is use
 d is ref_use
 g is global
-\$this=
-(Notice: Undefined variable: this in .* on line [0-9]+|Error: Using \$this when not in object context)
-NULL
 d after call is ref_use modified
 a is foo
 b is bar
 c is use
 d is ref_use modified
 g is global
-\$this=object\(runkit_class\)#2 \(0\) {
-}

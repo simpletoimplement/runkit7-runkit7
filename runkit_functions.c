@@ -342,6 +342,41 @@ static zval *runkit_allocate_literals(const zend_op_array *const op_array, zend_
 }
 /* }}} */
 
+/* {{{ php_runkit_arginfo_type_addref
+    Adds a reference to the type or union type of this argument. See zend_type_release() and destroy_op_array() from Zend/zend_opcode.c */
+static void php_runkit_arginfo_type_addref(zend_arg_info *arginfo)
+{
+#if PHP_VERSION_ID < 70200
+	if (arginfo->class_name) {
+		zend_string_addref(arginfo->class_name);
+	}
+#elif PHP_VERSION_ID < 80000
+	// php >= 7.2.0
+	if (ZEND_TYPE_IS_CLASS(arginfo->type)) {
+		// This works as the opposite for both php 7.2 and 7.3 (zend_string_release or zend_string_release_ex
+		zend_string_addref(ZEND_TYPE_NAME(arginfo->type));
+	}
+#else
+	zend_type type = arginfo->type;
+    if (ZEND_TYPE_HAS_LIST(type)) {
+		zend_type *atomic_type;
+		zend_type_list *type_list = ZEND_TYPE_LIST(type);
+		size_t size_in_bytes = ZEND_TYPE_LIST_SIZE(type_list->num_types);
+		zend_type_list *new_type_list = emalloc(size_in_bytes);
+		memcpy(new_type_list, type_list, size_in_bytes);
+		arginfo->type.ptr = new_type_list;
+
+		ZEND_TYPE_LIST_FOREACH(type_list, atomic_type) {
+			if (ZEND_TYPE_HAS_NAME(*atomic_type)) {
+				zend_string_addref(ZEND_TYPE_NAME(*atomic_type));
+			}
+		} ZEND_TYPE_LIST_FOREACH_END();
+	} else if (ZEND_TYPE_HAS_NAME(type)) {
+		zend_string_addref(ZEND_TYPE_NAME(type));
+    }
+#endif
+}
+/* }}} */
 /* {{{ php_runkit_function_copy_ctor_same_type
 	Duplicates structures in an zend_function, creating a function of the same type (user/internal) as the original function
 	This does the opposite of some parts of destroy_op_array() from Zend/zend_opcode.c
@@ -558,17 +593,7 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 				if (tmpArginfo[i].name) {
 					zend_string_addref((tmpArginfo[i].name));
 				}
-#if PHP_VERSION_ID < 70200
-				if (tmpArginfo[i].class_name) {
-					zend_string_addref(tmpArginfo[i].class_name);
-				}
-#else
-				// php >= 7.2.0
-				if (ZEND_TYPE_IS_CLASS(tmpArginfo[i].type)) {
-					// This works as the opposite for both php 7.2 and 7.3 (zend_string_release or zend_string_release_ex
-					zend_string_addref(ZEND_TYPE_NAME(tmpArginfo[i].type));
-				}
-#endif
+				php_runkit_arginfo_type_addref(&tmpArginfo[i]);
 			}
 			op_array->arg_info = &tmpArginfo[offset];
 		}

@@ -73,13 +73,13 @@ function main() {
 }
 main();
 ?>
---EXPECT--
+--EXPECTF--
 Before mock: 'VALUE33'
 In mock: a:2:{i:0;s:10:"methodName";i:1;i:0;}
 After mock: '42'
 After unmock: 'VALUE133'
 In mock: a:2:{i:0;s:10:"methodName";i:1;i:0;}
-When strict mode was true, this threw an exception: Return value of foo::bar() must be of the type integer, string returned
+When strict mode was true, this threw an exception: Return value of foo::bar() must be of%stype integer, string returned
 In weak mode
 After unmock: 'VALUE133'
 In mock: a:2:{i:0;s:10:"methodName";i:1;i:0;}

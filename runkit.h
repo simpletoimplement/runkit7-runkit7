@@ -89,7 +89,7 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #define debug_printf(...) do { } while(0)
 #endif
 
-#define PHP_RUNKIT7_VERSION					"3.1.0a1"
+#define PHP_RUNKIT7_VERSION					"3.1.0dev"
 #define PHP_RUNKIT_SANDBOX_CLASSNAME		"Runkit_Sandbox"
 #define PHP_RUNKIT_SANDBOX_PARENT_CLASSNAME	"Runkit_Sandbox_Parent"
 
@@ -741,6 +741,11 @@ inline static zend_object *php_runkit_zend_object_store_get(const zval *zobject)
 #else
 #define RUNKIT_RT_CONSTANT(op_array, opline, node) RT_CONSTANT((op_array), (node))
 #endif
+
+#if PHP_VERSION_ID < 80000
+#define zend_class_implements_interface(class_ce, interface_ce) instanceof_function_ex((class_ce), (interface_ce), 1)
+#endif
+
 
 /* {{{ PHP < 7.3 compatibility for zend_constant */
 #ifndef ZEND_CONSTANT_SET_FLAGS
