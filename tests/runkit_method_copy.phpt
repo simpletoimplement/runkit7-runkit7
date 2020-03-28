@@ -9,11 +9,11 @@ display_errors=on
 ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT));
 
 class runkit_one {
-	function runkit_method($n) {
+	public static function runkit_method($n) {
 		echo "Runkit Method: $n\n";
 	}
 
-	function runkitMethod($n) {
+	public static function runkitMethod($n) {
 		echo "Runkit Method: $n\n";
 	}
 }

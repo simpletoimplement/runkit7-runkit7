@@ -6,11 +6,11 @@ redefining methods with static variables
 display_errors=on
 --FILE--
 <?php
-ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT));
+ini_set('error_reporting', E_ALL);
 
 
 class A {
-    function m() {
+    public static function m() {
         static $a = 0;
         $a++;
         return $a;

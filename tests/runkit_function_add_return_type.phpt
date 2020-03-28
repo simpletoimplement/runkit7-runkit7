@@ -16,6 +16,6 @@ try {
 	printf("TypeError: %s", $e->getMessage());
 }
 ?>
---EXPECT--
+--EXPECTF--
 Returned foo
-TypeError: Return value of runkit_function() must be of the type string, object returned
+TypeError: Return value of runkit_function() must be of%stype string, object returned

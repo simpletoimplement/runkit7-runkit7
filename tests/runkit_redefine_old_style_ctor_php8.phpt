@@ -3,7 +3,7 @@ redefine old-style parent ctor
 --SKIPIF--
 <?php
 if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
-if (PHP_VERSION_ID >= 80000) print "skip php >= 8.0";
+if (PHP_VERSION_ID < 80000) print "skip php < 8.0";
 ?>
 --FILE--
 <?php
@@ -29,7 +29,7 @@ class FOO_test_child_changed extends Foo_test_child {
 class FOO_test_child_changed_child extends FOO_test_child_changed {
 }
 
-runkit_method_redefine("test", "test", "", "var_dump('new constructor');");
+runkit_method_redefine("test", "test", "", "var_dump('in test::test');");
 $a = new test;
 $a = new foo_test;
 $a = new foo_test_child;
@@ -44,23 +44,13 @@ $a = new foo_test_child;
 $a = new foo_test_child_changed;
 $a = new foo_test_child_changed_child;
 
-echo "\n";
 $a = new foo_test;
+echo "after construct\n";
 $a->test1();
 echo "==DONE==\n";
 ?>
---EXPECTF--
-Deprecated: Methods with the same name as their class will not be constructors in a future version of PHP; %s has a deprecated constructor in %s on line %d
-
-Deprecated: Methods with the same name as their class will not be constructors in a future version of PHP; %s has a deprecated constructor in %s on line %d
-string(15) "new constructor"
-string(15) "new constructor"
-string(15) "new constructor"
-string(34) "FOO_test_child_changed constructor"
-string(34) "FOO_test_child_changed constructor"
+--EXPECT--
 after renaming
-string(34) "FOO_test_child_changed constructor"
-string(34) "FOO_test_child_changed constructor"
-
-string(15) "new constructor"
+after construct
+string(13) "in test::test"
 ==DONE==

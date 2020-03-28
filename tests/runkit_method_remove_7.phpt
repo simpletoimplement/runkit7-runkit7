@@ -6,13 +6,13 @@ runkit7_method_remove() function
 display_errors=on
 --FILE--
 <?php
-ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT));
+ini_set('error_reporting', E_ALL);
 
 class runkit7_class {
-	function runkit7_method() {
+	public static function runkit7_method() {
 		echo "Runkit Method\n";
 	}
-	function runkitMethod() {
+	public static function runkitMethod() {
 		echo "Runkit Method\n";
 	}
 }

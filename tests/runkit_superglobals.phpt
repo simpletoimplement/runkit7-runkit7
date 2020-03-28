@@ -24,5 +24,5 @@ testme();
 Foo is 1
 Bar is 2
 
-Notice: Undefined variable: %wbaz in %s on line %d
+%s: Undefined variable: %wbaz in %s on line %d
 Baz is

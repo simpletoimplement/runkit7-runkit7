@@ -1,7 +1,10 @@
 --TEST--
 add old-style parent ctor by importing
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip"; ?>
+<?php
+if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip\n";
+if(PHP_VERSION_ID >= 80000) print "skip php >= 8.0";
+?>
 --FILE--
 <?php
 

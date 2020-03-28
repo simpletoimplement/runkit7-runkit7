@@ -30,7 +30,7 @@ var_dump(TestClass::FOO);
 string(14) "TestClass::FOO"
 string(14) "TestClass::FOO"
 
-Fatal error: Uncaught Error: Undefined class constant 'FOO' in %s:%d
+Fatal error: Uncaught Error: Undefined class constant %sFOO' in %s:%d
 Stack trace:
 #0 {main}
   thrown in %s on line %d

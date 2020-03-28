@@ -3,7 +3,7 @@ runkit_method_remove() function
 --SKIPIF--
 <?php
 if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip\n";
-if (PHP_VERSION_ID >= 80000) { print "skip\n";
+if (PHP_VERSION_ID >= 80000) { print "skip\n"; }
 ?>
 --INI--
 display_errors=on

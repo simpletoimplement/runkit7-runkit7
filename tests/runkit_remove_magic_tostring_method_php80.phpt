@@ -3,7 +3,7 @@ removing magic __tostring method
 --SKIPIF--
 <?php
 if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
-if (PHP_VERSION_ID < 70400 || PHP_VERSION_ID >= 80000) print "skip";
+if (PHP_VERSION_ID < 80000) print "skip";
 ?>
 --FILE--
 <?php
@@ -31,6 +31,6 @@ echo "Value: $s\n";
 ?>
 --EXPECT--
 __tostring
-Caught Error: Method Test::__toString() must return a string value
+Caught TypeError: Return value of Test::__tostring() must be of type string, none returned
 Caught Error: Object of class Test could not be converted to string
 Value: a valid string

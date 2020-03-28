@@ -10,7 +10,7 @@ runkit_import('non-existent_file.unknown');
 echo "After error";
 ?>
 --EXPECTF--
-Warning: runkit_import(non-existent_file.unknown): failed to open stream: No such file or directory in %s on line %d
+Warning: runkit_import(non-existent_file.unknown): %sailed to open stream: No such file or directory in %s on line %d
 
 Warning: runkit_import(): Failed opening 'non-existent_file.unknown' for inclusion %s on line %d
 

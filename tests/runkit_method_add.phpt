@@ -6,12 +6,12 @@ runkit_method_add() function
 display_errors=on
 --FILE--
 <?php
-ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT));
+ini_set('error_reporting', E_ALL);
 
 class runkit_class {
 }
 
-runkit_method_add('runkit_class', 'runkit_method', '$a, $b = "bar"', 'static $is="is"; echo "a $is $a\nb $is $b\n";');
+runkit_method_add('runkit_class', 'runkit_method', '$a, $b = "bar"', 'static $is="is"; echo "a $is $a\nb $is $b\n";', RUNKIT_ACC_STATIC);
 runkit_class::runkit_method('foo','bar');
 ?>
 --EXPECT--

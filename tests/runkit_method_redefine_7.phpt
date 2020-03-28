@@ -6,21 +6,21 @@ runkit7_method_redefine() function
 display_errors=on
 --FILE--
 <?php
-ini_set('error_reporting', E_ALL & (~E_DEPRECATED) & (~E_STRICT));
+ini_set('error_reporting', E_ALL);
 
 class runkit7_class {
-	function runkit7_method($a) {
+	static function runkit7_method($a) {
 		echo "a is $a\n";
 	}
-	function runkitMethod($a) {
+	static function runkitMethod($a) {
 		echo "a is $a\n";
 	}
 }
 runkit7_class::runkit7_method('foo');
-runkit7_method_redefine('runkit7_class','runkit7_method','$b', 'echo "b is $b\n";');
+runkit7_method_redefine('runkit7_class','runkit7_method','$b', 'echo "b is $b\n";', RUNKIT_ACC_STATIC);
 runkit7_class::runkit7_method('bar');
 runkit7_class::runkitMethod('foo');
-runkit7_method_redefine('runkit7_class','runkitMethod','$b', 'echo "b is $b\n";');
+runkit7_method_redefine('runkit7_class','runkitMethod','$b', 'echo "b is $b\n";', RUNKIT_ACC_STATIC);
 runkit7_class::runkitMethod('bar');
 ?>
 --EXPECT--

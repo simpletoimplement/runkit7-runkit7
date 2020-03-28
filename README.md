@@ -13,6 +13,8 @@ __Supports PHP7.1, 7.2, 7.3, and (partially) 7.4!__ (function/method manipulatio
 
 [Building and installing runkit7 in Windows](#building-and-installing-runkit7-in-windows)
 
+This extension's documentation is available at [https://www.php.net/runkit7](https://www.php.net/runkit7).
+
 Compatibility: PHP7.1 to PHP 7.4
 --------------------------------
 
