@@ -31,6 +31,8 @@ Define customized superglobal variables for general purpose use.
 - Remove disabled code, constants, and ini settings related to the sandbox feature.
   Runkit7 has never supported sandboxes or runkit_lint due to changes to internals in php7 making it impractical.
 - Remove runkit_object_id() - PHP 7.2 adds spl_object_id() to do the same thing.
+- Fix build failure in php 8.0-dev.
+- Add parameter default constant names to reflection (php 8 only).
  </notes>
  <contents>
   <dir name="/">
