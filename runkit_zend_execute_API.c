@@ -24,6 +24,8 @@
  * Copies of internal methods from Zend/zend_execute_API.c
  * These are used to call internal methods (not in the function table) from the external method.
  * TODO: See if xdebug works
+ *
+ * FIXME: Update the signature and implementation to also support named parameters
  */
 int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inner, INTERNAL_FUNCTION_PARAMETERS) /* {{{ */
 {
