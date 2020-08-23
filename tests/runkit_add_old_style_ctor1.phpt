@@ -2,7 +2,7 @@
 add old-style parent ctor (existing ctor)
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip\n";
+if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip\n";
 if(PHP_VERSION_ID >= 80000) print "skip php >= 8.0\n";
 ?>
 --FILE--
@@ -29,7 +29,7 @@ class Test_GrandChild extends Test_Child {
 	}
 }
 
-runkit_method_add("test", "test", "", "var_dump('new constructor');");
+runkit7_method_add("test", "test", "", "var_dump('new constructor');");
 $a = new test;
 $a = new foo_test;
 $a = new FOO_test_Child;
@@ -37,7 +37,7 @@ $a = new Test_Child;
 $a = new Test_GrandChild;
 
 echo "after removing\n";
-runkit_method_remove("test", "test");
+runkit7_method_remove("test", "test");
 $a = new test;
 $a = new foo_test;
 $a = new FOO_test_Child;

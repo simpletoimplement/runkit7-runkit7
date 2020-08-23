@@ -2,7 +2,7 @@
 add old-style parent ctor by copying
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip\n";
+if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip\n";
 if(PHP_VERSION_ID >= 80000) print "skip php >= 8.0\n";
 ?>
 --FILE--
@@ -20,14 +20,14 @@ class FOO_test extends test {
 class FOO_test_Child extends FOO_test {
 }
 
-runkit_method_copy("test", "test", "test", "test1");
+runkit7_method_copy("test", "test", "test", "test1");
 $a = new test;
 $a = new foo_test;
 $a = new FOO_test_Child;
 
 echo "after removing\n";
 
-runkit_method_remove("test", "test");
+runkit7_method_remove("test", "test");
 $a = new test;
 $a = new foo_test;
 $a = new FOO_test_Child;

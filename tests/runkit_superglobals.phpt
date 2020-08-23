@@ -1,7 +1,7 @@
 --TEST--
 runkit.superglobal setting
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 display_errors=on
 runkit.superglobal=foo,bar

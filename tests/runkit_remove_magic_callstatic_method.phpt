@@ -1,7 +1,7 @@
 --TEST--
 removing magic __callstatic method
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --FILE--
 <?php
@@ -10,7 +10,7 @@ class Test {
 }
 
 Test::method();
-runkit_method_remove("Test", "__callstatic");
+runkit7_method_remove("Test", "__callstatic");
 Test::method();
 ?>
 --EXPECTF--

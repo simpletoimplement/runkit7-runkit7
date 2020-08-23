@@ -2,7 +2,7 @@
 Superglobals should not be wiped by runkit
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL

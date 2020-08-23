@@ -1,7 +1,7 @@
 --TEST--
-runkit_import() method and reflection
+runkit7_import() method and reflection
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip"; ?>
 --FILE--
 <?php
 class RunkitClass {
@@ -16,7 +16,7 @@ $reflClass = new ReflectionClass('RunkitClass');
 $reflObject = new ReflectionObject($obj);
 $reflMethod = new ReflectionMethod('RunkitClass', 'runkitMethod');
 
-runkit_import('runkit_import_method_and_reflection.inc', RUNKIT_IMPORT_CLASS_METHODS | RUNKIT_IMPORT_OVERRIDE);
+runkit7_import('runkit_import_method_and_reflection.inc', RUNKIT7_IMPORT_CLASS_METHODS | RUNKIT7_IMPORT_OVERRIDE);
 
 var_dump($reflMethod);
 $reflMethod->invoke($obj);

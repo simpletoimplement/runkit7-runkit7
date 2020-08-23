@@ -1,8 +1,8 @@
 --TEST--
-runkit_method_add() function with closure
+runkit7_method_add() function with closure
 --SKIPIF--
 <?php
-if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip\n";
+if (!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip\n";
 if (PHP_VERSION_ID >= 80000) print "skip php >= 8.0\n";
 ?>
 --INI--
@@ -17,7 +17,7 @@ class test {
 	public function run() {
 		$c = 'use';
 		$d = 'ref_use';
-		runkit_method_add('runkit_class', 'runkit_method',
+		runkit7_method_add('runkit_class', 'runkit_method',
 			function($a, $b = "bar") use ($c, &$d) {
 			static $is="is";
 			global $g;

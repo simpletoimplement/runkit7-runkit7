@@ -64,7 +64,7 @@ install:
 
 before_script:
  - $CC --version && ci/print_php_int_max.php
- - (export CC; phpize && ./configure --enable-runkit7-spl_object-id && make)
+ - (export CC; phpize && ./configure && make)
 
 script:
  - phpenv config-rm xdebug.ini || true

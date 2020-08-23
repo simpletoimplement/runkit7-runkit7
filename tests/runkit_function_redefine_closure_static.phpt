@@ -1,8 +1,8 @@
 --TEST--
-runkit_method_redefine() function with closure
+runkit7_method_redefine() function with closure
 --SKIPIF--
 <?php
-	if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+	if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --INI--
 display_errors=on
@@ -15,7 +15,7 @@ class test {
 	public static function run() {
 		$c = 'use';
 		$d = 'ref_use';
-		runkit_function_redefine('runkit_function',
+		runkit7_function_redefine('runkit_function',
 			function($a, $b = "bar") use ($c, &$d) {
 				static $is="is";
 				global $g;

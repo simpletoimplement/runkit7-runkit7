@@ -2,7 +2,7 @@
 reflection should pick up runkit7 arginfo
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit7") || !function_exists('runkit_superglobals') || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+if(!extension_loaded("runkit7") || !function_exists('runkit_superglobals') || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL
@@ -41,7 +41,7 @@ foreach ([
 	'runkit7_zval_inspect',
 ] as $name) {
 	$function = new ReflectionFunction($name);
-	printf("%-30s: %d to %d args: (%s)\n",
+	printf("%-30s: %d to %d args: (%s)%s\n",
 		$name,
 		$function->getNumberOfRequiredParameters(),
 		$function->getNumberOfParameters(),
@@ -52,40 +52,41 @@ foreach ([
 				return "$type $result";
 			}
 			return $result;
-		}, $function->getParameters()))
+		}, $function->getParameters())),
+		$function->isDeprecated() ? ' (Deprecated)' : ''
 	);
 }
 
 
 ?>
 --EXPECT--
-runkit_constant_add           : 2 to 3 args: ($constname, $value, $newVisibility)
+runkit_constant_add           : 2 to 3 args: ($constname, $value, $newVisibility) (Deprecated)
 runkit7_constant_add          : 2 to 3 args: ($constname, $value, $newVisibility)
-runkit_constant_redefine      : 2 to 3 args: ($constname, $value, $newVisibility)
+runkit_constant_redefine      : 2 to 3 args: ($constname, $value, $newVisibility) (Deprecated)
 runkit7_constant_redefine     : 2 to 3 args: ($constname, $value, $newVisibility)
-runkit_constant_remove        : 1 to 1 args: ($constname)
+runkit_constant_remove        : 1 to 1 args: ($constname) (Deprecated)
 runkit7_constant_remove       : 1 to 1 args: ($constname)
-runkit_function_add           : 2 to 7 args: ($funcname, $arglist_or_closure, $code_or_doc_comment, $return_by_reference, $doc_comment, $return_type, $is_strict)
+runkit_function_add           : 2 to 7 args: ($funcname, $arglist_or_closure, $code_or_doc_comment, $return_by_reference, $doc_comment, $return_type, $is_strict) (Deprecated)
 runkit7_function_add          : 2 to 7 args: ($funcname, $arglist_or_closure, $code_or_doc_comment, $return_by_reference, $doc_comment, $return_type, $is_strict)
-runkit_function_copy          : 2 to 2 args: ($funcname, $targetname)
+runkit_function_copy          : 2 to 2 args: ($funcname, $targetname) (Deprecated)
 runkit7_function_copy         : 2 to 2 args: ($funcname, $targetname)
-runkit_function_redefine      : 3 to 7 args: ($funcname, $arglist_or_closure, $code_or_doc_comment, $return_by_reference, $doc_comment, $return_type, $is_strict)
+runkit_function_redefine      : 3 to 7 args: ($funcname, $arglist_or_closure, $code_or_doc_comment, $return_by_reference, $doc_comment, $return_type, $is_strict) (Deprecated)
 runkit7_function_redefine     : 3 to 7 args: ($funcname, $arglist_or_closure, $code_or_doc_comment, $return_by_reference, $doc_comment, $return_type, $is_strict)
-runkit_function_remove        : 1 to 1 args: ($funcname)
+runkit_function_remove        : 1 to 1 args: ($funcname) (Deprecated)
 runkit7_function_remove       : 1 to 1 args: ($funcname)
-runkit_function_rename        : 2 to 2 args: ($funcname, $newname)
+runkit_function_rename        : 2 to 2 args: ($funcname, $newname) (Deprecated)
 runkit7_function_rename       : 2 to 2 args: ($funcname, $newname)
-runkit_method_add             : 3 to 8 args: ($classname, $methodname, $arglist_or_closure, $code_or_flags, $flags_or_doc_comment, $doc_comment, $return_type, $is_strict)
+runkit_method_add             : 3 to 8 args: ($classname, $methodname, $arglist_or_closure, $code_or_flags, $flags_or_doc_comment, $doc_comment, $return_type, $is_strict) (Deprecated)
 runkit7_method_add            : 3 to 8 args: ($classname, $methodname, $arglist_or_closure, $code_or_flags, $flags_or_doc_comment, $doc_comment, $return_type, $is_strict)
-runkit_method_copy            : 3 to 4 args: ($dClass, $dMethod, $sClass, $sMethod)
+runkit_method_copy            : 3 to 4 args: ($dClass, $dMethod, $sClass, $sMethod) (Deprecated)
 runkit7_method_copy           : 3 to 4 args: ($dClass, $dMethod, $sClass, $sMethod)
-runkit_method_redefine        : 3 to 8 args: ($classname, $methodname, $arglist_or_closure, $code_or_flags, $flags_or_doc_comment, $doc_comment, $return_type, $is_strict)
+runkit_method_redefine        : 3 to 8 args: ($classname, $methodname, $arglist_or_closure, $code_or_flags, $flags_or_doc_comment, $doc_comment, $return_type, $is_strict) (Deprecated)
 runkit7_method_redefine       : 3 to 8 args: ($classname, $methodname, $arglist_or_closure, $code_or_flags, $flags_or_doc_comment, $doc_comment, $return_type, $is_strict)
-runkit_method_remove          : 2 to 2 args: ($classname, $methodname)
+runkit_method_remove          : 2 to 2 args: ($classname, $methodname) (Deprecated)
 runkit7_method_remove         : 2 to 2 args: ($classname, $methodname)
-runkit_method_rename          : 3 to 3 args: ($classname, $methodname, $newname)
+runkit_method_rename          : 3 to 3 args: ($classname, $methodname, $newname) (Deprecated)
 runkit7_method_rename         : 3 to 3 args: ($classname, $methodname, $newname)
-runkit_superglobals           : 0 to 0 args: ()
+runkit_superglobals           : 0 to 0 args: () (Deprecated)
 runkit7_superglobals          : 0 to 0 args: ()
-runkit_zval_inspect           : 1 to 1 args: ($value)
+runkit_zval_inspect           : 1 to 1 args: ($value) (Deprecated)
 runkit7_zval_inspect          : 1 to 1 args: ($value)

@@ -185,7 +185,7 @@ ZEND_END_ARG_INFO()
 
 #define PHP_FE_AND_FALIAS(runkit_function_name, runkit7_function_name, arginfo_for_function_name) \
 	PHP_FE(runkit7_function_name,									arginfo_for_function_name) \
-	PHP_FALIAS(runkit_function_name, runkit7_function_name,			arginfo_for_function_name)
+	PHP_DEP_FALIAS(runkit_function_name, runkit7_function_name,		arginfo_for_function_name)
 
 PHP_FUNCTION(runkit7_zval_inspect);
 

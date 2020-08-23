@@ -1,11 +1,11 @@
 --TEST--
-Bug#56662 - Wrong access level with RUNKIT_ACC_PUBLIC
+Bug#56662 - Wrong access level with RUNKIT7_ACC_PUBLIC
 --SKIPIF--
 <?php if(!extension_loaded("runkit7")) print "skip"; ?>
 --FILE--
 <?php
 class A {}
-runkit_method_add ('A', 'x', '', '', RUNKIT_ACC_PUBLIC);
+runkit7_method_add('A', 'x', '', '', RUNKIT7_ACC_PUBLIC);
 echo new ReflectionMethod('A', 'x') . "\n";
 
 class B extends A { public function x() {} }

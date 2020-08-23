@@ -1,14 +1,14 @@
 --TEST--
-runkit_constant_add() function can add simple arrays to classes
+runkit7_constant_add() function can add simple arrays to classes
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 class A { }
-runkit_constant_add('A::FOO', ["BAR"]);
+runkit7_constant_add('A::FOO', ["BAR"]);
 var_export(A::FOO);
 echo "\n";
-runkit_constant_redefine('A::FOO', [['key' => "BAR"]]);
+runkit7_constant_redefine('A::FOO', [['key' => "BAR"]]);
 var_export(A::FOO);
 ?>
 --EXPECT--

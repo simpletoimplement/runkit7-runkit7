@@ -1,13 +1,13 @@
 --TEST--
-runkit_import() Importing file with syntax error in it
+runkit7_import() Importing file with syntax error in it
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
       if(!function_exists('runkit_import')) print "skip";
 ?>
 --FILE--
 <?php
 try {
-    runkit_import(dirname(__FILE__) . '/runkit_import_with_syntax_error.inc');
+    runkit7_import(dirname(__FILE__) . '/runkit_import_with_syntax_error.inc');
 } catch (ParseError $e) {
     printf("Caught ParseError at %s:%d: %s\n", $e->getFile(), $e->getLine(), $e->getMessage());
 }

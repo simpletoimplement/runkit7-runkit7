@@ -6,13 +6,14 @@ runkit.superglobal setting creates superglobals that can be referenced multiple 
 --INI--
 display_errors=on
 runkit.superglobal=foo
+error_reporting=E_ALL
 --FILE--
 <?php
 ini_set('error_reporting', E_ALL);
 
-function capture_runkit7_superglobals_dump() {
+function capture_runkit_superglobals_dump() {
     ob_start();
-    debug_zval_dump(runkit7_superglobals());
+    debug_zval_dump(runkit_superglobals());
     return ob_get_clean();
 }
 
@@ -26,11 +27,11 @@ class FooClass {
         debug_print_backtrace();
         var_dump($GLOBALS['foo']);
         var_dump($foo);
-        // Verify that runkit7_superglobals properly reference counts string keys, call it twice.
-        $result = capture_runkit7_superglobals_dump();
+        // Verify that runkit_superglobals properly reference counts string keys, call it twice.
+        $result = capture_runkit_superglobals_dump();
         echo $result;
         debug_zval_dump(array_keys($GLOBALS));
-        $result2 = capture_runkit7_superglobals_dump();
+        $result2 = capture_runkit_superglobals_dump();
         echo "result === result2: ";
         $same = $result === $result2;
         var_dump($same);
@@ -62,6 +63,8 @@ object(FooClass)#1 (1) {
   ["prop"]=>
   string(5) "value"
 }
+
+Deprecated: Function runkit_superglobals() is deprecated in %srunkit_superglobals_obj_alias.php on line 6
 array(10) refcount(1){
   [0]=>
   string(7) "GLOBALS" refcount(%d)

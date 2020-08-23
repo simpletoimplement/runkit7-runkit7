@@ -1,13 +1,13 @@
 --TEST--
-runkit_constant_add() function can add simple arrays
+runkit7_constant_add() function can add simple arrays
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
-runkit_constant_add('FOO', ["BAR"]);
+runkit7_constant_add('FOO', ["BAR"]);
 var_export(FOO);
 echo "\n";
-runkit_constant_redefine('FOO', [['key' => "BAR"]]);
+runkit7_constant_redefine('FOO', [['key' => "BAR"]]);
 var_export(FOO);
 ?>
 --EXPECT--

@@ -1,7 +1,7 @@
 --TEST--
-runkit_method_rename() function with reflection
+runkit7_method_rename() function with reflection
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 class RunkitClass {
@@ -16,7 +16,7 @@ $reflClass = new ReflectionClass('RunkitClass');
 $reflObject = new ReflectionObject($obj);
 $reflMethod = new ReflectionMethod('RunkitClass', 'runkitMethod');
 
-runkit_method_rename('RunkitClass','runkitMethod', 'newMethod');
+runkit7_method_rename('RunkitClass','runkitMethod', 'newMethod');
 
 try {
 	var_dump($reflClass->getMethod('runkitMethod'));

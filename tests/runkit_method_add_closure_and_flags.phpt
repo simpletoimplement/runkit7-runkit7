@@ -1,8 +1,8 @@
 --TEST--
-runkit_method_add() function with closure and flags
+runkit7_method_add() function with closure and flags
 --SKIPIF--
 <?php
-	if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+	if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --INI--
 display_errors=on
@@ -10,9 +10,9 @@ display_errors=on
 <?php
 class runkit_class {
 }
-runkit_method_add('runkit_class','runkit_method',function() {});
-runkit_method_add('runkit_class','runkitMethod',function() {}, RUNKIT_ACC_PRIVATE);
-runkit_method_add('runkit_class','runkitMethod1',function () {}, RUNKIT_ACC_STATIC, 'new doc_comment2');
+runkit7_method_add('runkit_class','runkit_method',function() {});
+runkit7_method_add('runkit_class','runkitMethod',function() {}, RUNKIT7_ACC_PRIVATE);
+runkit7_method_add('runkit_class','runkitMethod1',function () {}, RUNKIT7_ACC_STATIC, 'new doc_comment2');
 $r1 = new ReflectionMethod('runkit_class', 'runkit_method');
 echo $r1->getDocComment(), "\n";
 $r2 = new ReflectionMethod('runkit_class', 'runkitMethod');

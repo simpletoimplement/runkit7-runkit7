@@ -1,7 +1,7 @@
 --TEST--
-runkit_method_remove() function with ReflectionParameter and inheritance
+runkit7_method_remove() function with ReflectionParameter and inheritance
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 class RunkitClass {
@@ -17,7 +17,7 @@ $reflMethod = new ReflectionMethod('RunkitSubClass', 'runkitMethod');
 $reflParam = $reflMethod->getParameters();
 $reflParam = $reflParam[0];
 
-runkit_method_remove('RunkitClass','runkitMethod');
+runkit7_method_remove('RunkitClass','runkitMethod');
 
 var_dump($reflParam);
 try {

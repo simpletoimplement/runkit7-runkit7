@@ -11,7 +11,7 @@ ini_set('error_reporting', E_ALL);
 class runkit7_class {
 }
 
-runkit7_method_add('runkit7_class', 'runkit7_method', '$a, $b = "bar"', 'static $is="is"; echo "a $is $a\nb $is $b\n";', RUNKIT_ACC_STATIC | RUNKIT_ACC_PUBLIC);
+runkit7_method_add('runkit7_class', 'runkit7_method', '$a, $b = "bar"', 'static $is="is"; echo "a $is $a\nb $is $b\n";', RUNKIT7_ACC_STATIC | RUNKIT7_ACC_PUBLIC);
 runkit7_class::runkit7_method('foo','bar');
 ?>
 --EXPECT--

@@ -1,7 +1,7 @@
 --TEST--
 runkit_default_property_add() and runkit_default_property_remove() functions on classes having dynamic properties overriding in objects
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 	  if(!function_exists('runkit_default_property_add')) print "skip";
 ?>
 --FILE--
@@ -17,7 +17,7 @@ $o = new A;
 $o->b = 1;
 echo 'b=', $o->b, "\n";
 echo 'd=', $o->d, "\n";
-runkit_default_property_add('A', 'b', 2, RUNKIT_OVERRIDE_OBJECTS);
+runkit_default_property_add('A', 'b', 2, RUNKIT7_OVERRIDE_OBJECTS);
 echo 'b=', $o->b, "\n";
 echo 'd=', $o->d, "\n";
 runkit_default_property_remove('A', 'b');
@@ -35,7 +35,7 @@ echo 'd=', $o->d, "\n";
 $o->b = 1;
 echo 'b=', $o->b, "\n";
 echo 'd=', $o->d, "\n";
-runkit_default_property_add('A', 'b', 2, RUNKIT_OVERRIDE_OBJECTS);
+runkit_default_property_add('A', 'b', 2, RUNKIT7_OVERRIDE_OBJECTS);
 echo 'b=', $o->b, "\n";
 echo 'd=', $o->d, "\n";
 runkit_default_property_remove('A', 'b');

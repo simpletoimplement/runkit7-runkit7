@@ -1,7 +1,7 @@
 --TEST--
-runkit_function_remove() function with ReflectionParameter
+runkit7_function_remove() function with ReflectionParameter
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 function runkitFunction($param) {
@@ -12,7 +12,7 @@ $reflFunc = new ReflectionFunction('runkitFunction');
 $reflParam = $reflFunc->getParameters();
 $reflParam = $reflParam[0];
 
-runkit_function_remove('runkitFunction');
+runkit7_function_remove('runkitFunction');
 
 var_dump($reflParam);
 try {

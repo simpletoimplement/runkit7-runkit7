@@ -1,7 +1,7 @@
 --TEST--
 runkit_default_property_add() function for existing static properties
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
       if(!function_exists('runkit_default_property_add')) print "skip";
 ?>
 --INI--
@@ -19,11 +19,11 @@ class RunkitClass extends RunkitParent {
 class RunkitSubClass extends RunkitClass {
 }
 
-runkit_default_property_add('RunkitClass', 'oldProperty', array('a'=>1), RUNKIT_ACC_STATIC);
+runkit_default_property_add('RunkitClass', 'oldProperty', array('a'=>1), RUNKIT7_ACC_STATIC);
 var_dump(RunkitClass::$oldProperty);
-runkit_default_property_add('RunkitSubClass', 'oldProperty', array('a'=>1), RUNKIT_ACC_STATIC);
+runkit_default_property_add('RunkitSubClass', 'oldProperty', array('a'=>1), RUNKIT7_ACC_STATIC);
 var_dump(RunkitSubClass::$oldProperty);
-runkit_default_property_add('RunkitParent', 'oldProperty', array('a'=>1), RUNKIT_ACC_STATIC);
+runkit_default_property_add('RunkitParent', 'oldProperty', array('a'=>1), RUNKIT7_ACC_STATIC);
 var_dump(RunkitParent::$oldProperty);
 var_dump(RunkitClass::$oldProperty);
 var_dump(RunkitSubClass::$oldProperty);

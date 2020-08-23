@@ -2,7 +2,7 @@
 Test for caching issues on redefining functions
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip";
+if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL
@@ -12,7 +12,7 @@ runkit.internal_override=On
 <?php
 function a($result) {
   for ($i = 0; $i < 10; $i++) {
-    runkit_function_redefine('sprintf', '$v', "echo ''; return $result + 1;");
+    runkit7_function_redefine('sprintf', '$v', "echo ''; return $result + 1;");
     $result = sprintf('a');
   }
   return $result;
@@ -27,8 +27,8 @@ echo $result, "\n";
 
 function b($result) {
   for ($i = 0; $i < 10; $i++) {
-    runkit_function_remove('sprintf');
-    runkit_function_add('sprintf', '$v', "echo ''; return $result + 1;");
+    runkit7_function_remove('sprintf');
+    runkit7_function_add('sprintf', '$v', "echo ''; return $result + 1;");
     $result = sprintf('a');
   }
   return $result;
@@ -47,7 +47,7 @@ class A {
 
   function c($result) {
     for ($i = 0; $i < 10; $i++) {
-      runkit_function_redefine('mail', '$v', "echo ''; return $result + 1;");
+      runkit7_function_redefine('mail', '$v', "echo ''; return $result + 1;");
       $result = $this->run();
     }
     return $result;
@@ -55,8 +55,8 @@ class A {
 
   function d($result) {
     for ($i = 0; $i < 10; $i++) {
-      runkit_function_remove('mail');
-      runkit_function_add('mail', '$v', "echo ''; return $result + 1;");
+      runkit7_function_remove('mail');
+      runkit7_function_add('mail', '$v', "echo ''; return $result + 1;");
       $result = $this->run();
     }
     return $result;
@@ -74,7 +74,7 @@ echo $result, "\n";
 
 function e($result) {
     for ($i = 0; $i < 10; $i++) {
-      runkit_import('runkit_functions_redefining_and_cache.inc', RUNKIT_IMPORT_FUNCTIONS | RUNKIT_IMPORT_OVERRIDE);
+      runkit7_import('runkit_functions_redefining_and_cache.inc', RUNKIT7_IMPORT_FUNCTIONS | RUNKIT7_IMPORT_OVERRIDE);
       $result = sprintf($result);
     }
     return $result;

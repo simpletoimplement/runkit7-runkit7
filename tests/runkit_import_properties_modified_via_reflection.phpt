@@ -1,8 +1,8 @@
 --TEST--
-runkit_import() Importing and overriding properties which were modified via reflection
+runkit7_import() Importing and overriding properties which were modified via reflection
 --SKIPIF--
 <?php
-    if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+    if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
     if(!function_exists('runkit_import')) print "skip";
 ?>
 --FILE--
@@ -55,7 +55,7 @@ class TestReload{
 
 class Reload {
 	public function __construct($sClassPath) {
-		runkit_import($sClassPath, (RUNKIT_IMPORT_OVERRIDE|RUNKIT_IMPORT_CLASS_STATIC_PROPS));
+		runkit7_import($sClassPath, (RUNKIT7_IMPORT_OVERRIDE|RUNKIT7_IMPORT_CLASS_STATIC_PROPS));
 	}
 }
 ?>
@@ -73,4 +73,4 @@ array(1) {
   NULL
 }
 --XFAIL--
-Using PHP_RUNKIT_IMPORT_OVERRIDE in combination with PHP_RUNKIT_IMPORT_CLASS_PROPS/PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS is not supported.
+Using PHP_RUNKIT7_IMPORT_OVERRIDE in combination with PHP_RUNKIT7_IMPORT_CLASS_PROPS/PHP_RUNKIT7_IMPORT_CLASS_STATIC_PROPS is not supported.

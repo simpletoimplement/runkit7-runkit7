@@ -1,7 +1,7 @@
 --TEST--
 runkit_default_property_remove() remove properties from subclasses overriding objects
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
       if(!function_exists('runkit_default_property_add')) print "skip";
 ?>
 --INI--
@@ -25,7 +25,7 @@ ini_set('error_reporting', E_ALL);
 
 $className = 'RunkitClass';
 $obj = new RunkitSubClass();
-runkit_default_property_add($className, 'dynamic', $obj, RUNKIT_OVERRIDE_OBJECTS);
+runkit_default_property_add($className, 'dynamic', $obj, RUNKIT7_OVERRIDE_OBJECTS);
 
 runkit_default_property_remove($className, 'dynamic', TRUE);
 runkit_default_property_remove($className, 'publicproperty', TRUE);
@@ -36,7 +36,7 @@ runkit_default_property_remove($className, 'constArray', TRUE);
 print_r($obj);
 
 $obj = new StdSubClass();
-runkit_default_property_add('StdSubClass', 'str', "test", RUNKIT_OVERRIDE_OBJECTS);
+runkit_default_property_add('StdSubClass', 'str', "test", RUNKIT7_OVERRIDE_OBJECTS);
 runkit_default_property_remove('StdSubClass', 'str', TRUE);
 print_r($obj);
 $obj = NULL;

@@ -106,7 +106,7 @@ build_script:
                 echo "" | Out-File -Encoding "ASCII" task.bat
                 echo "call phpize 2>&1" | Out-File -Encoding "ASCII" -Append task.bat
                 # TODO: what is --enable-debug-pack
-                $cmd = 'call configure --enable-runkit7 --enable-runkit7-spl_object_id --with-prefix=c:\build-cache\' + $dname + ' 2>&1'
+                $cmd = 'call configure --enable-runkit7 --with-prefix=c:\build-cache\' + $dname + ' 2>&1'
                 echo $cmd | Out-File -Encoding "ASCII" -Append task.bat
                 echo "set REPORT_EXIT_STATUS=1" | Out-File -Encoding "ASCII" -Append task.bat
                 echo "set NO_INTERACTION=1" | Out-File -Encoding "ASCII" -Append task.bat

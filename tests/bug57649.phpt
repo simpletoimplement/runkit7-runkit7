@@ -1,5 +1,5 @@
 --TEST--
-Bug#57649 - runkit_import() - methods not added - multiple classes in one file
+Bug#57649 - runkit7_import() - methods not added - multiple classes in one file
 --SKIPIF--
 <?php if(!extension_loaded("runkit7") || !function_exists('runkit_import')) print "skip";
 ?>
@@ -13,7 +13,7 @@ class b {
 
 class a extends b { }
 
-runkit_import( dirname(__FILE__) . "/bug57649.inc" );
+runkit7_import( dirname(__FILE__) . "/bug57649.inc" );
 
 $a = new a();
 $a->foobar();

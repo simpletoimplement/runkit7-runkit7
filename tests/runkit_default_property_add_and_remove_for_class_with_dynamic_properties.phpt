@@ -1,7 +1,7 @@
 --TEST--
 runkit_default_property_add() and runkit_default_property_remove() functions on classes having dynamic properties
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 	  if(!function_exists('runkit_default_property_add')) print "skip";
 ?>
 --FILE--

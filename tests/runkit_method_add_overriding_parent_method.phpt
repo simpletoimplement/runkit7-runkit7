@@ -1,8 +1,8 @@
 --TEST--
-runkit_method_add() function
+runkit7_method_add() function
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip\n";
+if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip\n";
 if(PHP_VERSION_ID >= 80000) print "skip using parent in class with no parent\n";
 ?>
 --INI--
@@ -36,11 +36,11 @@ class Class2 extends Class1 {
 }
 
 $c = new Class2();
-runkit_method_add('Class2', 'method1', '', 'parent::method1(); echo "method1_new\n";');
+runkit7_method_add('Class2', 'method1', '', 'parent::method1(); echo "method1_new\n";');
 $c->method1();
-runkit_method_rename('Class2', 'method1', 'method2');
+runkit7_method_rename('Class2', 'method1', 'method2');
 $c->method2();
-runkit_method_copy('Class2', 'method3', 'Class0', 'method3');
+runkit7_method_copy('Class2', 'method3', 'Class0', 'method3');
 $c->method3();
 ?>
 --EXPECT--

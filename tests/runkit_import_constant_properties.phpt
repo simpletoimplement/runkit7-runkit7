@@ -1,8 +1,8 @@
 --TEST--
-runkit_import() Importing and overriding property with constant array as the value
+runkit7_import() Importing and overriding property with constant array as the value
 --SKIPIF--
 <?php
-    if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+    if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
     if(!function_exists('runkit_import')) print "skip"
 ?>
 --FILE--
@@ -15,12 +15,12 @@ class Test1 extends Test {
 }
 $t = new Test;
 var_dump($t->v);
-runkit_import(dirname(__FILE__) . '/runkit_import_constant_properties.inc', RUNKIT_IMPORT_CLASS_PROPS | RUNKIT_IMPORT_OVERRIDE);
+runkit7_import(dirname(__FILE__) . '/runkit_import_constant_properties.inc', RUNKIT7_IMPORT_CLASS_PROPS | RUNKIT7_IMPORT_OVERRIDE);
 $t = new Test;
 var_dump($t->v);
 $t = new Test1;
 var_dump($t->v);
-runkit_import(dirname(__FILE__) . '/runkit_import_constant_properties.inc', RUNKIT_IMPORT_CLASSES | RUNKIT_IMPORT_OVERRIDE);
+runkit7_import(dirname(__FILE__) . '/runkit_import_constant_properties.inc', RUNKIT7_IMPORT_CLASSES | RUNKIT7_IMPORT_OVERRIDE);
 $t = new Test;
 var_dump($t->v);
 $t = new Test1;
@@ -68,4 +68,4 @@ array(3) {
   int(6)
 }
 --XFAIL--
-Using PHP_RUNKIT_IMPORT_OVERRIDE in combination with PHP_RUNKIT_IMPORT_CLASS_PROPS is not supported.
+Using PHP_RUNKIT7_IMPORT_OVERRIDE in combination with PHP_RUNKIT7_IMPORT_CLASS_PROPS is not supported.

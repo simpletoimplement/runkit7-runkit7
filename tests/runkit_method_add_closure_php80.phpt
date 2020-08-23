@@ -1,8 +1,8 @@
 --TEST--
-runkit_method_add() function with closure
+runkit7_method_add() function with closure
 --SKIPIF--
 <?php
-if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip\n";
+if (!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip\n";
 ?>
 --INI--
 display_errors=on
@@ -16,7 +16,7 @@ class test {
 	public function run() {
 		$c = 'use';
 		$d = 'ref_use';
-		runkit_method_add('runkit_class', 'runkit_method',
+		runkit7_method_add('runkit_class', 'runkit_method',
 			function($a, $b = "bar") use ($c, &$d) {
 			static $is="is";
 			global $g;
@@ -24,7 +24,7 @@ class test {
 			echo "c $is $c\nd $is $d\n";
 			echo "g $is $g\n";
 			$d .= ' modified';
-		}, RUNKIT_ACC_STATIC);
+		}, RUNKIT7_ACC_STATIC);
 		runkit_class::runkit_method('foo', 'bar');
 		echo "d after call is $d\n";
 	}

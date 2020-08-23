@@ -2,7 +2,7 @@
 copy method with finally
 --SKIPIF--
 <?php
-	if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+	if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --FILE--
 <?php
@@ -18,8 +18,8 @@ class Test {
 	}
 }
 
-runkit_method_copy("Test", "bar", "Test", "foo");
-runkit_method_remove("Test", "foo");
+runkit7_method_copy("Test", "bar", "Test", "foo");
+runkit7_method_remove("Test", "foo");
 
 $o = new Test;
 $o->bar();

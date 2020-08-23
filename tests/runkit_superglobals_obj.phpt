@@ -1,7 +1,7 @@
 --TEST--
 runkit.superglobal setting creates superglobals that can be referenced multiple ways.
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 <?php if(!extension_loaded("session")) print "skip - This test assumes \$_SESSION will exist, but the session extension isn't enabled/installed"; ?>
 --INI--
 display_errors=on
@@ -10,9 +10,9 @@ runkit.superglobal=foo
 <?php
 ini_set('error_reporting', E_ALL);
 
-function capture_runkit_superglobals_dump() {
+function capture_runkit7_superglobals_dump() {
     ob_start();
-    debug_zval_dump(runkit_superglobals());
+    debug_zval_dump(runkit7_superglobals());
     return ob_get_clean();
 }
 
@@ -27,10 +27,10 @@ class FooClass {
         var_dump($GLOBALS['foo']);
         var_dump($foo);
         // Verify that runkit_superglobals properly reference counts string keys, call it twice.
-        $result = capture_runkit_superglobals_dump();
+        $result = capture_runkit7_superglobals_dump();
         echo $result;
         debug_zval_dump(array_keys($GLOBALS));
-        $result2 = capture_runkit_superglobals_dump();
+        $result2 = capture_runkit7_superglobals_dump();
         echo "result === result2: ";
         $same = $result === $result2;
         var_dump($same);

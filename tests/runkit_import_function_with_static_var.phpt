@@ -1,8 +1,8 @@
 --TEST--
-runkit_import() Importing and overriding function with a static variable
+runkit7_import() Importing and overriding function with a static variable
 --SKIPIF--
 <?php
-    if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip";
+    if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip";
 ?>
 --FILE--
 <?php
@@ -13,9 +13,9 @@ function f() {
 }
 
 f();
-runkit_import(dirname(__FILE__) . '/runkit_import_function_with_static_var.inc', RUNKIT_IMPORT_FUNCTIONS | RUNKIT_IMPORT_OVERRIDE);
+runkit7_import(dirname(__FILE__) . '/runkit_import_function_with_static_var.inc', RUNKIT7_IMPORT_FUNCTIONS | RUNKIT7_IMPORT_OVERRIDE);
 f();
-runkit_import(dirname(__FILE__) . '/runkit_import_function_with_static_var.inc', RUNKIT_IMPORT_FUNCTIONS | RUNKIT_IMPORT_OVERRIDE);
+runkit7_import(dirname(__FILE__) . '/runkit_import_function_with_static_var.inc', RUNKIT7_IMPORT_FUNCTIONS | RUNKIT7_IMPORT_OVERRIDE);
 f();
 ?>
 --EXPECT--

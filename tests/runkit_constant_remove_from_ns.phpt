@@ -1,8 +1,8 @@
 --TEST--
-runkit_constant_remove(), runkit_constant_add(), and namespaces
+runkit7_constant_remove(), runkit7_constant_add(), and namespaces
 --SKIPIF--
 <?php
-	if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+	if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --FILE--
 <?php
@@ -12,38 +12,38 @@ class RunkitClass {const Test='test';}
 
 define('Mock\Constant\Command\Test', 'test');
 var_dump(\Mock\Constant\Command\Test);
-var_dump(runkit_constant_remove('Mock\Constant\Command\Test'));
+var_dump(runkit7_constant_remove('Mock\Constant\Command\Test'));
 var_dump(defined('\Mock\Constant\Command\Test'));
-var_dump(runkit_constant_add('Mock\Constant\Command\Test', 'test1'));
+var_dump(runkit7_constant_add('Mock\Constant\Command\Test', 'test1'));
 var_dump(\Mock\Constant\Command\Test);
-var_dump(runkit_constant_remove('Mock\Constant\Command\Test'));
+var_dump(runkit7_constant_remove('Mock\Constant\Command\Test'));
 var_dump(defined('\Mock\Constant\Command\Test'));
-var_dump(runkit_constant_add('Mock\Constant\Command\Test', 'test2'));
+var_dump(runkit7_constant_add('Mock\Constant\Command\Test', 'test2'));
 var_dump(\Mock\Constant\Command\Test);
 
 echo "\n";
 
 var_dump(\Mock\Constant\Command\RunkitClass::Test);
-var_dump(runkit_constant_remove('Mock\Constant\Command\RunkitClass::Test'));
+var_dump(runkit7_constant_remove('Mock\Constant\Command\RunkitClass::Test'));
 var_dump(defined('\Mock\Constant\Command\RunkitClass::Test'));
-var_dump(runkit_constant_add('Mock\Constant\Command\RunkitClass::Test', 'test1'));
+var_dump(runkit7_constant_add('Mock\Constant\Command\RunkitClass::Test', 'test1'));
 var_dump(\Mock\Constant\Command\RunkitClass::Test);
-var_dump(runkit_constant_remove('Mock\Constant\Command\RunkitClass::Test'));
+var_dump(runkit7_constant_remove('Mock\Constant\Command\RunkitClass::Test'));
 var_dump(defined('\Mock\Constant\Command\RunkitClass::Test'));
-var_dump(runkit_constant_add('Mock\Constant\Command\RunkitClass::Test', 'test2'));
+var_dump(runkit7_constant_add('Mock\Constant\Command\RunkitClass::Test', 'test2'));
 var_dump(\Mock\Constant\Command\RunkitClass::Test);
 
 echo "\n";
 
 define('Test', 'test');
 var_dump(\Test);
-var_dump(runkit_constant_remove('\Test'));
+var_dump(runkit7_constant_remove('\Test'));
 var_dump(defined('\Test'));
-var_dump(runkit_constant_add('\Test', 'test1'));
+var_dump(runkit7_constant_add('\Test', 'test1'));
 var_dump(\Test);
-var_dump(runkit_constant_remove('\Test'));
+var_dump(runkit7_constant_remove('\Test'));
 var_dump(defined('\Test'));
-var_dump(runkit_constant_add('\Test', 'test2'));
+var_dump(runkit7_constant_add('\Test', 'test2'));
 var_dump(\Test);
 
 echo "==DONE==\n";

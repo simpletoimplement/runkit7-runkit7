@@ -1,7 +1,7 @@
 --TEST--
 runkit_default_property_remove() and runkit_default_property_add() functions on classes having dynamic properties (overriding objects)
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 	  if(!function_exists('runkit_default_property_add')) print "skip";
 ?>
 --FILE--
@@ -24,7 +24,7 @@ runkit_default_property_remove('A', 'c', TRUE);
 echo $o->getC(), "\n";
 echo $o->b, $o->d, "\n";
 echo "add public\n";
-runkit_default_property_add('A', 'c', 2, RUNKIT_OVERRIDE_OBJECTS);
+runkit_default_property_add('A', 'c', 2, RUNKIT7_OVERRIDE_OBJECTS);
 echo $o->getC(), "\n";
 echo $o->b, $o->d, "\n";
 echo "remove\n";
@@ -34,7 +34,7 @@ echo $o1->getC(), "\n";
 echo $o->getC(), "\n";
 echo $o->b, $o->d, "\n";
 echo "add private\n";
-runkit_default_property_add('A', 'c', 3, RUNKIT_ACC_PRIVATE | RUNKIT_OVERRIDE_OBJECTS);
+runkit_default_property_add('A', 'c', 3, RUNKIT7_ACC_PRIVATE | RUNKIT7_OVERRIDE_OBJECTS);
 echo $o->getC(), "\n";
 echo $o->b, $o->d, "\n";
 echo "remove\n";
@@ -42,7 +42,7 @@ runkit_default_property_remove('A', 'c', TRUE);
 echo $o->getC(), "\n";
 echo $o->b, $o->d, "\n";
 echo "add public to B\n";
-runkit_default_property_add('B', 'c', 2, RUNKIT_OVERRIDE_OBJECTS);
+runkit_default_property_add('B', 'c', 2, RUNKIT7_OVERRIDE_OBJECTS);
 echo $o->getC(), "\n";
 echo $o->b, $o->d, "\n";
 --EXPECTF--

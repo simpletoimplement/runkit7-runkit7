@@ -2,7 +2,7 @@
 redefine old-style parent ctor
 --SKIPIF--
 <?php
-if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+if (!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 if (PHP_VERSION_ID >= 80000) print "skip php >= 8.0";
 ?>
 --FILE--
@@ -29,7 +29,7 @@ class FOO_test_child_changed extends Foo_test_child {
 class FOO_test_child_changed_child extends FOO_test_child_changed {
 }
 
-runkit_method_redefine("test", "test", "", "var_dump('new constructor');");
+runkit7_method_redefine("test", "test", "", "var_dump('new constructor');");
 $a = new test;
 $a = new foo_test;
 $a = new foo_test_child;
@@ -37,7 +37,7 @@ $a = new foo_test_child_changed;
 $a = new foo_test_child_changed_child;
 
 echo "after renaming\n";
-runkit_method_rename("test", "test", "test1");
+runkit7_method_rename("test", "test", "test1");
 $a = new test;
 $a = new foo_test;
 $a = new foo_test_child;

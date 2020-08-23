@@ -1,7 +1,7 @@
 --TEST--
 removing magic __call method
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --FILE--
 <?php
@@ -11,7 +11,7 @@ class Test {
 
 $a = new Test();
 $a->method();
-runkit_method_remove("Test", "__call");
+runkit7_method_remove("Test", "__call");
 $a->method();
 ?>
 --EXPECTF--

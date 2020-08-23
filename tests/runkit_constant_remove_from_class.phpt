@@ -1,8 +1,8 @@
 --TEST--
-runkit_constant_remove() function removes constant from class
+runkit7_constant_remove() function removes constant from class
 --SKIPIF--
 <?php
-	if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+	if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --FILE--
 <?php
@@ -12,7 +12,7 @@ class TestClass {
 
 $const = 'TestClass::FOO';
 var_dump($const);
-runkit_constant_remove($const);
+runkit7_constant_remove($const);
 var_dump($const);
 var_dump(TestClass::FOO);
 ?>

@@ -2,7 +2,7 @@
 Test for caching issues on redefining class methods
 --SKIPIF--
 <?php
-if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip";
+if (!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL
@@ -19,7 +19,7 @@ class Test {
 
   function a($result) {
     for ($i = 0; $i < 10; $i++) {
-      runkit_method_redefine('RunkitClass', 'a', '', "echo ''; return $result + 1;");
+      runkit7_method_redefine('RunkitClass', 'a', '', "echo ''; return $result + 1;");
       $result = $this->obj->a($result);
     }
     return $result;
@@ -27,8 +27,8 @@ class Test {
 
   function b($result) {
     for ($i = 0; $i < 10; $i++) {
-      runkit_method_remove('RunkitClass', 'a');
-      runkit_method_add('RunkitClass', 'a', '', "echo ''; return $result + 1;");
+      runkit7_method_remove('RunkitClass', 'a');
+      runkit7_method_add('RunkitClass', 'a', '', "echo ''; return $result + 1;");
       $result = $this->obj->a();
     }
     return $result;
@@ -36,7 +36,7 @@ class Test {
 
   function c($result) {
     for ($i = 0; $i < 10; $i++) {
-      runkit_import('runkit_methods_redefining_and_cache.inc', RUNKIT_IMPORT_CLASS_METHODS | RUNKIT_IMPORT_OVERRIDE);
+      runkit7_import('runkit_methods_redefining_and_cache.inc', RUNKIT7_IMPORT_CLASS_METHODS | RUNKIT7_IMPORT_OVERRIDE);
       $result = $this->obj->a($result);
     }
     return $result;
@@ -68,7 +68,7 @@ $t->t();
 $obj = new RunkitClass();
 function a($result, $obj) {
   for ($i = 0; $i < 10; $i++) {
-    runkit_method_redefine('RunkitClass', 'a', '', "echo ''; return $result + 1;");
+    runkit7_method_redefine('RunkitClass', 'a', '', "echo ''; return $result + 1;");
     $result = $obj->a();
   }
   return $result;
@@ -81,7 +81,7 @@ echo $result, "\n";
 
 function b($result, $obj) {
   for ($i = 0; $i < 10; $i++) {
-    runkit_method_redefine('RunkitClass', 'a', '', "echo ''; return $result + 1;");
+    runkit7_method_redefine('RunkitClass', 'a', '', "echo ''; return $result + 1;");
     $result = $obj->a();
   }
   return $result;

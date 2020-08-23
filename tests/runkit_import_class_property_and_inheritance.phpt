@@ -1,7 +1,7 @@
 --TEST--
-runkit_import() Importing and overriding class properties with inheritance
+runkit7_import() Importing and overriding class properties with inheritance
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
       if(!function_exists('runkit_import')) print "skip";
 ?>
 --FILE--
@@ -23,15 +23,15 @@ echo $o->v, "\n";
 echo SubClass::$s, "\n";
 echo $o->getPrivate(), "\n";
 echo $o->getProtected(), "\n";
-runkit_import(dirname(__FILE__) . '/runkit_import_class_property_and_inheritance.inc', RUNKIT_IMPORT_CLASS_PROPS);
+runkit7_import(dirname(__FILE__) . '/runkit_import_class_property_and_inheritance.inc', RUNKIT7_IMPORT_CLASS_PROPS);
 $o = new SubClass;
 echo $o->v, "\n";
 echo SubClass::$s, "\n";
 echo $o->getPrivate(), "\n";
 echo $o->getProtected(), "\n";
-runkit_import(dirname(__FILE__) . '/runkit_import_class_property_and_inheritance.inc', RUNKIT_IMPORT_CLASS_PROPS |
-                                                                                       RUNKIT_IMPORT_CLASS_STATIC_PROPS |
-                                                                                       RUNKIT_IMPORT_OVERRIDE);
+runkit7_import(dirname(__FILE__) . '/runkit_import_class_property_and_inheritance.inc', RUNKIT7_IMPORT_CLASS_PROPS |
+                                                                                       RUNKIT7_IMPORT_CLASS_STATIC_PROPS |
+                                                                                       RUNKIT7_IMPORT_OVERRIDE);
 $o = new SubClass;
 echo $o->v, "\n";
 echo SubClass::$s, "\n";
@@ -44,22 +44,22 @@ s
 p
 o
 
-Notice: runkit_import(): Test->v already exists, not importing in %s on line %d
+Notice: runkit7_import(): Test->v already exists, not importing in %s on line %d
 
-Notice: runkit_import(): Test->p already exists, not importing in %s on line %d
+Notice: runkit7_import(): Test->p already exists, not importing in %s on line %d
 
-Notice: runkit_import(): Test->o already exists, not importing in %s on line %d
+Notice: runkit7_import(): Test->o already exists, not importing in %s on line %d
 v
 s
 p
 o
 
-Notice: runkit_import(): Making SubClass::p public to remove it from class without objects overriding in %s on line %d
+Notice: runkit7_import(): Making SubClass::p public to remove it from class without objects overriding in %s on line %d
 
-Notice: runkit_import(): Making SubClass::o public to remove it from class without objects overriding in %s on line %d
+Notice: runkit7_import(): Making SubClass::o public to remove it from class without objects overriding in %s on line %d
 IMPORTED: v
 IMPORTED: s
 IMPORTED: p
 IMPORTED: o
 --XFAIL--
-Using PHP_RUNKIT_IMPORT_OVERRIDE in combination with PHP_RUNKIT_IMPORT_CLASS_PROPS/PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS is not supported.
+Using PHP_RUNKIT7_IMPORT_OVERRIDE in combination with PHP_RUNKIT7_IMPORT_CLASS_PROPS/PHP_RUNKIT7_IMPORT_CLASS_STATIC_PROPS is not supported.
