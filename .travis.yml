@@ -63,7 +63,8 @@ script:
  - phpenv config-rm xdebug.ini || true
  - ci/run_tests.sh
  # Print any valgrind errors
- - shopt -s nullglob; head -n 999 tests/*.mem < /dev/null
+ # Don't print too many - work around "The job exceeded the maximum log length, and has been terminated."
+ - shopt -s nullglob; head -n 999 tests/*.mem < /dev/null | head -n 10000
 
 branches:
   only:
