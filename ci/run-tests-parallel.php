@@ -806,7 +806,7 @@ function main(): void
 
     junit_save_xml();
     if (getenv('REPORT_EXIT_STATUS') !== '0' && getenv('REPORT_EXIT_STATUS') !== 'no' &&
-            ($sum_results['FAILED'] || $sum_results['LEAKED'])) {
+            ($sum_results['FAILED'] || ($sum_results['LEAKED'] && !getenv('DONT_FAIL_IF_LEAKED')))) {
         exit(1);
     }
 }
@@ -930,7 +930,7 @@ function save_or_mail_results(): void
     /* We got failed Tests, offer the user to send an e-mail to QA team, unless NO_INTERACTION is set */
     if (!getenv('NO_INTERACTION') && !TRAVIS_CI) {
         $fp = fopen("php://stdin", "r+");
-        if ($sum_results['FAILED'] || $sum_results['BORKED'] || $sum_results['WARNED'] || $sum_results['LEAKED']) {
+        if ($sum_results['FAILED'] || $sum_results['BORKED'] || $sum_results['WARNED'] || ($sum_results['LEAKED'] && !getenv('DONT_FAIL_IF_LEAKED'))) {
             echo "\nYou may have found a problem in PHP.";
         }
         echo "\nThis report can be automatically sent to the PHP QA team at\n";
