@@ -1,5 +1,5 @@
 <?php
-// API for runkit7 3.0.0
+// API for runkit7 4.0.0
 // The runkit7 fork has a slightly different API from what is documented at https://secure.php.net/runkit
 //
 // - Parameters for return types were added for php7 support.

@@ -18,6 +18,14 @@
 #include "runkit.h"
 #include "SAPI.h"
 
+/* PHP 8.0+ allows extensions to see the representation of default values. Older versions don't. */
+#if PHP_VERSION_ID < 80000
+#define ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(pass_by_ref, name, type_hint, allow_null, default_value) ZEND_ARG_TYPE_INFO(pass_by_ref, name, type_hint, allow_null)
+#define ZEND_ARG_INFO_WITH_DEFAULT_VALUE(pass_by_ref, name, default_value) ZEND_ARG_INFO(pass_by_ref, name)
+#endif
+
+#include "runkit7_arginfo.h"
+
 ZEND_DECLARE_MODULE_GLOBALS(runkit7)
 
 #ifdef PHP_RUNKIT_SUPERGLOBALS
@@ -67,125 +75,9 @@ PHP_FUNCTION(runkit7_zval_inspect)
 }
 /* }}} */
 
-/* {{{ arginfo */
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_zval_inspect, 0, 0, 1)
-	ZEND_ARG_INFO(0, value)
-ZEND_END_ARG_INFO()
-
-#ifdef PHP_RUNKIT_SUPERGLOBALS
-ZEND_BEGIN_ARG_INFO(arginfo_runkit_superglobals, 0)
-ZEND_END_ARG_INFO()
-#endif
-
-#ifdef PHP_RUNKIT_MANIPULATION
-#ifdef PHP_RUNKIT_MANIPULATION_IMPORT
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_import, 0, 0, 1)
-ZEND_ARG_INFO(0, filename)
-ZEND_ARG_INFO(0, flags)
-ZEND_END_ARG_INFO()
-#endif
-
-	// two possible signatures
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_function_add, 0, 0, 2)
-	ZEND_ARG_INFO(0, funcname)
-	ZEND_ARG_INFO(0, arglist_or_closure)
-	ZEND_ARG_INFO(0, code_or_doc_comment)
-	ZEND_ARG_INFO(0, return_by_reference)
-	ZEND_ARG_INFO(0, doc_comment)
-	ZEND_ARG_INFO(0, return_type)
-	ZEND_ARG_INFO(0, is_strict)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_function_remove, 0, 0, 1)
-	ZEND_ARG_INFO(0, funcname)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_function_rename, 0, 0, 2)
-	ZEND_ARG_INFO(0, funcname)
-	ZEND_ARG_INFO(0, newname)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_function_redefine, 0, 0, 3)
-	ZEND_ARG_INFO(0, funcname)
-	ZEND_ARG_INFO(0, arglist_or_closure)
-	ZEND_ARG_INFO(0, code_or_doc_comment)
-	ZEND_ARG_INFO(0, return_by_reference)
-	ZEND_ARG_INFO(0, doc_comment)
-	ZEND_ARG_INFO(0, return_type)
-	ZEND_ARG_INFO(0, is_strict)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_function_copy, 0, 0, 2)
-	ZEND_ARG_INFO(0, funcname)
-	ZEND_ARG_INFO(0, targetname)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_method_add, 0, 0, 3)
-	ZEND_ARG_INFO(0, classname)
-	ZEND_ARG_INFO(0, methodname)
-	ZEND_ARG_INFO(0, arglist_or_closure)
-	ZEND_ARG_INFO(0, code_or_flags)
-	ZEND_ARG_INFO(0, flags_or_doc_comment)
-	ZEND_ARG_INFO(0, doc_comment)
-	ZEND_ARG_INFO(0, return_type)
-	ZEND_ARG_INFO(0, is_strict)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_method_redefine, 0, 0, 3)
-	ZEND_ARG_INFO(0, classname)
-	ZEND_ARG_INFO(0, methodname)
-	ZEND_ARG_INFO(0, arglist_or_closure)
-	ZEND_ARG_INFO(0, code_or_flags)
-	ZEND_ARG_INFO(0, flags_or_doc_comment)
-	ZEND_ARG_INFO(0, doc_comment)
-	ZEND_ARG_INFO(0, return_type)
-	ZEND_ARG_INFO(0, is_strict)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_method_remove, 0, 0, 2)
-	ZEND_ARG_INFO(0, classname)
-	ZEND_ARG_INFO(0, methodname)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_method_rename, 0, 0, 3)
-	ZEND_ARG_INFO(0, classname)
-	ZEND_ARG_INFO(0, methodname)
-	ZEND_ARG_INFO(0, newname)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_method_copy, 0, 0, 3)
-	ZEND_ARG_INFO(0, dClass)
-	ZEND_ARG_INFO(0, dMethod)
-	ZEND_ARG_INFO(0, sClass)
-	ZEND_ARG_INFO(0, sMethod)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_constant_redefine, 0, 0, 2)
-	ZEND_ARG_INFO(0, constname)
-	ZEND_ARG_INFO(0, value)
-	ZEND_ARG_INFO(0, newVisibility)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_constant_remove, 0, 0, 1)
-	ZEND_ARG_INFO(0, constname)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_runkit_constant_add, 0, 0, 2)
-	ZEND_ARG_INFO(0, constname)
-	ZEND_ARG_INFO(0, value)
-	ZEND_ARG_INFO(0, newVisibility)
-ZEND_END_ARG_INFO()
-
-	// PHP_FE(runkit7_default_property_add,								NULL)
-	// PHP_FE(runkit7_default_property_remove,							NULL)
-#endif /* PHP_RUNKIT_MANIPULATION */
-
-/** end of arginfo */
-/* }}} */
-
-#define PHP_FE_AND_FALIAS(runkit_function_name, runkit7_function_name, arginfo_for_function_name) \
-	PHP_FE(runkit7_function_name,									arginfo_for_function_name) \
-	PHP_DEP_FALIAS(runkit_function_name, runkit7_function_name,		arginfo_for_function_name)
+#define PHP_FE_AND_FALIAS(runkit_function_name, runkit7_function_name) \
+	PHP_FE(runkit7_function_name,									arginfo_ ## runkit_function_name) \
+	PHP_DEP_FALIAS(runkit_function_name, runkit7_function_name,		arginfo_ ## runkit7_function_name)
 
 PHP_FUNCTION(runkit7_zval_inspect);
 
@@ -219,37 +111,36 @@ PHP_FUNCTION(runkit7_constant_add);
  */
 zend_function_entry runkit7_functions[] = {
 
-	PHP_FE_AND_FALIAS(runkit_zval_inspect, 		runkit7_zval_inspect,		arginfo_runkit_zval_inspect)
+	PHP_FE_AND_FALIAS(runkit_zval_inspect,			runkit7_zval_inspect)
 #ifdef PHP_RUNKIT_SUPERGLOBALS
-	PHP_FE_AND_FALIAS(runkit_superglobals,		runkit7_superglobals,		arginfo_runkit_superglobals)
+	PHP_FE_AND_FALIAS(runkit_superglobals,			runkit7_superglobals)
 #endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
 #ifdef PHP_RUNKIT_MANIPULATION_IMPORT
-	PHP_FE_AND_FALIAS(runkit_import,			runkit7_import,				arginfo_runkit_import)
+	PHP_FE_AND_FALIAS(runkit_import,				runkit7_import)
 #endif
 
-	PHP_FE_AND_FALIAS(runkit_function_add,		runkit7_function_add,		arginfo_runkit_function_add)
-	PHP_FE_AND_FALIAS(runkit_function_remove,				runkit7_function_remove,	arginfo_runkit_function_remove)
-	PHP_FE_AND_FALIAS(runkit_function_rename,				runkit7_function_rename,	arginfo_runkit_function_rename)
-	PHP_FE_AND_FALIAS(runkit_function_redefine,				runkit7_function_redefine,	arginfo_runkit_function_redefine)
-	PHP_FE_AND_FALIAS(runkit_function_copy,				runkit7_function_copy,	arginfo_runkit_function_copy)
+	PHP_FE_AND_FALIAS(runkit_function_add,			runkit7_function_add)
+	PHP_FE_AND_FALIAS(runkit_function_remove,		runkit7_function_remove)
+	PHP_FE_AND_FALIAS(runkit_function_rename,		runkit7_function_rename)
+	PHP_FE_AND_FALIAS(runkit_function_redefine,		runkit7_function_redefine)
+	PHP_FE_AND_FALIAS(runkit_function_copy,			runkit7_function_copy)
 
-	PHP_FE_AND_FALIAS(runkit_method_add,				runkit7_method_add,	arginfo_runkit_method_add)
-	PHP_FE_AND_FALIAS(runkit_method_redefine,				runkit7_method_redefine,	arginfo_runkit_method_redefine)
-	PHP_FE_AND_FALIAS(runkit_method_remove,				runkit7_method_remove,	arginfo_runkit_method_remove)
-	PHP_FE_AND_FALIAS(runkit_method_rename,				runkit7_method_rename,	arginfo_runkit_method_rename)
-	PHP_FE_AND_FALIAS(runkit_method_copy,				runkit7_method_copy,	arginfo_runkit_method_copy)
+	PHP_FE_AND_FALIAS(runkit_method_add,			runkit7_method_add)
+	PHP_FE_AND_FALIAS(runkit_method_redefine,		runkit7_method_redefine)
+	PHP_FE_AND_FALIAS(runkit_method_remove,			runkit7_method_remove)
+	PHP_FE_AND_FALIAS(runkit_method_rename,			runkit7_method_rename)
+	PHP_FE_AND_FALIAS(runkit_method_copy,			runkit7_method_copy)
 
-	PHP_FE_AND_FALIAS(runkit_constant_redefine,				runkit7_constant_redefine,	arginfo_runkit_constant_redefine)
-	PHP_FE_AND_FALIAS(runkit_constant_remove,				runkit7_constant_remove,	arginfo_runkit_constant_remove)
-	PHP_FE_AND_FALIAS(runkit_constant_add,				runkit7_constant_add,	arginfo_runkit_constant_add)
+	PHP_FE_AND_FALIAS(runkit_constant_redefine,		runkit7_constant_redefine)
+	PHP_FE_AND_FALIAS(runkit_constant_remove,		runkit7_constant_remove)
+	PHP_FE_AND_FALIAS(runkit_constant_add,			runkit7_constant_add)
 
 /*
 // We support this **partially** just so that runkit_import will compile, but it's in progress.
 #ifdef PHP_RUNKIT_MANIPULATION_PROPERTIES
-	PHP_FE(runkit_default_property_add,								NULL)
-	PHP_FE(runkit_default_property_remove,								NULL)
+	// TODO default_property_update
 #endif
 */
 #endif /* PHP_RUNKIT_MANIPULATION */
