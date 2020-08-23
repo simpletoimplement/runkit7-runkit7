@@ -1,8 +1,8 @@
 --TEST--
-runkit_function_redefine() and call from anonymous function
+runkit7_function_redefine() and call from anonymous function
 --SKIPIF--
 <?php
-	if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+	if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL
@@ -14,7 +14,7 @@ function greet(){
 	echo "hey\n";
 }
 greet();
-runkit_function_redefine("greet",'$name',"echo \"hey \$name\n\";");
+runkit7_function_redefine("greet",'$name',"echo \"hey \$name\n\";");
 greet("you");
 function parent() {
 	$localvar = "john";
@@ -25,7 +25,7 @@ function parent() {
 }
 $greet1 = parent();
 $greet1();
-runkit_function_redefine("greet",'$name',"echo \"hello \$name\n\";");
+runkit7_function_redefine("greet",'$name',"echo \"hello \$name\n\";");
 $greet1();
 --EXPECT--
 hey

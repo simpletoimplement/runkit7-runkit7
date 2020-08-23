@@ -1,7 +1,7 @@
 --TEST--
-runkit_function_rename() function with large switch statements
+runkit7_function_rename() function with large switch statements
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 // See https://derickrethans.nl/php7.2-switch.html for an explanation of this optimization.
@@ -34,7 +34,7 @@ function runkitSSwitch(string $n) {
 $oldName = 'runkitNSwitch';
 $newName = 'runkitNewIntName';
 runkitNSwitch(2);
-runkit_function_rename($oldName, $newName);
+runkit7_function_rename($oldName, $newName);
 runkitNewIntName(1);
 runkitNewIntName(2);
 runkitNewIntName(8);
@@ -49,7 +49,7 @@ if (function_exists('runkitNSwitch')) {
 $oldName = 'runkitSSwitch';
 $newName = 'runkitNewStringName';
 runkitSSwitch("one");
-runkit_function_rename($oldName, $newName);
+runkit7_function_rename($oldName, $newName);
 if (function_exists('runkitSSwitch')) {
 	echo "Old function name still exists!\n";
 }

@@ -1,7 +1,7 @@
 --TEST--
-runkit_method_add() function should detect invalid return types passed in as a string
+runkit7_method_add() function should detect invalid return types passed in as a string
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 display_errors=on
 --FILE--
@@ -15,7 +15,7 @@ foreach (['string#', 'string', '\\stdClass', '\\\\stdClass', '\\stdClass\\', '\\
     printf("testing return type %s\n", var_export($returnType, true));
     $methodName = 'runkit_method' . $i;
 
-    $retval = runkit_method_add('runkit_class', $methodName, 'string $a, $valid=false', 'return $valid ? $a : new stdClass();', RUNKIT_ACC_STATIC, '/** doc comment */', $returnType);
+    $retval = runkit7_method_add('runkit_class', $methodName, 'string $a, $valid=false', 'return $valid ? $a : new stdClass();', RUNKIT7_ACC_STATIC, '/** doc comment */', $returnType);
     printf("runkit_method_add returned: %s\n", var_export($retval, true));
     printf("Method exists: %s\n", var_export(method_exists('runkit_class', $methodName), true));
 }
@@ -23,7 +23,7 @@ foreach (['string#', 'string', '\\stdClass', '\\\\stdClass', '\\stdClass\\', '\\
 --EXPECTF--
 testing return type 'string#'
 
-Warning: runkit_method_add(): Return type should match regex %s in %s on line 11
+Warning: runkit7_method_add(): Return type should match regex %s in %s on line 11
 runkit_method_add returned: false
 Method exists: false
 testing return type 'string'
@@ -34,12 +34,12 @@ runkit_method_add returned: true
 Method exists: true
 testing return type '\\\\stdClass'
 
-Warning: runkit_method_add(): Return type should match regex %s in %s on line 11
+Warning: runkit7_method_add(): Return type should match regex %s in %s on line 11
 runkit_method_add returned: false
 Method exists: false
 testing return type '\\stdClass\\'
 
-Warning: runkit_method_add(): Return type should match regex %s in %s on line 11
+Warning: runkit7_method_add(): Return type should match regex %s in %s on line 11
 runkit_method_add returned: false
 Method exists: false
 testing return type '\\A2\\Bc'
@@ -47,16 +47,16 @@ runkit_method_add returned: true
 Method exists: true
 testing return type '\\A2\\\\Bc'
 
-Warning: runkit_method_add(): Return type should match regex %s in %s on line 11
+Warning: runkit7_method_add(): Return type should match regex %s in %s on line 11
 runkit_method_add returned: false
 Method exists: false
 testing return type '\\A2\\Bc' . "\0" . ''
 
-Warning: runkit_method_add(): Return type should match regex %s in %s on line 11
+Warning: runkit7_method_add(): Return type should match regex %s in %s on line 11
 runkit_method_add returned: false
 Method exists: false
 testing return type '\\2A\\Bc'
 
-Warning: runkit_method_add(): Return type should match regex %s in %s on line 11
+Warning: runkit7_method_add(): Return type should match regex %s in %s on line 11
 runkit_method_add returned: false
 Method exists: false

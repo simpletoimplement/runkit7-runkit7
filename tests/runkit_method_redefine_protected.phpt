@@ -1,33 +1,33 @@
 --TEST--
-runkit_method_redefine() function for protected methods
+runkit7_method_redefine() function for protected methods
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 error_reporting=E_ALL
 display_errors=on
 --FILE--
 <?php
-class runkit_class {
+class runkit7_class {
 	protected $a = 'a';
 	protected $b = 'b';
-	protected function runkit_method_int($a) {
+	protected function runkit7_method_int($a) {
 		static $is = "is";
 		echo "{$this->a} $is $a\n";
 	}
-	public function runkit_method($a) {
-		return $this->runkit_method_int($a);
+	public function runkit7_method($a) {
+		return $this->runkit7_method_int($a);
 	}
 }
-$obj = new runkit_class();
-$obj->runkit_method('foo');
-runkit_method_copy('runkit_class','runkit_method_old','runkit_class','runkit_method_int');
-runkit_method_redefine('runkit_class','runkit_method_int','$b', 'static $is="is"; echo "{$this->b} $is $b\n";');
-$obj->runkit_method('bar');
-runkit_method_remove('runkit_class','runkit_method_int');
-runkit_method_copy('runkit_class','runkit_method_int','runkit_class','runkit_method_old');
-runkit_method_remove('runkit_class','runkit_method_old');
-$obj1 = new runkit_class();
-$obj1->runkit_method('foo');
+$obj = new runkit7_class();
+$obj->runkit7_method('foo');
+runkit7_method_copy('runkit7_class','runkit7_method_old','runkit7_class','runkit7_method_int');
+runkit7_method_redefine('runkit7_class','runkit7_method_int','$b', 'static $is="is"; echo "{$this->b} $is $b\n";');
+$obj->runkit7_method('bar');
+runkit7_method_remove('runkit7_class','runkit7_method_int');
+runkit7_method_copy('runkit7_class','runkit7_method_int','runkit7_class','runkit7_method_old');
+runkit7_method_remove('runkit7_class','runkit7_method_old');
+$obj1 = new runkit7_class();
+$obj1->runkit7_method('foo');
 ?>
 --EXPECT--
 a is foo

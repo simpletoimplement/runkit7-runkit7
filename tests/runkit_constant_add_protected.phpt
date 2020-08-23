@@ -1,8 +1,8 @@
 --TEST--
-runkit_constant_redefine() function redefines protected class constants (when accessing other files, not working for same file)
+runkit7_constant_redefine() function redefines protected class constants (when accessing other files, not working for same file)
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --FILE--
 <?php
@@ -40,15 +40,15 @@ try {
 } catch (Error $e) {
 	printf("Caught %s from get_foo: %s\n", get_class($e), $e->getMessage());
 }
-runkit_constant_add($const, 'roh', RUNKIT_ACC_PROTECTED);
+runkit7_constant_add($const, 'roh', RUNKIT7_ACC_PROTECTED);
 var_dump($const);
 var_dump(TestClass::get_foo());
 var_dump(TestSubclass::get_foo());
 access_protected_constant();
 // TODO: Remove public/protected constants from subclasses automatically, if they're the same value and visibility?
 // I forget if upstream does this.
-runkit_constant_remove('TestSubclass::_FOO');
-runkit_constant_remove($const);
+runkit7_constant_remove('TestSubclass::_FOO');
+runkit7_constant_remove($const);
 try {
 	var_dump(TestClass::get_foo());
 	echo "Unexpectedly able to fetch removed constant from TestClass\n";
@@ -61,7 +61,7 @@ try {
 } catch (Error $e) {
 	printf("Caught %s from TestSubclass::get_parent_foo: %s\n", get_class($e), $e->getMessage());
 }
-runkit_constant_add($const, 'dah', RUNKIT_ACC_PRIVATE);
+runkit7_constant_add($const, 'dah', RUNKIT7_ACC_PRIVATE);
 var_dump($const);
 var_dump(TestClass::get_foo());
 var_dump(TestSubclass::get_foo());

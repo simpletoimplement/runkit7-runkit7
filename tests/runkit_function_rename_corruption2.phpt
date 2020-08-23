@@ -1,7 +1,7 @@
 --TEST--
-runkit_function_rename() function corruption prevented when original method is replaced with a substitute.
+runkit7_function_rename() function corruption prevented when original method is replaced with a substitute.
 --SKIPIF--
-<?php if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if (!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 
@@ -18,7 +18,7 @@ function fake_hi() {
     var_dump($c);
 }
 
-runkit_function_rename('hi', 'hi5');
+runkit7_function_rename('hi', 'hi5');
 
 try {
 	hi();

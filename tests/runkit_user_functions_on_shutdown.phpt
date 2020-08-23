@@ -1,7 +1,7 @@
 --TEST--
 user-defined functions should remain after runkit's shutdown
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('session_start')) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION || !function_exists('session_start')) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL
@@ -27,7 +27,7 @@ class RunkitTest
     }
 }
 
-runkit_function_redefine('print_r', '$v', 'echo "OK";');
+runkit7_function_redefine('print_r', '$v', 'echo "OK";');
 session_start();
 
 $o = new RunkitTest();

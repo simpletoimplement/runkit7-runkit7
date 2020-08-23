@@ -1,9 +1,7 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | (c) 2015-2019 Tyson Andre                                            |
+  | (c) 2015-2020 Tyson Andre                                            |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -45,7 +43,7 @@ static int php_runkit_remove_inherited_methods(zval *pDest, void *argument)
 
 	fname_lower = zend_string_tolower(fname);
 
-	ancestor_class = php_runkit_locate_scope(ce, fe, fname_lower);
+	ancestor_class = fe->common.scope;
 
 	if (ancestor_class == ce) {
 		zend_string_release(fname_lower);
@@ -164,7 +162,7 @@ static int php_runkit_inherit_methods(zend_function *fe, zend_class_entry *ce)
 		return ZEND_HASH_APPLY_KEEP;
 	}
 
-	ancestor_class = php_runkit_locate_scope(ce, fe, fname_lower);
+	ancestor_class = fe->common.scope;
 
 	if (runkit_zend_hash_add_or_update_ptr(&ce->function_table, fname_lower, fe, HASH_ADD) == NULL) {
 		php_error_docref(NULL, E_WARNING, "Error inheriting parent method: %s()", ZSTR_VAL(fe->common.function_name));
@@ -178,7 +176,7 @@ static int php_runkit_inherit_methods(zend_function *fe, zend_class_entry *ce)
 		return ZEND_HASH_APPLY_KEEP;
 	}
 
-	PHP_RUNKIT_FUNCTION_ADD_REF(fe);
+	function_add_ref(fe);
 	PHP_RUNKIT_ADD_MAGIC_METHOD(ce, fname_lower, fe, NULL);
 
 	php_runkit_update_children_methods_foreach(EG(class_table), ancestor_class, ce, fe, fname_lower, NULL);
@@ -195,7 +193,7 @@ int php_runkit_class_copy(zend_class_entry *src, zend_string *classname)
 	zend_class_entry *new_class_entry, *parent = NULL;
 	zend_string *classname_lower;
 
-	classname_lower = zend_string_to_interned(zend_string_tolower(classname));
+	classname_lower = zend_new_interned_string(zend_string_tolower(classname));
 
 	new_class_entry = pemalloc(sizeof(zend_class_entry), 1);
 	if (src->parent && src->parent->name) {

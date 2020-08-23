@@ -10,8 +10,8 @@ $code = <<<EOT
 echo "Test Start\n";
 var_export(function_exists('rtrim'));
 echo "\n";
-runkit_function_copy('rtrim', '__chop');
-runkit_function_rename('rtrim', '_chop');
+runkit7_function_copy('rtrim', '__chop');
+runkit7_function_rename('rtrim', '_chop');
 echo _chop('A B '), "\n";
 echo __chop('C D '), "\n";
 echo "Test End\n";

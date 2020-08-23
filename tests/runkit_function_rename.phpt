@@ -1,7 +1,7 @@
 --TEST--
-runkit_function_rename() function
+runkit7_function_rename() function
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 function runkitSample($n) {
@@ -11,7 +11,7 @@ function runkitSample($n) {
 $oldName = 'runkitSample';
 $newName = 'runkitNewName';
 runkitSample(1);
-runkit_function_rename($oldName, $newName);
+runkit7_function_rename($oldName, $newName);
 if (function_exists('runkitSample')) {
 	echo "Old function name still exists!\n";
 }

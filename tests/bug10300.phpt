@@ -1,7 +1,7 @@
 --TEST--
 Bug #10300 Segfault when copying __call()
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 error_reporting=E_ALL
 display_errors=on
@@ -18,7 +18,7 @@ class Test
 {
 }
 
-runkit_method_copy('Test', '__call', 'Mixin');
+runkit7_method_copy('Test', '__call', 'Mixin');
 
 $t = new Test;
 $t->test();

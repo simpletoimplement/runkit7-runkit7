@@ -2,7 +2,7 @@
 Bug #4519 Unable to override class definitions of a derived class
 --SKIPIF--
 <?php
-if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip";
+if (!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip";
 elseif (PHP_VERSION_ID >= 70300) print "skip TODO Fix https://github.com/runkit7/runkit7/issues/135";
 ?>
 --FILE--
@@ -18,7 +18,7 @@ class Bar {
 
 $test = new Foo();
 print($test->b());
-runkit_import(dirname(__FILE__) . '/bug4519.inc', RUNKIT_IMPORT_OVERRIDE | RUNKIT_IMPORT_CLASS_METHODS);
+runkit7_import(dirname(__FILE__) . '/bug4519.inc', RUNKIT7_IMPORT_OVERRIDE | RUNKIT7_IMPORT_CLASS_METHODS);
 $test2 = new Foo();
 print($test2->b());
 ?>

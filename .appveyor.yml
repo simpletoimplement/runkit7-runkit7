@@ -34,41 +34,36 @@ cache:
 environment:
         BIN_SDK_VER: 2.2.0beta4
         matrix:
-                - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-                  ARCH: x64
-                  VC: vc14
-                  PHP_VER: 7.1.27
-                  TS: 0
-                - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-                  ARCH: x64
-                  VC: vc14
-                  PHP_VER: 7.1.27
-                  TS: 1
-                - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-                  ARCH: x86
-                  VC: vc14
-                  PHP_VER: 7.1.27
-                  TS: 1
                 - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
                   ARCH: x64
                   VC: vc15
-                  PHP_VER: 7.2.16
+                  PHP_VER: 7.2.33
                   TS: 1
                 - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
                   ARCH: x86
                   VC: vc15
-                  PHP_VER: 7.2.16
+                  PHP_VER: 7.2.33
                   TS: 0
                 - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
                   ARCH: x86
                   VC: vc15
-                  PHP_VER: 7.3.3
+                  PHP_VER: 7.3.21
                   TS: 0
                 - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
                   ARCH: x64
                   VC: vc15
-                  PHP_VER: 7.3.3
+                  PHP_VER: 7.3.21
                   TS: 1
+                - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+                  ARCH: x86
+                  VC: vc15
+                  PHP_VER: 7.4.9
+                  TS: 1
+                - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+                  ARCH: x64
+                  VC: vc15
+                  PHP_VER: 7.4.9
+                  TS: 0
 
 build_script:
         ps: |
@@ -111,7 +106,7 @@ build_script:
                 echo "" | Out-File -Encoding "ASCII" task.bat
                 echo "call phpize 2>&1" | Out-File -Encoding "ASCII" -Append task.bat
                 # TODO: what is --enable-debug-pack
-                $cmd = 'call configure --enable-runkit7 --enable-runkit7-spl_object_id --with-prefix=c:\build-cache\' + $dname + ' 2>&1'
+                $cmd = 'call configure --enable-runkit7 --with-prefix=c:\build-cache\' + $dname + ' 2>&1'
                 echo $cmd | Out-File -Encoding "ASCII" -Append task.bat
                 echo "set REPORT_EXIT_STATUS=1" | Out-File -Encoding "ASCII" -Append task.bat
                 echo "set NO_INTERACTION=1" | Out-File -Encoding "ASCII" -Append task.bat

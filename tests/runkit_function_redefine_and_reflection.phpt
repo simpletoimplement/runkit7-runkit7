@@ -1,7 +1,7 @@
 --TEST--
-runkit_function_redefine() function with reflection
+runkit7_function_redefine() function with reflection
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 function runkitFunction($param) {
@@ -10,7 +10,7 @@ function runkitFunction($param) {
 
 $reflFunc = new ReflectionFunction('runkitFunction');
 
-runkit_function_redefine('runkitFunction', '', '');
+runkit7_function_redefine('runkitFunction', '', '');
 
 var_dump($reflFunc);
 $reflFunc->invoke();

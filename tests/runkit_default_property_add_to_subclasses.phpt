@@ -1,7 +1,7 @@
 --TEST--
 runkit_default_property_add() add properties to subclasses
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 	  if(!function_exists('runkit_default_property_add')) print "skip";
 ?>
 --INI--
@@ -21,9 +21,9 @@ $className = 'RunkitClass';
 $propName = 'publicProperty';
 $parentObj = new $className;
 runkit_default_property_add($className, 'constArray', array('a'=>1));
-runkit_default_property_add($className, $propName, 1, RUNKIT_ACC_PUBLIC);
-runkit_default_property_add($className, 'privateProperty', "a", RUNKIT_ACC_PRIVATE);
-runkit_default_property_add($className, 'protectedProperty', NULL, RUNKIT_ACC_PROTECTED);
+runkit_default_property_add($className, $propName, 1, RUNKIT7_ACC_PUBLIC);
+runkit_default_property_add($className, 'privateProperty', "a", RUNKIT7_ACC_PRIVATE);
+runkit_default_property_add($className, 'protectedProperty', NULL, RUNKIT7_ACC_PROTECTED);
 $obj = new RunkitSubClass;
 runkit_default_property_add($className, 'dynamic', $obj);
 

@@ -4,60 +4,51 @@ cache:
   directories:
     - $HOME/travis_cache
 
-dist: trusty
-
-addons:
- apt:
-   sources:
-   - ubuntu-toolchain-r-test
-   packages:
-   - gcc-4.8
+dist: xenial
 
 env:
   - CC=clang
-  - CC=gcc-4.8 CXX=g++-4.8
-  - CC=gcc-4.8 CXX=g++-4.8 VALGRIND=1
+  - CC=gcc CXX=g++
+  - CC=gcc CXX=g++ VALGRIND=1
   # Some bugs in runkit only show up without zts enabled. (aka NTS)
   # Specifying PHP_VERSION is done to keep up to date versions in 7.1 (Does it work?)
   # Add --enable-session so $_SESSION will exist in runkit superglobal test
-  - CC=gcc-4.8 CXX=g++-4.8 VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'
+  - CC=gcc CXX=g++ VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'
   # The VM implementation is different on 32-bit php. Test those as well.
-  - CC=gcc-4.8 CXX=g++-4.8 USE_32BIT=1 VALGRIND=1 PHP_NTS_USE=actually-zts PHP_CONFIGURE_ARGS='--disable-all --enable-maintainer-zts --enable-debug --enable-session'
+  - CC=gcc CXX=g++ USE_32BIT=1 VALGRIND=1 PHP_NTS_USE=actually-zts PHP_CONFIGURE_ARGS='--disable-all --enable-maintainer-zts --enable-debug --enable-session'
 
 # Defined at https://github.com/php-build/php-build/tree/master/share/php-build/definitions
 php:
-  - master
+  - nightly
   - 7.4
   - 7.3
   - 7.2
-  - 7.1
 
 matrix:
   allow_failures:
-    - php: master
-    - php: 7.4
+    - php: nightly
   exclude:
     - php: 7.2
-      env: CC=gcc-4.8 CXX=g++-4.8
-    # Until https://bugs.php.net/bug.php?id=75951 is fixed for PHP 7.3 and master, exclude testing on clang since it won't build.
+      env: CC=gcc CXX=g++
+    # Until https://bugs.php.net/bug.php?id=75951 is fixed for PHP 7.3 and nightly, exclude testing on clang since it won't build.
     # This affects both the newer clang-5.0 and the default Travis version.
     - php: 7.3
       env: CC=clang
     - php: 7.4
-      env: CC=gcc-4.8 CXX=g++-4.8 VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'
+      env: CC=gcc CXX=g++ VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'
     - php: 7.4
       env: CC=clang
-    - php: master
-      env: CC=gcc-4.8 CXX=g++-4.8 VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'
-    - php: master
+    - php: nightly
+      env: CC=gcc CXX=g++ VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'
+    - php: nightly
       env: CC=clang
-    - php: master
-      env: CC=gcc-4.8 CXX=g++-4.8
+    - php: nightly
+      env: CC=gcc CXX=g++
 
 install:
   - sudo apt-get install -qq $CC
   - $CC --version
-  - if [ "x$USE_32BIT" != "x" ]; then sudo apt-get install -y g++-4.8-multilib libc6-dev-i386; export CC="$PWD/ci/gcc-32.sh"; export CXX="$PWD/ci/g++-32.sh"; $CC --version;  fi
+  - if [ "x$USE_32BIT" != "x" ]; then sudo apt-get install -y g++-multilib libc6-dev-i386; export CC="$PWD/ci/gcc-32.sh"; export CXX="$PWD/ci/g++-32.sh"; $CC --version;  fi
   # Test some builds with valgrind to check for memory leaks and invalid memory accesses
   - if [ "$VALGRIND" -eq 1 ]; then sudo apt-get install -qq valgrind; export TEST_PHP_ARGS="-m"; valgrind --version; fi
   # For NTS builds: Install NTS and set the php.ini to a different blank file.
@@ -66,13 +57,14 @@ install:
 
 before_script:
  - $CC --version && ci/print_php_int_max.php
- - (export CC; phpize && ./configure --enable-runkit7-spl_object-id && make)
+ - (export CC; phpize && ./configure && make)
 
 script:
  - phpenv config-rm xdebug.ini || true
  - ci/run_tests.sh
  # Print any valgrind errors
- - shopt -s nullglob; head -n 999 tests/*.mem < /dev/null
+ # Don't print too many - work around "The job exceeded the maximum log length, and has been terminated."
+ - shopt -s nullglob; head -n 999 tests/*.mem < /dev/null | head -n 10000
 
 branches:
   only:

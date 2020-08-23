@@ -1,9 +1,7 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | "runkit7" patches (c) 2015-2019 Tyson Andre                          |
+  | "runkit7" patches (c) 2015-2020 Tyson Andre                          |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -91,9 +89,9 @@ static int php_runkit_import_functions(HashTable *function_table,
 				PHP_RUNKIT_DESTROY_FUNCTION(fe);
 				return FAILURE;
 			} else {
-				PHP_RUNKIT_FUNCTION_ADD_REF(fe);
+				function_add_ref(fe);
 				if (add_fe != fe) {
-					PHP_RUNKIT_FUNCTION_ADD_REF(add_fe);
+					function_add_ref(add_fe);
 				}
 			}
 		}
@@ -116,7 +114,7 @@ static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_ent
 		/* TODO: check for memory leaks */
 		zend_string * const fn = zend_string_tolower(fe->common.function_name);  // TODO: copy?
 
-		fe_scope = php_runkit_locate_scope(ce, fe, fn);
+		fe_scope = fe->common.scope;
 
 		if (fe_scope != ce) {
 			zend_string_release(fn);
@@ -133,7 +131,7 @@ static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_ent
 				continue;
 			}
 
-			scope = php_runkit_locate_scope(dce, dfe, fn);
+			scope = dfe->common.scope;
 
 			if (php_runkit_check_call_stack(&dfe->op_array) == FAILURE) {
 				php_error_docref(NULL, E_WARNING, "Cannot override active method %s::%s(). Skipping.", ZSTR_VAL(dce->name), ZSTR_VAL(fe->common.function_name));
@@ -158,7 +156,7 @@ static int php_runkit_import_class_methods(zend_class_entry *dce, zend_class_ent
 			zend_string_release(fn);
 			continue;
 		} else {
-			PHP_RUNKIT_FUNCTION_ADD_REF(fe);
+			function_add_ref(fe);
 		}
 
 		if ((fe = zend_hash_find_ptr(&dce->function_table, fn)) == NULL) {
@@ -364,7 +362,7 @@ static int php_runkit_import_classes(HashTable *class_table, const long flags
 			classname_lower = zend_string_tolower(classname);
 
 			if (!zend_hash_exists(EG(class_table), classname_lower)) {
-				php_runkit_class_copy(ce, ce->name);
+				php_runkit_class_copy(ce, classname);
 			}
 			zend_string_release(classname_lower);
 
@@ -488,6 +486,7 @@ void php_runkit_error_cb(int type, const char *error_filename, const uint error_
 
 uint32_t compute_early_binding_opline_num(const zend_op_array *op_array) /* {{{ */
 {
+	/* Precondition: HAS_EARLY_BINDING is true */
 #if PHP_VERSION_ID < 70300
 	return op_array->early_binding;
 #else
@@ -563,6 +562,7 @@ PHP_FUNCTION(runkit7_import)
 	/* php_runkit_old_error_cb = zend_error_cb; */
 	/* zend_error_cb = php_runkit_error_cb; */
 	php_runkit_old_compiler_options = CG(compiler_options);
+	/* XXX did this change in php 7.3? */
 	CG(compiler_options) |= ZEND_COMPILE_DELAYED_BINDING;
 
 	new_op_array = local_compile_filename(ZEND_INCLUDE, filename);
@@ -601,7 +601,11 @@ PHP_FUNCTION(runkit7_import)
 		CG(in_compilation) = 1;
 		while (opline_num != (uint32_t)-1) {
 			// TODO: Check if it's still op2, figure out the set of expected opcodes
+#if PHP_VERSION_ID >= 70300
+			const zend_op *const parent_name_opcode = &(new_op_array->opcodes[opline_num]);
+#else
 			const zend_op *const parent_name_opcode = &(new_op_array->opcodes[opline_num - 1]);
+#endif
 			zval *parent_name = RUNKIT_RT_CONSTANT(new_op_array, parent_name_opcode, parent_name_opcode->op2);
 			zval *key = parent_name + 1;
 			zend_class_entry *pce;
@@ -612,23 +616,21 @@ PHP_FUNCTION(runkit7_import)
 			pce = zend_lookup_class_ex(Z_STR_P(parent_name), key, 0);
 #endif
 
-			// TODO: Check if this is the same in php 7.0
-            if (pce != NULL) {
+			/* TODO: It would be more practical to copy do_bind_class.
+			 * THIS NEEDS TO DEAL WITH MIXES OF EXISTING CLASSES AND IMPORTED CLASSES */
+			// TODO: Check if this is the same in php 7+
+			if (pce != NULL) {
 #if PHP_VERSION_ID >= 70400
-                do_bind_class(key, Z_STR_P(parent_name));
+				do_bind_class(key, Z_STR_P(parent_name));
 #else
-                do_bind_inherited_class(new_op_array, &new_op_array->opcodes[opline_num], tmp_class_table, pce, 0);
+				do_bind_inherited_class(new_op_array, &new_op_array->opcodes[opline_num], tmp_class_table, pce, 0);
 #endif
-            }
+			}
 			opline_num = new_op_array->opcodes[opline_num].result.opline_num;
 		}
 		CG(in_compilation) = orig_in_compilation;
 		zend_restore_compiled_filename(original_filename);
 	}
-
-	/* We never really needed the main loop opcodes to begin with */
-	destroy_op_array(new_op_array);
-	efree(new_op_array);
 
 	if (flags & PHP_RUNKIT_IMPORT_FUNCTIONS) {
 		php_runkit_import_functions(tmp_function_table, flags, &clear_cache);
@@ -637,6 +639,10 @@ PHP_FUNCTION(runkit7_import)
 	if (flags & PHP_RUNKIT_IMPORT_CLASSES) {
 		php_runkit_import_classes(tmp_class_table, flags, &clear_cache);
 	}
+
+	/* We never really needed the main loop opcodes to begin with */
+	destroy_op_array(new_op_array);
+	efree(new_op_array);
 
 	zend_hash_destroy(tmp_class_table);
 	efree(tmp_class_table);

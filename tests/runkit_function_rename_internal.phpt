@@ -1,14 +1,14 @@
 --TEST--
-runkit_function_rename() function on internal functions
+runkit7_function_rename() function on internal functions
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 runkit.internal_override=On
 --FILE--
 <?php
 $a = 1;
 var_dump($a);
-runkit_function_rename('var_dump','qwerty');
+runkit7_function_rename('var_dump','qwerty');
 if (function_exists('var_dump')) {
 	echo "Old function name still exists!\n";
 }

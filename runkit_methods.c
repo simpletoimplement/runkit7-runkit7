@@ -1,9 +1,7 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | (c) 2015-2019 Tyson Andre                                            |
+  | (c) 2015-2020 Tyson Andre                                            |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -204,7 +202,7 @@ void php_runkit_update_children_methods(zend_class_entry *ce, zend_class_entry *
 
 	if ((cfe = zend_hash_find_ptr(&ce->function_table, fname_lower)) != NULL) {
 		// TODO: Abstract this into a helper method.
-		scope = php_runkit_locate_scope(ce, cfe, fname_lower);
+		scope = cfe->common.scope;
 		if (scope != ancestor_class) {
 			/* This method was defined below our current level, leave it be */
 			cfe->common.prototype = _php_runkit_get_method_prototype(scope->parent, fname_lower);
@@ -227,7 +225,7 @@ void php_runkit_update_children_methods(zend_class_entry *ce, zend_class_entry *
 		php_error_docref(NULL, E_WARNING, "Error updating child class");
 		return;
 	}
-	PHP_RUNKIT_FUNCTION_ADD_REF(fe);
+	function_add_ref(fe);
 	php_runkit_inherit_magic(ce, fe, orig_fe);
 
 	/* Process children of this child */
@@ -261,7 +259,7 @@ void php_runkit_clean_children_methods(zend_class_entry *ce, zend_class_entry *a
 	}
 
 	if ((cfe = zend_hash_find_ptr(&ce->function_table, fname_lower)) != NULL) {
-		scope = php_runkit_locate_scope(ce, cfe, fname_lower);
+		scope = cfe->common.scope;
 		if (scope != ancestor_class) {
 			/* This method was defined below our current level, leave it be */
 			return;
@@ -358,7 +356,7 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 			zend_string_release(methodname_lower);
 			RETURN_FALSE;
 		}
-		ancestor_class = php_runkit_locate_scope(ce, fe, methodname_lower);
+		ancestor_class = fe->common.scope;
 		orig_fe = fe;
 
 		if (php_runkit_check_call_stack(&fe->op_array) == FAILURE) {
@@ -373,7 +371,7 @@ static void php_runkit_method_add_or_update(INTERNAL_FUNCTION_PARAMETERS, int ad
 		}
 		ancestor_class = ce;
 		if ((fe = zend_hash_find_ptr(&ce->function_table, methodname_lower)) != NULL) {
-			if (php_runkit_locate_scope(ce, fe, methodname_lower) == ce) {
+			if (fe->common.scope == ce) {
 				php_error_docref(NULL, E_WARNING, "%s::%s() already exists", ZSTR_VAL(classname), ZSTR_VAL(methodname));
 				zend_string_release(methodname_lower);
 				RETURN_FALSE;
@@ -487,7 +485,7 @@ static int php_runkit_method_copy(zend_string *dclass, zend_string *dfunc, zend_
 	dfunc_lower = zend_string_tolower(dfunc);
 
 	if ((fe = zend_hash_find_ptr(&dce->function_table, dfunc_lower)) != NULL) {
-		if (php_runkit_locate_scope(dce, fe, dfunc_lower) == dce) {
+		if (fe->common.scope == dce) {
 			php_error_docref(NULL, E_WARNING, "Destination method %s::%s() already exists", ZSTR_VAL(dclass), ZSTR_VAL(dfunc));
 			zend_string_release(dfunc_lower);
 			return FAILURE;
@@ -570,7 +568,7 @@ PHP_FUNCTION(runkit7_method_remove)
 
 	methodname_lower = zend_string_tolower(methodname);
 
-	ancestor_class = php_runkit_locate_scope(ce, fe, methodname_lower);
+	ancestor_class = fe->common.scope;
 
 	php_runkit_clean_children_methods_foreach(EG(class_table), ancestor_class, ce, methodname_lower, fe);
 
@@ -621,7 +619,7 @@ PHP_FUNCTION(runkit7_method_rename)
 	methodname_lower = zend_string_tolower(methodname);
 
 	if ((old_fe = zend_hash_find_ptr(&ce->function_table, newname_lower)) != NULL) {
-		if (php_runkit_locate_scope(ce, old_fe, newname_lower) == ce) {
+		if (old_fe->common.scope == ce) {
 			php_error_docref(NULL, E_WARNING, "%s::%s() already exists", ZSTR_VAL(classname), ZSTR_VAL(methodname));
 			zend_string_release(methodname_lower);
 			zend_string_release(newname_lower);
@@ -632,7 +630,7 @@ PHP_FUNCTION(runkit7_method_rename)
 		}
 	}
 
-	ancestor_class = php_runkit_locate_scope(ce, fe, methodname_lower);
+	ancestor_class = fe->common.scope;
 	php_runkit_clean_children_methods_foreach(EG(class_table), ancestor_class, ce, methodname_lower, fe);
 
 	php_runkit_clear_all_functions_runtime_cache();

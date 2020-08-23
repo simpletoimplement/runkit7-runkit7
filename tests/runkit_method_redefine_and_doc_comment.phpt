@@ -1,7 +1,7 @@
 --TEST--
-runkit_method_redefine() function and doc_comment
+runkit7_method_redefine() function and doc_comment
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 display_errors=on
 --FILE--
@@ -19,8 +19,8 @@ class runkit_class {
 		echo "a is $a\n";
 	}
 }
-runkit_method_redefine('runkit_class','runkit_method','$b', 'echo "b is $b\n";', NULL, 'new doc_comment1');
-runkit_method_redefine('runkit_class','runkitMethod','$b', 'echo "b is $b\n";', NULL, 'new doc_comment2');
+runkit7_method_redefine('runkit_class','runkit_method','$b', 'echo "b is $b\n";', NULL, 'new doc_comment1');
+runkit7_method_redefine('runkit_class','runkitMethod','$b', 'echo "b is $b\n";', NULL, 'new doc_comment2');
 $r1 = new ReflectionMethod('runkit_class', 'runkit_method');
 echo $r1->getDocComment(), "\n";
 $r2 = new ReflectionMethod('runkit_class', 'runkitMethod');

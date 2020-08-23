@@ -1,7 +1,7 @@
 --TEST--
 Static Variables in runkit modified functions
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 function orig() {
@@ -10,9 +10,9 @@ function orig() {
 }
 
 orig();
-runkit_function_copy('orig', 'funccopy');
+runkit7_function_copy('orig', 'funccopy');
 funccopy();
-runkit_function_remove('orig');
+runkit7_function_remove('orig');
 funccopy();
 
 echo "====\n";
@@ -26,9 +26,9 @@ class C {
 $c = new C;
 
 $c->orig();
-runkit_method_copy('C', 'copy', 'C', 'orig');
+runkit7_method_copy('C', 'copy', 'C', 'orig');
 $c->copy();
-runkit_method_remove('C', 'orig');
+runkit7_method_remove('C', 'orig');
 $c->copy();
 
 --EXPECT--

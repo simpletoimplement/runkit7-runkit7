@@ -1,7 +1,7 @@
 --TEST--
 adding and removing magic methods
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --FILE--
 <?php
@@ -16,19 +16,19 @@ class FOO_test extends test {
 class FOO_test_Child extends FOO_test {
 }
 
-runkit_method_add("Test", "__construct", "", 'echo "__construct\n";');
-runkit_method_add("Test", "__destruct", "", 'echo "__destruct\n";');
-runkit_method_add("Test", "__get", "", 'echo "__get\n";');
-runkit_method_add("Test", "__set", "", 'echo "__set\n";');
-runkit_method_add("Test", "__call", "", 'echo "__call\n";');
-runkit_method_add("Test", "__unset", "", 'echo "__unset\n";');
-runkit_method_add("Test", "__isset", "", 'echo "__isset\n";');
-runkit_method_add("Test", "__callStatic", "", 'echo "__callstatic\n";', RUNKIT_ACC_STATIC);
-runkit_method_add("Test", "__clone", "", 'echo "__clone\n";');
-runkit_method_add("Test", "__tostring", "", 'return "__tostring\n";');
-runkit_method_add("Test", "__debuginfo", "", 'echo "__debuginfo\n"; ob_start(); return array();');
-runkit_method_redefine("Test", "serialize", "", 'echo "serialize\n";return "";');
-runkit_method_redefine("Test", "unserialize", "", 'echo "unserialize\n";');
+runkit7_method_add("Test", "__construct", "", 'echo "__construct\n";');
+runkit7_method_add("Test", "__destruct", "", 'echo "__destruct\n";');
+runkit7_method_add("Test", "__get", "", 'echo "__get\n";');
+runkit7_method_add("Test", "__set", "", 'echo "__set\n";');
+runkit7_method_add("Test", "__call", "", 'echo "__call\n";');
+runkit7_method_add("Test", "__unset", "", 'echo "__unset\n";');
+runkit7_method_add("Test", "__isset", "", 'echo "__isset\n";');
+runkit7_method_add("Test", "__callStatic", "", 'echo "__callstatic\n";', RUNKIT7_ACC_STATIC);
+runkit7_method_add("Test", "__clone", "", 'echo "__clone\n";');
+runkit7_method_add("Test", "__tostring", "", 'return "__tostring\n";');
+runkit7_method_add("Test", "__debuginfo", "", 'echo "__debuginfo\n"; ob_start(); return array();');
+runkit7_method_redefine("Test", "serialize", "", 'echo "serialize\n";return "";');
+runkit7_method_redefine("Test", "unserialize", "", 'echo "unserialize\n";');
 $a = new test;
 $b = new foo_test;
 $c = new FOO_test_Child;
@@ -75,15 +75,15 @@ $b = NULL;
 $c = NULL;
 
 
-runkit_method_remove("Test", "__construct");
-runkit_method_remove("Test", "__destruct");
-runkit_method_remove("Test", "__get");
-runkit_method_remove("Test", "__set");
-runkit_method_remove("Test", "__unset");
-runkit_method_remove("Test", "__isset");
-runkit_method_remove("Test", "__clone");
-runkit_method_remove("Test", "__tostring");
-runkit_method_remove("Test", "__debuginfo");
+runkit7_method_remove("Test", "__construct");
+runkit7_method_remove("Test", "__destruct");
+runkit7_method_remove("Test", "__get");
+runkit7_method_remove("Test", "__set");
+runkit7_method_remove("Test", "__unset");
+runkit7_method_remove("Test", "__isset");
+runkit7_method_remove("Test", "__clone");
+runkit7_method_remove("Test", "__tostring");
+runkit7_method_remove("Test", "__debuginfo");
 echo "after removing\n";
 
 $a = new test;

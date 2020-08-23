@@ -1,7 +1,7 @@
 --TEST--
-runkit_method_copy() function and doc_comment - test if one call to copy will leak memory
+runkit7_method_copy() function and doc_comment - test if one call to copy will leak memory
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 display_errors=on
 --FILE--
@@ -17,7 +17,7 @@ class runkit_class {
 $r = new ReflectionMethod('runkit_class', 'runkit_method');
 echo $r->getDocComment(), "\n";
 echo "After redefine\n";
-runkit_method_redefine('runkit_class','runkit_method','', '', NULL, 'redefined doc_comment');
+runkit7_method_redefine('runkit_class','runkit_method','', '', NULL, 'redefined doc_comment');
 // TODO: Could iterate through all of the ReflectionMethods and update their doc_comments and parameters when adding?
 echo $r->getDocComment(), "\n";
 $r2 = new ReflectionMethod('runkit_class', 'runkit_method');

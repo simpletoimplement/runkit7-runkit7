@@ -1,7 +1,7 @@
 --TEST--
-runkit_import() imports function with reflection
+runkit7_import() imports function with reflection
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION || !function_exists('runkit_import')) print "skip"; ?>
 --FILE--
 <?php
 function runkitFunction($param) {
@@ -10,7 +10,7 @@ function runkitFunction($param) {
 
 $reflFunc = new ReflectionFunction('runkitFunction');
 
-runkit_import('runkit_import_function_and_reflection.inc', RUNKIT_IMPORT_FUNCTIONS | RUNKIT_IMPORT_OVERRIDE);
+runkit7_import('runkit_import_function_and_reflection.inc', RUNKIT7_IMPORT_FUNCTIONS | RUNKIT7_IMPORT_OVERRIDE);
 
 var_dump($reflFunc);
 $reflFunc->invoke("test");

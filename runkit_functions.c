@@ -1,9 +1,7 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | "runkit7" patches (c) 2015-2019 Tyson Andre                          |
+  | "runkit7" patches (c) 2015-2020 Tyson Andre                          |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -346,12 +344,7 @@ static zval *runkit_allocate_literals(const zend_op_array *const op_array, zend_
     Adds a reference to the type or union type of this argument. See zend_type_release() and destroy_op_array() from Zend/zend_opcode.c */
 static void php_runkit_arginfo_type_addref(zend_arg_info *arginfo)
 {
-#if PHP_VERSION_ID < 70200
-	if (arginfo->class_name) {
-		zend_string_addref(arginfo->class_name);
-	}
-#elif PHP_VERSION_ID < 80000
-	// php >= 7.2.0
+#if PHP_VERSION_ID < 80000
 	if (ZEND_TYPE_IS_CLASS(arginfo->type)) {
 		// This works as the opposite for both php 7.2 and 7.3 (zend_string_release or zend_string_release_ex
 		zend_string_addref(ZEND_TYPE_NAME(arginfo->type));

@@ -14,11 +14,11 @@ class ParentClass
 
 class ChildClass extends ParentClass { }
 
-var_dump(runkit_method_add('ParentClass', '__call', '$method, $args',
+var_dump(runkit7_method_add('ParentClass', '__call', '$method, $args',
                            'echo "In ParentClass::__call()\n";' .
                            'call_user_func_array(array($this, "prefix_{$method}"), $args);'));
 
-var_dump(runkit_method_rename('ChildClass', 'foo', 'prefix_foo'));
+var_dump(runkit7_method_rename('ChildClass', 'foo', 'prefix_foo'));
 
 $o = new ChildClass;
 $o->foo();

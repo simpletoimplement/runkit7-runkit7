@@ -1,7 +1,7 @@
 --TEST--
-runkit_function_copy() function
+runkit7_function_copy() function
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 function runkitSample($n) {
@@ -22,10 +22,10 @@ $oldName = 'runkitSample';
 $newName = 'runkitDuplicate';
 
 runkitSample(1);
-runkit_function_copy($oldName, $newName);
+runkit7_function_copy($oldName, $newName);
 runkitSample(2);
 runkitDuplicate(3);
-runkit_function_remove($oldName);
+runkit7_function_remove($oldName);
 if (function_exists('runkitSample')) {
 	echo "runkitSample() still exists!\n";
 }

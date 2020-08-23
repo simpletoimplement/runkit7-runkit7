@@ -1,7 +1,7 @@
 --TEST--
-runkit_function_remove() function
+runkit7_function_remove() function
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --FILE--
 <?php
 function runkitSample() {
@@ -10,7 +10,7 @@ function runkitSample() {
 
 $name = 'runkitSample';
 runkitSample();
-runkit_function_remove($name);
+runkit7_function_remove($name);
 if (!function_exists('runkitSample')) {
 	echo "Function Removed\n";
 }

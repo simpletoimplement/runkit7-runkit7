@@ -29,7 +29,7 @@ class AnotherDescendant extends Ancestor
     public function anotherMethod(){}
 }
 
-runkit_method_rename('Ancestor', '__construct', 'abcdefghmnoprst');
+runkit7_method_rename('Ancestor', '__construct', 'abcdefghmnoprst');
 print_r(getClassMethods('Descendant'));
 print_r(getClassMethods('AnotherDescendant'));
 --EXPECT--

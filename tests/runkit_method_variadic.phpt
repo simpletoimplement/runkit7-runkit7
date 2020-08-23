@@ -1,26 +1,26 @@
 --TEST--
-runkit_method_redefine() function and runkit_method_remove(), with variadic functions
+runkit7_method_redefine() function and runkit7_method_remove(), with variadic functions
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 display_errors=on
 --FILE--
 <?php
 function create_mock($className, $originalName, $temporaryName) {
-    if (!runkit_method_copy($className, $temporaryName, $className, $originalName))
+    if (!runkit7_method_copy($className, $temporaryName, $className, $originalName))
         throw new RuntimeException($className . '::' . $originalName . ' runkit_method_copy create_mock');
-    if (!runkit_method_remove($className, $originalName))
+    if (!runkit7_method_remove($className, $originalName))
         throw new RuntimeException($className . '::' . $originalName . ' runkit_method_remove create_mock');
-    if (!runkit_method_add($className, $originalName, '', 'printf("In mock: %s\n", serialize(func_get_args()));return null;', RUNKIT_ACC_STATIC))
+    if (!runkit7_method_add($className, $originalName, '', 'printf("In mock: %s\n", serialize(func_get_args()));return null;', RUNKIT7_ACC_STATIC))
         throw new RuntimeException($className . '::' . $originalName . ' runkit_method_add create_mock');
 }
 
 function remove_mock($className, $originalName, $temporaryName) {
-    if (!runkit_method_remove($className, $originalName))
+    if (!runkit7_method_remove($className, $originalName))
         throw new RuntimeException($className . '::' . $originalName . ' runkit_method_remove1 remove_mock');
-    if (!runkit_method_copy($className, $originalName, $className, $temporaryName))
+    if (!runkit7_method_copy($className, $originalName, $className, $temporaryName))
         throw new RuntimeException($className . '::' . $originalName . ' runkit_method_copy remove_mock');
-    if (!runkit_method_remove($className, $temporaryName))
+    if (!runkit7_method_remove($className, $temporaryName))
         throw new RuntimeException($className . '::' . $originalName . ' runkit_method_remove2 remove_mock');
 }
 

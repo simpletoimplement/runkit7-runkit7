@@ -1,7 +1,7 @@
 --TEST--
 removing magic serialize method
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --FILE--
 <?php
@@ -11,7 +11,7 @@ class Test implements Serializable {
 }
 
 $a = new Test();
-runkit_method_remove("Test", "serialize");
+runkit7_method_remove("Test", "serialize");
 $s1 = serialize($a);
 ?>
 --EXPECTF--

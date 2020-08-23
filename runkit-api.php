@@ -29,8 +29,6 @@ const RUNKIT7_IMPORT_FUNCTIONS = 1;
 // Feature identifying constants (defaults).
 // These are 1 if enabled by configuration options, and 0 if disabled.
 const RUNKIT7_FEATURE_MANIPULATION = 1;
-// RUNKIT7_FEATURE_SANDBOX is always 0; it's impractical to implement this in php 7.
-const RUNKIT7_FEATURE_SANDBOX = 0;
 const RUNKIT7_FEATURE_SUPERGLOBALS = 1;
 
 /**
@@ -315,31 +313,6 @@ function runkit7_import(string $filename, int $flags = RUNKIT7_IMPORT_CLASS_METH
  * @return array - has the fields address (hex string), type (int), is_ref (optional bool), and refcount (optional int)
  */
 function runkit7_zval_inspect($value) {
-}
-
-/**
- * Gets a unique integer identifier (Will be reused when the object is garbage collected) for an object.
- * This is identical to `spl_object_id`, which will be built into PHP 7.2+.
- * Similar to `spl_object_hash`, but returns an int instead of a string.
- *
- * Aliases: runkit_object_id
- * @param object $obj - The object
- * @return int|false - Returns false if given a non-object.
- */
-function runkit7_object_id($obj) : int {
-}
-
-/**
- * Gets a unique integer identifier (Will be reused when the object is garbage collected) for an object.
- * This is similar to `spl_object_hash`, but returns an int instead of a string.
- *
- * NOTE: runkit can provide an optional native implementation, but that is currently disabled by default by `./configure`.
- *       spl_object_id is built into PHP 7.2+.
- *
- * @param object $obj - The object
- * @return int|null - Returns null if given a non-object.
- */
-function spl_object_id($obj) : int {
 }
 
 /**

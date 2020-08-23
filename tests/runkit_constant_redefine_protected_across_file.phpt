@@ -1,8 +1,8 @@
 --TEST--
-runkit_constant_redefine() function redefines protected class constants (when accessing other files, not working for same file)
+runkit7_constant_redefine() function redefines protected class constants (when accessing other files, not working for same file)
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --FILE--
 <?php
@@ -27,18 +27,18 @@ function access_protected_constant() {
 access_protected_constant();
 $const = 'TestBaseClass::_FOO';
 var_dump($const, TestClass::get_foo());
-runkit_constant_redefine($const, 'roh');
+runkit7_constant_redefine($const, 'roh');
 var_dump($const, TestClass::get_foo());
 $x = TestClass::get_foo();
-runkit_constant_redefine($const, $x);
+runkit7_constant_redefine($const, $x);
 var_dump($const, TestClass::get_foo());
-runkit_constant_redefine($const, ['dah']);
+runkit7_constant_redefine($const, ['dah']);
 var_dump($const, TestClass::get_foo());
-runkit_constant_redefine($const, 2);
+runkit7_constant_redefine($const, 2);
 var_dump($const, TestClass::get_foo());
 access_protected_constant();
 // Redefine it as public, and the access should then work.
-runkit_constant_redefine($const, "bar", RUNKIT_ACC_PUBLIC);
+runkit7_constant_redefine($const, "bar", RUNKIT7_ACC_PUBLIC);
 var_dump($const, TestClass::get_foo());
 access_protected_constant();
 // TODO test subclass

@@ -1,7 +1,7 @@
 --TEST--
 runkit_class_adopt() function and properties issues
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION || !function_exists('runkit_class_adopt')) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION || !function_exists('runkit_class_adopt')) print "skip"; ?>
 --FILE--
 <?php
 class C {

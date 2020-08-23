@@ -1,8 +1,8 @@
 --TEST--
-runkit_method_copy() function
+runkit7_method_copy() function
 --SKIPIF--
 <?php
-	if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+	if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --INI--
 error_reporting=E_ALL
@@ -32,13 +32,13 @@ class runkit_two {
 $o = new runkit_one();
 $o->runkit_method(1);
 
-runkit_method_copy('runkit_two','runkit_method','runkit_one');
+runkit7_method_copy('runkit_two','runkit_method','runkit_one');
 
 $o->runkit_method(2);
 
 $o2 = new runkit_two();
 $o2->runkit_method(3);
-runkit_method_remove('runkit_one','runkit_method');
+runkit7_method_remove('runkit_one','runkit_method');
 if (method_exists('runkit_one','runkit_method')) {
 	echo "Runkit Method still exists in Runkit One!\n";
 }

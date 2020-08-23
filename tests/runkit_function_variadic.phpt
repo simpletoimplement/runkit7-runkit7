@@ -1,24 +1,24 @@
 --TEST--
-runkit_function_redefine() function and runkit_function_remove(), with variadic functions
+runkit7_function_redefine() function and runkit7_function_remove(), with variadic functions
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 display_errors=on
 --FILE--
 <?php
 function create_function_mock($originalName, $temporaryName) {
-    if (!runkit_function_copy($originalName, $temporaryName))
+    if (!runkit7_function_copy($originalName, $temporaryName))
         throw new RuntimeException($originalName . ' runkit_method_copy create_function_mock');
-    if (!runkit_function_remove($originalName))
+    if (!runkit7_function_remove($originalName))
         throw new RuntimeException($originalName . ' runkit_function_remove create_function_mock');
-    if (!runkit_function_add($originalName, '', 'printf("In mock: %s\n", serialize(func_get_args()));return null;'))
+    if (!runkit7_function_add($originalName, '', 'printf("In mock: %s\n", serialize(func_get_args()));return null;'))
         throw new RuntimeException($originalName . ' runkit_function_add create_function_mock');
 }
 
 function remove_function_mock($originalName, $temporaryName) {
-    if (!runkit_function_remove($originalName))
+    if (!runkit7_function_remove($originalName))
         throw new RuntimeException($originalName . ' runkit_function_remove1 remove_function_mock');
-    if (!runkit_function_rename($temporaryName, $originalName))
+    if (!runkit7_function_rename($temporaryName, $originalName))
         throw new RuntimeException($originalName . ' runkit_function_rename remove_function_mock');
 }
 

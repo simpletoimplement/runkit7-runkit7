@@ -2,7 +2,7 @@
 Bug in runkit_method_add (runkit7 issue #173)
 --SKIPIF--
 <?php
-if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip\n";
+if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip\n";
 if(PHP_VERSION_ID >= 80000) print "skip calls non-static method statically\n";
 ?>
 --INI--
@@ -70,9 +70,9 @@ call_user_func(function () {
     echo "in " . __METHOD__ . "\n";
 
     assert(class_exists('CacheWidget'));
-    assert(runkit_method_copy('CacheWidget', '_init_host_old', 'CacheWidget', '_init_host'));
-    assert(runkit_method_remove('CacheWidget', '_init_host'));
-    assert(runkit_method_add(
+    assert(runkit7_method_copy('CacheWidget', '_init_host_old', 'CacheWidget', '_init_host'));
+    assert(runkit7_method_remove('CacheWidget', '_init_host'));
+    assert(runkit7_method_add(
         'CacheWidget',
         '_init_host',
         '',

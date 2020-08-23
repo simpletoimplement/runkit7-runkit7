@@ -1,5 +1,8 @@
 --TEST--
-runkit7_constant_redefine() function redefines protected class constants (when accessing other files, not working for same file)
+runkit_constant_redefine() function redefines protected class constants (when accessing other files, not working for same file)
+--INI--
+error_reporting=E_ALL
+display_errors=on
 --SKIPIF--
 <?php
 if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
@@ -40,15 +43,15 @@ try {
 } catch (Error $e) {
 	printf("Caught %s from get_foo: %s\n", get_class($e), $e->getMessage());
 }
-runkit7_constant_add($const, 'roh', RUNKIT7_ACC_PROTECTED);
+runkit_constant_add($const, 'roh', RUNKIT7_ACC_PROTECTED);
 var_dump($const);
 var_dump(TestClass::get_foo());
 var_dump(TestSubclass::get_foo());
 access_protected_constant();
 // TODO: Remove public/protected constants from subclasses automatically, if they're the same value and visibility?
 // I forget if upstream does this.
-runkit7_constant_remove('TestSubclass::_FOO');
-runkit7_constant_remove($const);
+runkit_constant_remove('TestSubclass::_FOO');
+runkit_constant_remove($const);
 try {
 	var_dump(TestClass::get_foo());
 	echo "Unexpectedly able to fetch removed constant from TestClass\n";
@@ -61,7 +64,7 @@ try {
 } catch (Error $e) {
 	printf("Caught %s from TestSubclass::get_parent_foo: %s\n", get_class($e), $e->getMessage());
 }
-runkit7_constant_add($const, 'dah', RUNKIT7_ACC_PRIVATE);
+runkit_constant_add($const, 'dah', RUNKIT7_ACC_PRIVATE);
 var_dump($const);
 var_dump(TestClass::get_foo());
 var_dump(TestSubclass::get_foo());
@@ -74,15 +77,23 @@ try {
 
 ?>
 --EXPECTF--
-Caught Error: Undefined class constant %s_FOO'
-Caught Error from get_foo: Undefined class constant %s_FOO'
+Caught Error: Undefined class constant '_FOO'
+Caught Error from get_foo: Undefined class constant '_FOO'
+
+Deprecated: Function runkit_constant_add() is deprecated in %srunkit_constant_add_protected_alias.php on line 36
 string(15) "TestClass::_FOO"
 string(3) "roh"
 string(3) "roh"
 Caught Error: Cannot access protected const TestClass::_FOO
-Caught Error from get_foo: Undefined class constant %s_FOO'
-Caught Error from TestSubclass::get_parent_foo: Undefined class constant %s_FOO'
+
+Deprecated: Function runkit_constant_remove() is deprecated in %srunkit_constant_add_protected_alias.php on line 43
+
+Deprecated: Function runkit_constant_remove() is deprecated in %srunkit_constant_add_protected_alias.php on line 44
+Caught Error from get_foo: Undefined class constant '_FOO'
+Caught Error from TestSubclass::get_parent_foo: Undefined class constant '_FOO'
+
+Deprecated: Function runkit_constant_add() is deprecated in %srunkit_constant_add_protected_alias.php on line 57
 string(15) "TestClass::_FOO"
 string(3) "dah"
 string(3) "dah"
-Caught Error from TestSubclass::get_parent_foo: Undefined class constant %s_FOO'
+Caught Error from TestSubclass::get_parent_foo: Undefined class constant '_FOO'

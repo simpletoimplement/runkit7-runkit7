@@ -1,7 +1,7 @@
 --TEST--
-runkit_method_redefine() must also update children methods' prototypes
+runkit7_method_redefine() must also update children methods' prototypes
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --FILE--
 <?php
@@ -25,7 +25,7 @@ class c extends b {
 	}
 }
 
-runkit_method_redefine('a', 'foo', '', 'var_dump("new foo()");');
+runkit7_method_redefine('a', 'foo', '', 'var_dump("new foo()");');
 
 $c = new c;
 $c->bar();

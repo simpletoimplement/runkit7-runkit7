@@ -1,8 +1,8 @@
 --TEST--
-runkit_method_add() function with closure
+runkit7_method_add() function with closure
 --SKIPIF--
 <?php
-	if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip";
+	if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
 --INI--
 display_errors=on
@@ -21,7 +21,7 @@ $e = new Example();
 
 for ($i=0; $i<=1; $i++) {
     // Add a new public method
-    runkit_method_add(
+    runkit7_method_add(
         'Example',
         'add',
         function ($num1, $num2) {
@@ -29,7 +29,7 @@ for ($i=0; $i<=1; $i++) {
         }
     );
     $e->add(12, 4);//echo "\n";
-    runkit_method_remove(
+    runkit7_method_remove(
         'Example',
         'add'
     );

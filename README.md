@@ -1,8 +1,8 @@
-[Runkit7](https://github.com/runkit7/runkit7): Independent fork of runkit for PHP 7.1+
+[Runkit7](https://github.com/runkit7/runkit7): Independent fork of runkit for PHP 7.2+
 ======================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
-__Supports PHP7.1, 7.2, 7.3, and (partially) 7.4!__ (function/method manipulation is recommended only for unit testing. Note that PHP 7.3+ has known crashes in `runkit7_import()` but all other functionality works.)
+__Supports PHP7.2, 7.2, 7.3, and (partially) 7.4!__ (function/method manipulation is recommended only for unit testing. Note that PHP 7.3+ has known crashes in `runkit7_import()` but all other functionality works.)
 
 - Function/method manipulation crashes in PHP 7.4 when opcache is enabled (e.g. `opcache.enable_cli`) ([Issue #217](https://github.com/runkit7/runkit7/issues/217))
 
@@ -15,12 +15,12 @@ __Supports PHP7.1, 7.2, 7.3, and (partially) 7.4!__ (function/method manipulatio
 
 This extension's documentation is available at [https://www.php.net/runkit7](https://www.php.net/runkit7).
 
-Compatibility: PHP7.1 to PHP 7.4
+Compatibility: PHP7.2 to PHP 7.4
 --------------------------------
 
 **See [runkit-api.php](./runkit-api.php) for the implemented functionality and method signatures.** New functionality was added to support usage with PHP7.
 
-- This adds the ability to set return types (including nullable return types, in PHP 7.1) on added/redefined functions.
+- This adds the ability to set return types (including nullable return types) on added/redefined functions.
 - This adds the ability to set `declare(strict_types=1)` on added/redefined functions.
 
 Superglobals work reliably when tested on web servers and tests.
@@ -46,7 +46,6 @@ Class and function manipulation is recommended only for unit tests.
   PHP7 inlines constants within the same file if they are guaranteed to have only one definition.
   Patching php-src and/or opcache to not inline constants (e.g. based on a php.ini setting) is possible, but hasn't been tried yet.
 - Sandboxing (and `runkit_lint`) were removed.
-- `runkit7_object_id` works. If that function is the only function you need from runkit7, see [runkit7/runkit\_object\_id](https://github.com/runkit7/runkit_object_id).
 
 The following contributions are welcome:
 
@@ -57,6 +56,8 @@ The following contributions are welcome:
 -   Fixes and documentation.
 
 Other methods and corresponding tests are disabled/skipped because changes to php internals in php7 made them impractical.
+
+This is runkit7 3.x. Use runkit7 2.x for PHP 7.1 support, or 1.x for PHP 7.0 support.
 
 Examples
 --------
@@ -136,7 +137,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on issues and pull reque
 UPSTREAM DOCUMENTATION
 ======================
 
-**([runkit7](https://pecl.php.net/package/runkit7) is a fork of https://github.com/zenovich/runkit, implementing php7.1+ support)**
+**([runkit7](https://pecl.php.net/package/runkit7) is a fork of https://github.com/zenovich/runkit, implementing php7.2+ support)**
 
 Features
 ========
@@ -251,7 +252,7 @@ For 64-bit installations of php7, use "x64" instead of "x86" for the below comma
 
 After completing setup steps mentioned, including for `C:\php-sdk\phpdev\vc14`
 
-extract download of php-7.1.27-src (or any version of php 7) to C:\php-sdk\phpdev\vc14\x86\php-7.1.27-src
+extract download of php-7.2.33-src (or any version of php 7) to C:\php-sdk\phpdev\vc15\x86\php-7.2.33-src
 
 #### Installing runkit7 on windows
 
@@ -266,7 +267,7 @@ Then, execute the following (Add `--enable-runkit7` to the configure flags you w
 ```Batchfile
 cd C:\php-sdk
 C:\php-sdk\bin\phpsdk_setvars.bat
-cd phpdev\vc14\x86\php-7.1.27\src
+cd phpdev\vc15\x86\php-7.2.33\src
 buildconf
 configure --enable-runkit7
 nmake

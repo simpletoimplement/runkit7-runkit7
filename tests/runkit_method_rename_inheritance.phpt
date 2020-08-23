@@ -1,7 +1,7 @@
 --TEST--
-runkit_method_rename() function and inheritance
+runkit7_method_rename() function and inheritance
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 display_errors=on
 --FILE--
@@ -18,17 +18,17 @@ class runkit_subclass extends runkit_class {
 }
 
 runkit_subclass::runkit_original(1);
-runkit_method_rename('runkit_class','runkit_original','runkit_duplicate');
+runkit7_method_rename('runkit_class','runkit_original','runkit_duplicate');
 if (method_exists('runkit_subclass','runkit_original')) {
 	echo "Runkit Original still exists!\n";
 }
 runkit_subclass::runkit_duplicate(2);
-runkit_method_rename('runkit_class','runkit_duplicate', 'runkitDuplicate');
+runkit7_method_rename('runkit_class','runkit_duplicate', 'runkitDuplicate');
 if (method_exists('runkit_subclass','runkit_duplicate')) {
 	echo "Runkit Duplicate still exists!\n";
 }
 runkit_subclass::runkitDuplicate(3);
-runkit_method_rename('runkit_class','runkitDuplicate', 'runkit_original');
+runkit7_method_rename('runkit_class','runkitDuplicate', 'runkit_original');
 if (method_exists('runkit_subclass','runkitDuplicate')) {
 	echo "RunkitDuplicate still exists!\n";
 }

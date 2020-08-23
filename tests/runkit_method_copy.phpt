@@ -1,7 +1,7 @@
 --TEST--
-runkit_method_copy() function
+runkit7_method_copy() function
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip"; ?>
+<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
 --INI--
 display_errors=on
 --FILE--
@@ -22,18 +22,18 @@ class runkit_two {
 }
 
 runkit_one::runkit_method(1);
-runkit_method_copy('runkit_two','runkit_method','runkit_one');
-runkit_method_copy('runkit_two','runkitMethod','runkit_one');
+runkit7_method_copy('runkit_two','runkit_method','runkit_one');
+runkit7_method_copy('runkit_two','runkitMethod','runkit_one');
 runkit_one::runkit_method(2);
 runkit_two::runkit_method(3);
 runkit_one::runkitMethod(4);
 runkit_two::runkitmethod(5);
 runkit_two::runkitMethod(6);
-runkit_method_remove('runkit_one','runkit_method');
+runkit7_method_remove('runkit_one','runkit_method');
 if (method_exists('runkit_one','runkit_method')) {
 	echo "runkit_method still exists in Runkit One!\n";
 }
-runkit_method_remove('runkit_one','runkitMethod');
+runkit7_method_remove('runkit_one','runkitMethod');
 if (method_exists('runkit_one','runkitMethod')) {
 	echo "runkitMethod still exists in Runkit One!\n";
 }

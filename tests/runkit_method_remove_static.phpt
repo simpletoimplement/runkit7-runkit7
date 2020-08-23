@@ -1,7 +1,7 @@
 --TEST--
-runkit_method_remove() function
+runkit7_method_remove() function
 --SKIPIF--
-<?php if (!extension_loaded("runkit7") || !RUNKIT_FEATURE_MANIPULATION) print "skip\n"; ?>
+<?php if (!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip\n"; ?>
 --INI--
 display_errors=on
 --FILE--
@@ -18,12 +18,12 @@ class runkit_class {
 }
 
 runkit_class::runkit_method();
-runkit_method_remove('runkit_class','runkit_method');
+runkit7_method_remove('runkit_class','runkit_method');
 if (!method_exists('runkit_class','runkit_method')) {
 	echo "Runkit Method Removed\n";
 }
 runkit_class::runkitMethod();
-runkit_method_remove('runkit_class','runkitMethod');
+runkit7_method_remove('runkit_class','runkitMethod');
 if (!method_exists('runkit_class','runkitMethod')) {
 	echo "Runkit Method Removed\n";
 }
