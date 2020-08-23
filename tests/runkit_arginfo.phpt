@@ -35,8 +35,6 @@ foreach ([
 	'runkit7_method_remove',
 	'runkit_method_rename',
 	'runkit7_method_rename',
-	'runkit_object_id',
-	'runkit7_object_id',
 	'runkit_superglobals',
 	'runkit7_superglobals',
 	'runkit_zval_inspect',
@@ -48,7 +46,12 @@ foreach ([
 		$function->getNumberOfRequiredParameters(),
 		$function->getNumberOfParameters(),
 	   	implode(', ', array_map(function(ReflectionParameter $param) {
-			return '$' . $param->getName();
+			$type = @(string) $param->getType();  // __toString deprecated in 7.4 but reversed in 8.0
+			$result = '$' . $param->getName();
+			if ($type) {
+				return "$type $result";
+			}
+			return $result;
 		}, $function->getParameters()))
 	);
 }
@@ -82,8 +85,6 @@ runkit_method_remove          : 2 to 2 args: ($classname, $methodname)
 runkit7_method_remove         : 2 to 2 args: ($classname, $methodname)
 runkit_method_rename          : 3 to 3 args: ($classname, $methodname, $newname)
 runkit7_method_rename         : 3 to 3 args: ($classname, $methodname, $newname)
-runkit_object_id              : 1 to 1 args: ($obj)
-runkit7_object_id             : 1 to 1 args: ($obj)
 runkit_superglobals           : 0 to 0 args: ()
 runkit7_superglobals          : 0 to 0 args: ()
 runkit_zval_inspect           : 1 to 1 args: ($value)

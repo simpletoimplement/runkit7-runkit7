@@ -1,9 +1,7 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | Patches (c) 2015-2018 Tyson Andre                                    |
+  | Patches (c) 2015-2020 Tyson Andre                                    |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -29,7 +27,6 @@
 
 /* {{{ php_runkit_hash_get_bucket */
 // Copied from zend_hash_find_bucket of zend_hash.c and modified slightly.
-// Same as the implementation in 7.0 and 7.1
 inline static Bucket *php_runkit_zend_hash_find_bucket(HashTable *ht, zend_string *key)
 {
 	zend_ulong h;

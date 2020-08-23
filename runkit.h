@@ -1,9 +1,7 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2015 Dmitry Zenovich |
-  | "runkit7" patches (c) 2015-2019 Tyson Andre                          |
+  | "runkit7" patches (c) 2015-2020 Tyson Andre                          |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -33,8 +31,8 @@
 
 #include "Zend/zend_interfaces.h"
 
-#if PHP_VERSION_ID < 70100
-#error Support for php versions < 7.1 was dropped in runkit7 2.0 - Use the older runkit7 1.x releases from github instead
+#if PHP_VERSION_ID < 70200
+#error Support for php versions < 7.2 was dropped in runkit7 3.0 - Use the older runkit7 2.x or 1.x releases from github instead
 #endif
 
 #if PHP_WIN32
@@ -89,9 +87,7 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #define debug_printf(...) do { } while(0)
 #endif
 
-#define PHP_RUNKIT7_VERSION					"3.1.0dev"
-#define PHP_RUNKIT_SANDBOX_CLASSNAME		"Runkit_Sandbox"
-#define PHP_RUNKIT_SANDBOX_PARENT_CLASSNAME	"Runkit_Sandbox_Parent"
+#define PHP_RUNKIT7_VERSION					"4.0.0dev"
 
 #define PHP_RUNKIT_IMPORT_FUNCTIONS           0x0001
 #define PHP_RUNKIT_IMPORT_CLASS_METHODS       0x0002
@@ -105,24 +101,6 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 
 #ifdef PHP_RUNKIT7_FEATURE_SUPER
 #define PHP_RUNKIT_SUPERGLOBALS
-#endif
-
-#ifdef PHP_RUNKIT_SPL_OBJECT_ID
-#if PHP_VERSION_ID < 70200
-#define PHP_RUNKIT_PROVIDES_SPL_OBJECT_ID
-#endif
-#endif
-
-/* The TSRM interpreter patch required by runkit_sandbox was added in 5.1, but this package includes diffs for older versions
- * Those diffs include an additional #define to indicate that they've been applied
- */
-#ifdef PHP_RUNKIT7_FEATURE_SANDBOX
-#if (defined ZTS) && (defined PHP_RUNKIT7_FEATURE_SANDBOX)
-#define PHP_RUNKIT_SANDBOX
-#else
-// debugging code
-#error Feature not enabled
-#endif
 #endif
 
 #ifdef PHP_RUNKIT7_FEATURE_MODIFY
@@ -143,11 +121,6 @@ PHP_MSHUTDOWN_FUNCTION(runkit7);
 PHP_RINIT_FUNCTION(runkit7);
 PHP_RSHUTDOWN_FUNCTION(runkit7);
 PHP_MINFO_FUNCTION(runkit7);
-
-PHP_FUNCTION(runkit_object_id);
-#ifdef PHP_RUNKIT_PROVIDES_SPL_OBJECT_ID
-PHP_FUNCTION(spl_object_id);
-#endif
 
 #ifdef PHP_RUNKIT_MANIPULATION
 PHP_FUNCTION(runkit_function_add);
@@ -192,25 +165,14 @@ PHP_FUNCTION(runkit_import);
 #endif /* PHP_RUNKIT_MANIPULATION_IMPORT */
 #endif /* PHP_RUNKIT_MANIPULATION */
 
-#ifdef PHP_RUNKIT_SANDBOX
-PHP_FUNCTION(runkit_sandbox_output_handler);
-PHP_FUNCTION(runkit_lint);
-PHP_FUNCTION(runkit_lint_file);
-
-typedef struct _php_runkit_sandbox_object php_runkit_sandbox_object;
-#endif /* PHP_RUNKIT_SANDBOX */
-
 #ifdef PHP_RUNKIT_MANIPULATION
 // typedef struct _php_runkit_default_class_members_list_element php_runkit_default_class_members_list_element;
 #endif
 
-#if defined(PHP_RUNKIT_SUPERGLOBALS) || defined(PHP_RUNKIT_SANDBOX) || defined(PHP_RUNKIT_MANIPULATION)
+#if defined(PHP_RUNKIT_SUPERGLOBALS) || defined(PHP_RUNKIT_MANIPULATION)
 ZEND_BEGIN_MODULE_GLOBALS(runkit7)
 #ifdef PHP_RUNKIT_SUPERGLOBALS
 	HashTable *superglobals;
-#endif
-#ifdef PHP_RUNKIT_SANDBOX
-	php_runkit_sandbox_object *current_sandbox;
 #endif
 #ifdef PHP_RUNKIT_MANIPULATION
 	HashTable *misplaced_internal_functions;
@@ -303,11 +265,6 @@ void php_runkit_clean_children_methods_foreach(HashTable *ht, zend_class_entry *
 void php_runkit_update_children_methods(zend_class_entry *ce, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe);
 void php_runkit_update_children_methods_foreach(HashTable *ht, zend_class_entry *ancestor_class, zend_class_entry *parent_class, zend_function *fe, zend_string *fname_lower, zend_function *orig_fe);
 int php_runkit_fetch_interface(zend_string *classname, zend_class_entry **pce);
-
-/* Redundant unless 7.1 changes - string may no longer apply */
-/* TODO: Clean up these macros */
-#define PHP_RUNKIT_FUNCTION_ADD_REF(f)	function_add_ref(f)
-#define php_runkit_locate_scope(ce, fe, methodname_lower)   fe->common.scope
 
 #define PHP_RUNKIT_NOT_ENOUGH_MEMORY_ERROR php_error_docref(NULL, E_ERROR, "Not enough memory")
 
@@ -411,67 +368,6 @@ static inline void php_runkit_modify_function_doc_comment(zend_function *fe, zen
 	} \
 }
 
-
-#ifdef PHP_RUNKIT_SANDBOX
-/* runkit_sandbox.c */
-int php_runkit_init_sandbox(INIT_FUNC_ARGS);
-int php_runkit_shutdown_sandbox(SHUTDOWN_FUNC_ARGS);
-
-/* runkit_sandbox_parent.c */
-int php_runkit_init_sandbox_parent(INIT_FUNC_ARGS);
-int php_runkit_shutdown_sandbox_parent(SHUTDOWN_FUNC_ARGS);
-int php_runkit_sandbox_array_deep_copy(zval **value, int num_args, va_list args, zend_hash_key *hash_key);
-
-struct _php_runkit_sandbox_object {
-	zend_object obj;
-
-	void *context, *parent_context;
-
-	char *disable_functions;
-	char *disable_classes;
-	zval *output_handler;					/* points to function which lives in the parent_context */
-
-	unsigned char bailed_out_in_eval;		/* Patricide is an ugly thing.  Especially when it leaves bailout address mis-set */
-
-	unsigned char active;					/* A bailout will set this to 0 */
-	unsigned char parent_access;			/* May Runkit_Sandbox_Parent be instantiated/used? */
-	unsigned char parent_read;				/* May parent vars be read? */
-	unsigned char parent_write;				/* May parent vars be written to? */
-	unsigned char parent_eval;				/* May arbitrary code be run in the parent? */
-	unsigned char parent_include;			/* May arbitrary code be included in the parent? (includes require(), and *_once()) */
-	unsigned char parent_echo;				/* May content be echoed from the parent scope? */
-	unsigned char parent_call;				/* May functions in the parent scope be called? */
-	unsigned char parent_die;				/* Are $PARENT->die() / $PARENT->exit() enabled? */
-	unsigned long parent_scope;				/* 0 == Global, 1 == Active, 2 == Active->prior, 3 == Active->prior->prior, etc... */
-
-	char *parent_scope_name;				/* Combines with parent_scope to refer to a named array as a symbol table */
-	int parent_scope_namelen;
-};
-
-/* TODO: It'd be nice if objects and resources could make it across... */
-#define PHP_SANDBOX_CROSS_SCOPE_ZVAL_COPY_CTOR(pzv) \
-{ \
-	switch (Z_TYPE_P(pzv)) { \
-		case IS_RESOURCE: \
-		case IS_OBJECT: \
-			php_error_docref(NULL, E_WARNING, "Unable to translate resource, or object variable to current context."); \
-			ZVAL_NULL(pzv); \
-			break; \
-		case IS_ARRAY: { \
-			HashTable *original_hashtable = Z_ARRVAL_P(pzv); \
-			array_init(pzv); \
-			zend_hash_apply_with_arguments(original_hashtable, (apply_func_args_t)php_runkit_sandbox_array_deep_copy, 1, Z_ARRVAL_P(pzv)); \
-			break; \
-		} \
-		default: \
-			zval_copy_ctor(pzv); \
-	} \
-	if (Z_REFCOUNTED_P(pzf)) \
-		Z_SET_REFCOUNT(pzv, 1); \
-		/*(pzv)->RUNKIT_IS_REF = 0; // I think I can get rid of that, since IS_REFERENCE is now part of Z_TYPE?*/ \
-	} \
-}
-#endif /* PHP_RUNKIT_SANDBOX */
 
 #ifdef PHP_RUNKIT_MANIPULATION
 
@@ -641,20 +537,6 @@ inline static zend_bool php_runkit_parse_args_to_zvals(int argc, zval **pargs)
 
 #define PHP_RUNKIT_BODY_ERROR_MSG "%s's body should be either a closure or two strings"
 
-/** Create an interned string. Useful for ensuring that method names, etc.
-    won't be freed on request shutdown before runkit has a chance to free it. */
-/* NOTE: In the case of internal overrides and fpm, we want the "permanent" string (the string originally associated
- * with an internal function or method), which won't be garbage collected. */
-inline static zend_string *zend_string_to_interned(zend_string *original)
-{
-	zend_string *interned_name = zend_new_interned_string(original);
-	if (interned_name != original) {
-		zend_string_release(original);
-		return interned_name;
-	}
-	return original;
-}
-
 /* {{{ zend_bool php_runkit_parse_function_arg */
 /** Parses either multiple strings (1. function args, 2. body 3. (optional) return type), or a Closure. */
 inline static zend_bool php_runkit_parse_function_arg(int argc, zval *args, int arg_pos, zend_function **fe, zend_string **arguments, zend_string **phpcode, long *opt_arg_pos, char *type)
@@ -723,18 +605,6 @@ void php_runkit_update_reflection_object_name(zend_object *object, int handle, c
 		zend_object zo;
 	} reflection_object;
 #endif /* PHP_RUNKIT_MANIPULATION */
-
-#ifdef PHP_RUNKIT_SANDBOX
-// TODO: Figure out what the php7 equivalent of zend_object_store_bucket and zend_object_handle are.
-/* {{{ php_runkit_zend_object_store_get_obj */
-inline static zend_object *php_runkit_zend_object_store_get(const zval *zobject)
-{
-	// Note: Object handle may be removed from _zend_resource in the future.
-	int handle = Z_OBJ_HANDLE_P(zobject);
-	return EG(objects_store).object_buckets[handle];
-}
-/* }}} */
-#endif
 
 #if PHP_VERSION_ID >= 70300
 #define RUNKIT_RT_CONSTANT(op_array, opline, node) RT_CONSTANT((opline), (node))

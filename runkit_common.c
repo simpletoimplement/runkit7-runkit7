@@ -1,9 +1,7 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) 1997-2006 The PHP Group, (c) 2008-2012 Dmitry Zenovich |
-  | "runkit7" patches (c) 2015-2019 Tyson Andre                          |
+  | "runkit7" patches (c) 2015-2020 Tyson Andre                          |
   +----------------------------------------------------------------------+
   | This source file is subject to the new BSD license,                  |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -50,9 +48,6 @@ void PHP_RUNKIT_ADD_MAGIC_METHOD(zend_class_entry *ce, zend_string *lcmname, zen
 {
 	if (zend_string_equals_literal(lcmname, ZEND_CLONE_FUNC_NAME)) {
 		(ce)->clone = (fe);
-#if PHP_VERSION_ID < 70200
-		(fe)->common.fn_flags |= ZEND_ACC_CLONE;
-#endif
 	} else if (zend_string_equals_literal(lcmname, ZEND_CONSTRUCTOR_FUNC_NAME)) {
 		if (!(ce)->constructor || (ce)->constructor == (orig_fe)) {
 			(ce)->constructor = (fe);
