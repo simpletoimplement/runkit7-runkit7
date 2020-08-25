@@ -14,24 +14,24 @@ function runkit7_constant_add(string $constant_name, $value, int $new_visibility
  */
 function runkit7_constant_redefine(string $constant_name, $value, ?int $new_visibility = null): bool {}
 function runkit7_constant_remove(string $constant_name): bool {}
-/** @param Closure|array $argument_list_or_closure */
+/** @param Closure|string $argument_list_or_closure */
 function runkit7_function_add(string $function_name, $argument_list_or_closure, ?string $code_or_doc_comment = null, ?bool $return_by_reference = null, ?string $doc_comment = null, ?string $return_type = null, ?bool $is_strict = null): bool {}
 function runkit7_function_copy(string $source_name, string $target_name): bool {}
 /**
- * @param Closure|array $argument_list_or_closure
+ * @param Closure|string $argument_list_or_closure
  */
 function runkit7_function_redefine(string $function_name, $argument_list_or_closure, ?string $code_or_doc_comment = null, ?bool $return_by_reference = null, ?string $doc_comment = null, ?string $return_type = null, ?bool $is_strict = null): bool {}
 function runkit7_function_remove(string $function_name): bool {}
 function runkit7_function_rename(string $source_name, string $target_name): bool {}
 /**
- * @param Closure|array $argument_list_or_closure
+ * @param Closure|string $argument_list_or_closure
  * @param int|string|null $code_or_flags
  * @param int|string|null $flags_or_doc_comment
  */
 function runkit7_method_add(string $class_name, string $method_name, $argument_list_or_closure, $code_or_flags = null, $flags_or_doc_comment = null, ?string $doc_comment = null, ?string $return_type = null, ?bool $is_strict = null): bool {}
 function runkit7_method_copy(string $destination_class, string $destination_method, string $source_class, ?string $source_method = null): bool {}
 /**
- * @param Closure|array $argument_list_or_closure
+ * @param Closure|string $argument_list_or_closure
  * @param int|string|null $code_or_flags
  * @param int|string|null $flags_or_doc_comment
  */
@@ -60,7 +60,7 @@ function runkit_constant_redefine(string $constant_name, $value, ?int $new_visib
  */
 function runkit_constant_remove(string $constant_name): bool {}
 /**
- * @param Closure|array $argument_list_or_closure
+ * @param Closure|string $argument_list_or_closure
  * @alias runkit7_function_add
  * @deprecated
  */
@@ -71,7 +71,7 @@ function runkit_function_add(string $function_name, $argument_list_or_closure, ?
  */
 function runkit_function_copy(string $source_name, string $target_name): bool {}
 /**
- * @param Closure|array $argument_list_or_closure
+ * @param Closure|string $argument_list_or_closure
  * @alias runkit7_function_redefine
  * @deprecated
  */
@@ -88,7 +88,7 @@ function runkit_function_remove(string $function_name): bool {}
 function runkit_function_rename(string $source_name, string $target_name): bool {}
 
 /**
- * @param Closure|array $argument_list_or_closure
+ * @param Closure|string $argument_list_or_closure
  * @param int|string|null $code_or_flags
  * @param int|string|null $flags_or_doc_comment
  * @alias runkit7_method_add
@@ -96,13 +96,13 @@ function runkit_function_rename(string $source_name, string $target_name): bool 
  */
 function runkit_method_add(string $class_name, string $method_name, $argument_list_or_closure, $code_or_flags = null, $flags_or_doc_comment = null, ?string $doc_comment = null, ?string $return_type = null, ?bool $is_strict = null): bool {}
 /**
- * @param Closure|array $argument_list_or_closure
+ * @param Closure|string $argument_list_or_closure
  * @alias runkit7_method_copy
  * @deprecated
  */
 function runkit_method_copy(string $destination_class, string $destination_method, string $source_class, ?string $source_method = null): bool {}
 /**
- * @param Closure|array $argument_list_or_closure
+ * @param Closure|string $argument_list_or_closure
  * @param int|string|null $code_or_flags
  * @param int|string|null $flags_or_doc_comment
  * @alias runkit7_method_redefine
