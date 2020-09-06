@@ -75,6 +75,11 @@ PHP_FUNCTION(runkit7_zval_inspect)
 }
 /* }}} */
 
+#ifndef ZEND_ARG_INFO_WITH_DEFAULT_VALUE
+#define ZEND_ARG_INFO_WITH_DEFAULT_VALUE(pass_by_ref, name, default_value) \
+	ZEND_ARG_INFO(pass_by_ref, name)
+#endif
+
 #define PHP_FE_AND_FALIAS(runkit_function_name, runkit7_function_name) \
 	PHP_FE(runkit7_function_name,									arginfo_ ## runkit_function_name) \
 	PHP_DEP_FALIAS(runkit_function_name, runkit7_function_name,		arginfo_ ## runkit7_function_name)

@@ -23,11 +23,11 @@ echo "Done\n";
 call
 var_dump
 
-%s: Undefined variable: missing in %s on line %d
+%s: Undefined variable%smissing in %s on line %d
 NULL
 second call
 var_dump
 
-%s: Undefined variable: missing in %s on line %d
+%s: Undefined variable%smissing in %s on line %d
 NULL
 Done

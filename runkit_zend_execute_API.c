@@ -24,6 +24,8 @@
  * Copies of internal methods from Zend/zend_execute_API.c
  * These are used to call internal methods (not in the function table) from the external method.
  * TODO: See if xdebug works
+ *
+ * FIXME: Update the signature and implementation to also support named parameters
  */
 int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inner, INTERNAL_FUNCTION_PARAMETERS) /* {{{ */
 {
@@ -46,7 +48,9 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 	fci.retval = return_value;
 	fci.param_count = ZEND_CALL_NUM_ARGS(EG(current_execute_data));
 	fci.params = ZEND_CALL_ARG(EG(current_execute_data), 1);  // params and param_count From zend_API.c
+#if PHP_VERSION_ID < 80000
 	fci.no_separation = (zend_bool)1;			  // ???
+#endif
 	/* end patch for runkit }}} */
 
 	ZVAL_UNDEF(fci.retval);
@@ -164,10 +168,13 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 
 		if (ARG_SHOULD_BE_SENT_BY_REF(func, i + 1)) {
 			if (UNEXPECTED(!Z_ISREF_P(arg))) {
+#if PHP_VERSION_ID < 80000
 				if (!fci.no_separation) {
 					/* Separation is enabled -- create a ref */
 					ZVAL_NEW_REF(arg, arg);
-				} else if (!ARG_MAY_BE_SENT_BY_REF(func, i + 1)) {
+				} else if (!ARG_MAY_BE_SENT_BY_REF(func, i + 1))
+#endif
+				{
 					/* By-value send is not allowed -- emit a warning,
 					 * but still perform the call with a by-value send. */
 					zend_error(E_WARNING,

@@ -176,12 +176,19 @@ inline static void php_runkit_inherit_magic(zend_class_entry *ce, const zend_fun
 		(ce)->constructor  = (ce)->parent->constructor;
 	} else if ((ce)->__debugInfo  == (orig_fe) && (ce)->parent->__debugInfo == (fe)) {
 		(ce)->__debugInfo  = (ce)->parent->__debugInfo;
+#if PHP_VERSION_ID >= 80000
+	} else if ((ce)->__serialize  == (orig_fe) && (ce)->parent->__serialize == (fe)) {
+		(ce)->__serialize  = (ce)->parent->__serialize;
+	} else if ((ce)->__unserialize == (orig_fe) && (ce)->parent->__unserialize == (fe)) {
+		(ce)->__unserialize = (ce)->parent->__unserialize;
+#else
 	} else if (zend_class_implements_interface(ce, zend_ce_serializable) &&
 		   (ce)->serialize_func == (orig_fe) && (ce)->parent->serialize_func == (fe)) {
 		(ce)->serialize_func = (ce)->parent->serialize_func;
 	} else if (zend_class_implements_interface(ce, zend_ce_serializable) &&
 		   (ce)->unserialize_func == (orig_fe) && (ce)->parent->unserialize_func == (fe)) {
 		(ce)->unserialize_func = (ce)->parent->unserialize_func;
+#endif
 	}
 }
 /* }}} */

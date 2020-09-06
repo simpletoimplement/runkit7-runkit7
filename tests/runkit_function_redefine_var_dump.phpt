@@ -28,6 +28,6 @@ $t->run();
 ?>
 --EXPECTF--
 undefined is
-%s: Undefined variable: undefined in %s on line %d
+%s: Undefined variable%sundefined in %s on line %d
 NULL
 Done

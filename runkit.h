@@ -545,7 +545,11 @@ inline static zend_bool php_runkit_parse_function_arg(int argc, zval *args, int 
 	// 1. *fe = zend_function extracted from a closure.
 	// 2. *arguments, *phpcode = strings extracted from arguments
 	if (Z_TYPE(args[arg_pos]) == IS_OBJECT && Z_OBJCE(args[arg_pos]) == zend_ce_closure) {
+#if PHP_VERSION_ID >= 80000
+		*fe = (zend_function *)zend_get_closure_method_def(Z_OBJ(args[arg_pos]));
+#else
 		*fe = (zend_function *)zend_get_closure_method_def(&(args[arg_pos]));
+#endif
 	} else if (Z_TYPE(args[arg_pos]) == IS_STRING) {
 		(*opt_arg_pos)++;
 		*arguments = Z_STR(args[arg_pos]);
