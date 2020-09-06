@@ -510,6 +510,11 @@ uint32_t compute_early_binding_opline_num(const zend_op_array *op_array) /* {{{ 
 }
 /* }}} */
 
+#ifndef zend_hash_init_ex
+#define zend_hash_init_ex(ht, nSize, pHashFunction, pDestructor, persistent, bApplyProtection) \
+	zend_hash_init(ht, nSize, pHashFunction, pDestructor, persistent)
+#endif
+
 /* {{{ array runkit7_import(string filename[, long flags])
 	Import functions and class definitions from a file
 	Similar to include(), but doesn't execute root op_array, and allows pre-existing functions/methods to be overridden */

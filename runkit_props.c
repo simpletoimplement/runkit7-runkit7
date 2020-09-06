@@ -208,11 +208,15 @@ int php_runkit_def_prop_add_int(zend_class_entry *ce, zend_string *propname, zva
 	prop_info_ptr = NULL;
 	zend_string_addref(propname);
 
+#if PHP_VERSION_ID >= 80000
+	zend_declare_property_ex(ce, propname, pcopyval, visibility, doc_comment);
+#else
 	if (zend_declare_property_ex(ce, propname, pcopyval, visibility, doc_comment) == FAILURE) {
 		zval_ptr_dtor(pcopyval);
 		php_error_docref(NULL, E_WARNING, "Cannot declare new property");
 		return FAILURE;
 	}
+#endif
 
 	if (ce != definer_class) {
 		if (zend_hash_find(&ce->properties_info, propname) == NULL) {
