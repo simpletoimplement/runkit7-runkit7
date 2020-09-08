@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: ad33db85cfe098fcca908ade2bd17a7dfdadd7a1 */
+ * Stub hash: 4ed3bde43667f15f3395fc2c4f6cce57626fb6d2 */
 
 #if defined(PHP_RUNKIT_MANIPULATION)
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_runkit7_constant_add, 0, 2, _IS_BOOL, 0)
@@ -161,17 +161,6 @@ ZEND_END_ARG_INFO()
 
 #if defined(PHP_RUNKIT_MANIPULATION)
 #define arginfo_runkit_zval_inspect arginfo_runkit7_zval_inspect
-#endif
-
-#if defined(PHP_RUNKIT_MANIPULATION) && defined(PHP_RUNKIT_MANIPULATION_IMPORT)
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_runkit7_import, 0, 1, _IS_BOOL, 0)
-	ZEND_ARG_TYPE_INFO(0, filename, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, flags, IS_LONG, 1, "null")
-ZEND_END_ARG_INFO()
-#endif
-
-#if defined(PHP_RUNKIT_MANIPULATION) && defined(PHP_RUNKIT_MANIPULATION_IMPORT)
-#define arginfo_runkit_import arginfo_runkit7_import
 #endif
 
 #if defined(PHP_RUNKIT_SUPERGLOBALS)

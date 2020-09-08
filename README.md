@@ -2,7 +2,7 @@
 ======================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
-__Supports PHP7.2, 7.2, 7.3, and (partially) 7.4!__ (function/method manipulation is recommended only for unit testing. Note that PHP 7.3+ has known crashes in `runkit7_import()` but all other functionality works.)
+__Supports PHP7.2, 7.2, 7.3, and 7.4!__ (function/method manipulation is recommended only for unit testing)` but all other functionality works.)
 
 - Function/method manipulation crashes in PHP 7.4 when opcache is enabled (e.g. `opcache.enable_cli`) ([Issue #217](https://github.com/runkit7/runkit7/issues/217))
 
@@ -73,7 +73,6 @@ The following mocking libraries work with runkit7.
 
 ### Bugs in runkit7
 
--   There are segmentation faults in `runkit7_import()` in PHP 7.3+ (confirmed on NTS)
 -   There are segmentation faults when manipulating internal functions
     (a.k.a. "runkit.internal_override=1")
     (when you rename/redefine/(copy?) internal functions, and call internal functions with user functions' implementation, or vice versa)
@@ -82,7 +81,7 @@ The following mocking libraries work with runkit7.
 -   There are reference counting bugs causing memory leaks.
     2 calls to `emalloc` have been temporarily replaced with calls to `pemalloc`
     so that tests would not crash during shutdown (and other reasons)
--   The Zend VM bytecode representation may change in 7.3 betas and in future minor/major PHP releases after 7.3.
+-   The Zend VM bytecode representation may change in 8.0 betas and in future minor/major PHP releases after 8.0.
     Any new opcodes added may not work as expected with each new minor php version release.
 
 ### APIs for PHP7
@@ -96,15 +95,15 @@ NOTE: Most `runkit7_*()` functions have aliases of `runkit_*()`.
 -   `runkit7_zval_inspect`: Partly passing, and needs to be rewritten because of PHP7's zval changes.
 -   `runkit7_constant_add` works. Other constant manipulation functions don't work for constants accessed within the same file due to the compiler inlining their values for performance.
 -   Runkit superglobals.
--   `runkit7_import`
-    Some flags are missing for PHP 7.x, especially properties, and other tests have known failures.
-    See https://github.com/runkit7/runkit7/issues/73
 
 #### Unsupported APIs for PHP7:
 (These functions will be missing. Some of these should be possible to implement.)
 
 -   `runkit_class_adopt` and `runkit_class_emancipate`
     Disabled because of [bugs related to properties](./PROPERTY_MANIPULATION.md).
+-   `runkit7_import`
+	This had known crashes in php 7.3+, and was removed in runkit7 4.0 because they weren't straightforward to fix.
+	Use runkit7 3.x if you need to continue using this functionality.
 -   `runkit_lint*`
     Might be possible if this is rewritten to use actual threading: See [issue #114](https://github.com/runkit7/runkit7/issues/114)
 -   `runkit7_constant_*` : `runkit7_constant_add` works reliably, other methods don't.

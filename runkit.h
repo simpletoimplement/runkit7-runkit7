@@ -89,14 +89,6 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 
 #define PHP_RUNKIT7_VERSION					"4.0.0dev"
 
-#define PHP_RUNKIT_IMPORT_FUNCTIONS           0x0001
-#define PHP_RUNKIT_IMPORT_CLASS_METHODS       0x0002
-#define PHP_RUNKIT_IMPORT_CLASS_CONSTS        0x0004
-#define PHP_RUNKIT_IMPORT_CLASS_PROPS         0x0008
-#define PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS  0x0010
-#define PHP_RUNKIT_IMPORT_CLASSES             (PHP_RUNKIT_IMPORT_CLASS_METHODS | PHP_RUNKIT_IMPORT_CLASS_CONSTS | \
-				                              PHP_RUNKIT_IMPORT_CLASS_PROPS | PHP_RUNKIT_IMPORT_CLASS_STATIC_PROPS)
-#define PHP_RUNKIT_IMPORT_OVERRIDE            0x0020
 #define PHP_RUNKIT_OVERRIDE_OBJECTS           0x8000
 
 #ifdef PHP_RUNKIT7_FEATURE_SUPER
@@ -107,7 +99,6 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #define PHP_RUNKIT_MANIPULATION
 // TODO: Enable these macros once the corresponding functions/files compile and pass some of the tests.
 // TODO: Clean up these macros once the corresponding functions/files are 100% correct.
-#define PHP_RUNKIT_MANIPULATION_IMPORT
 #define PHP_RUNKIT_MANIPULATION_PROPERTIES
 #define PHP_RUNKIT_MANIPULATION_CLASSES
 #endif
@@ -154,15 +145,10 @@ PHP_FUNCTION(runkit_constant_add);
 // PHP_FUNCTION(runkit_class_emancipate);
 // PHP_FUNCTION(runkit_class_adopt);
 #endif
-// PHP_FUNCTION(runkit_import);
 #ifdef PHP_RUNKIT_MANIPULATION_PROPERTIES
 PHP_FUNCTION(runkit_default_property_add);
 PHP_FUNCTION(runkit_default_property_remove);
 #endif
-// TODO
-#ifdef PHP_RUNKIT_MANIPULATION_IMPORT
-PHP_FUNCTION(runkit_import);
-#endif /* PHP_RUNKIT_MANIPULATION_IMPORT */
 #endif /* PHP_RUNKIT_MANIPULATION */
 
 #ifdef PHP_RUNKIT_MANIPULATION
