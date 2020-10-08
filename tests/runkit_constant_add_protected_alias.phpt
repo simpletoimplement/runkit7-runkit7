@@ -77,23 +77,23 @@ try {
 
 ?>
 --EXPECTF--
-Caught Error: Undefined class constant '_FOO'
-Caught Error from get_foo: Undefined class constant '_FOO'
+Caught Error: Undefined %Sconstant %S_FOO%S
+Caught Error from get_foo: Undefined %Sconstant %S_FOO%S
 
 Deprecated: Function runkit_constant_add() is deprecated in %srunkit_constant_add_protected_alias.php on line 36
 string(15) "TestClass::_FOO"
 string(3) "roh"
 string(3) "roh"
-Caught Error: Cannot access protected const TestClass::_FOO
+Caught Error: Cannot access protected const%S TestClass::_FOO
 
 Deprecated: Function runkit_constant_remove() is deprecated in %srunkit_constant_add_protected_alias.php on line 43
 
 Deprecated: Function runkit_constant_remove() is deprecated in %srunkit_constant_add_protected_alias.php on line 44
-Caught Error from get_foo: Undefined class constant '_FOO'
-Caught Error from TestSubclass::get_parent_foo: Undefined class constant '_FOO'
+Caught Error from get_foo: Undefined %Sconstant %S_FOO%S
+Caught Error from TestSubclass::get_parent_foo: Undefined %Sconstant %S_FOO%S
 
 Deprecated: Function runkit_constant_add() is deprecated in %srunkit_constant_add_protected_alias.php on line 57
 string(15) "TestClass::_FOO"
 string(3) "dah"
 string(3) "dah"
-Caught Error from TestSubclass::get_parent_foo: Undefined class constant '_FOO'
+Caught Error from TestSubclass::get_parent_foo: Undefined %Sconstant %S_FOO%S

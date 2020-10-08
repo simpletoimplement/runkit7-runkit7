@@ -18,4 +18,4 @@ try {
 ?>
 --EXPECTF--
 Returned foo
-TypeError: Return value of runkit_function() must be of%stype string, object returned
+TypeError: %Srunkit_function()%S must be of%stype string, %s returned
