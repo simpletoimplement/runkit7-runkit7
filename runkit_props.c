@@ -11,11 +11,10 @@
   +----------------------------------------------------------------------+
   | Author: Sara Golemon <pollita@php.net>                               |
   | Modified by Dmitry Zenovich <dzenovich@gmail.com>                    |
-  | Modifications for php7 property manipulation (in progress)           |
+  | Modifications for php7 property manipulation                         |
   | by Tyson Andre                                                       |
   +----------------------------------------------------------------------+
 Note: This file is a stub, some functionality hasn't been ported yet.
-(Will be used for runkit_import in the future)
 
 runkit_property_modify() may be added in the future (will change the value, but won't change the set of properties)
 */

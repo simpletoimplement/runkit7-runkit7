@@ -42,7 +42,6 @@ if test "$PHP_RUNKIT7" != "no"; then
     AC_DEFINE(PHP_RUNKIT7_FEATURE_SUPER, 1, [Whether to export custom autoglobal registration feature])
   fi
   PHP_NEW_EXTENSION(runkit7, runkit.c runkit_functions.c runkit_methods.c \
-runkit_import.c \
 runkit_constants.c \
 runkit_common.c \
 runkit_zend_execute_API.c \

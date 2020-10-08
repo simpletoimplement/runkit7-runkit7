@@ -13,23 +13,13 @@ const RUNKIT7_ACC_PROTECTED        = 0x200;
 const RUNKIT7_ACC_PRIVATE          = 0x400;
 const RUNKIT7_ACC_STATIC           = 0x1;
 
-// Flags for runkit7_import()
-// NOTE: All RUNKIT7_* constants have corresponding RUNKIT_* constants with the same values.
-const RUNKIT7_IMPORT_FUNCTIONS = 1;
-
-const RUNKIT7_IMPORT_CLASS_CONSTS = 4;
-const RUNKIT7_IMPORT_CLASS_METHODS = 2;
-const RUNKIT7_IMPORT_CLASS_PROPS = 8;
-const RUNKIT7_IMPORT_CLASS_STATIC_PROPS = 16;
-const RUNKIT7_IMPORT_CLASSES = RUNKIT7_IMPORT_CLASS_CONSTS | RUNKIT7_IMPORT_CLASS_METHODS | RUNKIT7_IMPORT_CLASS_PROPS | RUNKIT7_IMPORT_CLASS_STATIC_PROPS;
-const RUNKIT7_OVERRIDE_OBJECTS = 32768;
-
-const RUNKIT7_IMPORT_FUNCTIONS = 1;
-
 // Feature identifying constants (defaults).
 // These are 1 if enabled by configuration options, and 0 if disabled.
 const RUNKIT7_FEATURE_MANIPULATION = 1;
 const RUNKIT7_FEATURE_SUPERGLOBALS = 1;
+
+// For property manipulation
+const RUNKIT7_OVERRIDE_OBJECTS = 32768;
 
 /**
  * Similar to define(), but allows defining in class definitions as well.
@@ -290,18 +280,6 @@ function runkit7_method_remove(string $classname, string $methodname) : bool {
  * @return bool - True on success or false on failure.
  */
 function runkit7_method_rename(string $classname, string $methodname, string $newname) : bool {
-}
-
-/**
- * Process a PHP file importing function and class definitions, overwriting where appropriate.
- *
- * Aliases: runkit_import
- *
- * @param string $filename Filename to import function and class definitions from.
- * @param int $flags Bitwise OR of the RUNKIT7_IMPORT_* family of constants.
- * @return bool - True on success or false on failure.
- */
-function runkit7_import(string $filename, int $flags = RUNKIT7_IMPORT_CLASS_METHODS) : bool {
 }
 
 /**

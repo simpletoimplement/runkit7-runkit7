@@ -125,15 +125,6 @@ function runkit_method_rename(string $class_name, string $source_method_name, st
  * @deprecated
  */
 function runkit_zval_inspect($value): array {}
-#ifdef PHP_RUNKIT_MANIPULATION_IMPORT
-function runkit7_import(string $filename, ?int $flags = null): bool {}
-/**
- * @alias runkit7_import
- * @deprecated
- */
-function runkit_import(string $filename, ?int $flags = null): bool {}
-#endif
-
 #endif
 
 #ifdef PHP_RUNKIT_SUPERGLOBALS
