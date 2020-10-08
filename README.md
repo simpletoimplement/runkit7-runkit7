@@ -2,7 +2,7 @@
 ======================================================================================
 
 For all those things you.... probably shouldn't have been doing anyway.... but surely do!
-__Supports PHP7.2, 7.2, 7.3, and 7.4!__ (function/method manipulation is recommended only for unit testing)` but all other functionality works.)
+__Supports PHP7.2, 7.2, 7.3, and 7.4!__ (function/method manipulation is recommended only for unit testing) but all other functionality works.)
 
 - Function/method manipulation crashes in PHP 7.4 when opcache is enabled (e.g. `opcache.enable_cli`) ([Issue #217](https://github.com/runkit7/runkit7/issues/217))
 
