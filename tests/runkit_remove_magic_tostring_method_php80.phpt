@@ -31,6 +31,6 @@ echo "Value: $s\n";
 ?>
 --EXPECT--
 __tostring
-Caught TypeError: Return value of Test::__tostring() must be of type string, none returned
+Caught TypeError: Test::__tostring(): Return value must be of type string, none returned
 Caught Error: Object of class Test could not be converted to string
 Value: a valid string

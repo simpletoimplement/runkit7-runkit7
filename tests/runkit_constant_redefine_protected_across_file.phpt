@@ -43,8 +43,8 @@ var_dump($const, TestClass::get_foo());
 access_protected_constant();
 // TODO test subclass
 ?>
---EXPECT--
-Caught Error: Cannot access protected const TestClass::_FOO
+--EXPECTF--
+Caught Error: Cannot access protected const%S TestClass::_FOO
 string(19) "TestBaseClass::_FOO"
 string(3) "foo"
 string(19) "TestBaseClass::_FOO"
@@ -58,7 +58,7 @@ array(1) {
 }
 string(19) "TestBaseClass::_FOO"
 int(2)
-Caught Error: Cannot access protected const TestClass::_FOO
+Caught Error: Cannot access protected const%S TestClass::_FOO
 string(19) "TestBaseClass::_FOO"
 string(3) "bar"
 Fetched constant, value='bar'

@@ -74,15 +74,15 @@ try {
 
 ?>
 --EXPECTF--
-Caught Error: Undefined class constant %s_FOO'
-Caught Error from get_foo: Undefined class constant %s_FOO'
+Caught Error: Undefined %Sconstant %sFOO%S
+Caught Error from get_foo: Undefined %Sconstant %s_FOO%S
 string(15) "TestClass::_FOO"
 string(3) "roh"
 string(3) "roh"
-Caught Error: Cannot access protected const TestClass::_FOO
-Caught Error from get_foo: Undefined class constant %s_FOO'
-Caught Error from TestSubclass::get_parent_foo: Undefined class constant %s_FOO'
+Caught Error: Cannot access protected const%S TestClass::_FOO
+Caught Error from get_foo: Undefined %Sconstant %s_FOO%S
+Caught Error from TestSubclass::get_parent_foo: Undefined %Sconstant %s_FOO%S
 string(15) "TestClass::_FOO"
 string(3) "dah"
 string(3) "dah"
-Caught Error from TestSubclass::get_parent_foo: Undefined class constant %s_FOO'
+Caught Error from TestSubclass::get_parent_foo: Undefined %Sconstant %s_FOO%S

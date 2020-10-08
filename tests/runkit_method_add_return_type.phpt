@@ -21,4 +21,4 @@ try {
 ?>
 --EXPECTF--
 Returned foo
-TypeError: Return value of runkit_class::runkit_method() must be of%stype string, object returned
+TypeError: %Srunkit_class::runkit_method()%smust be of%stype string, %s returned
