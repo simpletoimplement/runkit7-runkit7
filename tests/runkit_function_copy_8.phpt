@@ -49,9 +49,9 @@ try {
 --EXPECT--
 Runkit Sample: 1
 Runkit Sample: 2
-Caught runkitSample(): Argument #1 ($n) must be of type Stringable|string|int, array given, called in /home/tyson/programming/runkit7/tests/runkit_function_copy_8.php on line 23
+Caught runkitSample(): Argument #1 ($n) must be of type Stringable|string|int, array given, called in %srunkit_function_copy_8.php on line 23
 Runkit Sample: 3
 Runkit Sample: 4
 runkitSample
 runkitDuplicate
-Caught runkitDuplicate(): Argument #1 ($n) must be of type Stringable|string|int, stdClass given, called in /home/tyson/programming/runkit7/tests/runkit_function_copy_8.php on line 36
+Caught runkitDuplicate(): Argument #1 ($n) must be of type Stringable|string|int, stdClass given, called in %srunkit_function_copy_8.php on line 36
