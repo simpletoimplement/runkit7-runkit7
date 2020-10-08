@@ -31,6 +31,10 @@ install:
 cache:
         c:\build-cache -> .appveyor.yml
 
+matrix:
+        allow_failures:
+                - PHP_VER: 8.0.0rc1
+
 environment:
         BIN_SDK_VER: 2.2.0
         matrix:
