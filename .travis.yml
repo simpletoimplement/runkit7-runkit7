@@ -65,6 +65,8 @@ script:
  # Print any valgrind errors
  # Don't print too many - work around "The job exceeded the maximum log length, and has been terminated."
  - shopt -s nullglob; head -n 999 tests/*.mem < /dev/null | head -n 10000
+ # TODO: A way to compile without installing? For now, just assert a package can be created.
+ - pecl package
 
 branches:
   only:

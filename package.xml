@@ -205,7 +205,7 @@ Define customized superglobal variables for general purpose use.
    <file name="Makefile.frag" role="src" />
    <file name="runkit.h" role="src" />
    <file name="runkit7.stub.php" role="src" />
-   <file name="runkit7_arginfo.h " role="src" />
+   <file name="runkit7_arginfo.h" role="src" />
    <file name="php_runkit7.h" role="src" />
    <file name="php_runkit_hash.h" role="src" />
    <file name="php_runkit_zend_execute_API.h" role="src" />
