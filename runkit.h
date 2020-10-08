@@ -62,7 +62,7 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #define debug_printf(...) do { } while(0)
 #endif
 
-#define PHP_RUNKIT7_VERSION					"4.0.0a1"
+#define PHP_RUNKIT7_VERSION					"4.0.0a2"
 
 #define PHP_RUNKIT_OVERRIDE_OBJECTS           0x8000
 

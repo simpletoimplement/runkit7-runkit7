@@ -17,8 +17,8 @@ Define customized superglobal variables for general purpose use.
  </lead>
  <date>2020-10-08</date>
  <version>
-  <release>4.0.0a1</release>
-  <api>4.0.0</api>
+  <release>4.0.0a2</release>
+  <api>4.0.1</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -26,18 +26,8 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Remove `runkit7_import()`. This had known crashes/segfaults in php 7.3+ that have not been straightforward to fix (after multiple attempts)
-  due to changes to PHP's internals and changes to late static binding, and offered an incomplete set of functionality.
-  (e.g. could not override properties)
-
-  This was also not integrated with runkit7's tracking of manipulated methods/functions/properties.
-- Drop support for php 7.1. Security support for php 7.1 from php-src ended in December 2019
-  and runkit7 requires a lot of work to verify that changes or new features work correctly with the internals of php in all PHP versions.
-- Remove disabled code, constants, and ini settings related to the sandbox feature.
-  Runkit7 has never supported sandboxes or runkit_lint due to changes to internals in php7 making it impractical.
-- Remove runkit7_object_id() - PHP 7.2 adds spl_object_id() to do the same thing.
-- Fix build failure in php 8.0-dev - this extension's support for php 8 is still incomplete and experimental.
-- Add parameter default constant names to reflection (php 8 only).
+- Fix build failure in PECL releases due to missing files in the 4.0.0a1 archive.
+- Properly reference count references to file names in php 8.0 when copying functions
  </notes>
  <contents>
   <dir name="/">
@@ -205,7 +195,7 @@ Define customized superglobal variables for general purpose use.
    <file name="Makefile.frag" role="src" />
    <file name="runkit.h" role="src" />
    <file name="runkit7.stub.php" role="src" />
-   <file name="runkit7_arginfo.h " role="src" />
+   <file name="runkit7_arginfo.h" role="src" />
    <file name="php_runkit7.h" role="src" />
    <file name="php_runkit_hash.h" role="src" />
    <file name="php_runkit_zend_execute_API.h" role="src" />
@@ -238,6 +228,32 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit7</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2020-10-08</date>
+   <version>
+    <release>4.0.0a1</release>
+    <api>4.0.0</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Remove `runkit7_import()`. This had known crashes/segfaults in php 7.3+ that have not been straightforward to fix (after multiple attempts)
+  due to changes to PHP's internals and changes to late static binding, and offered an incomplete set of functionality.
+  (e.g. could not override properties)
+
+  This was also not integrated with runkit7's tracking of manipulated methods/functions/properties.
+- Drop support for php 7.1. Security support for php 7.1 from php-src ended in December 2019
+  and runkit7 requires a lot of work to verify that changes or new features work correctly with the internals of php in all PHP versions.
+- Remove disabled code, constants, and ini settings related to the sandbox feature.
+  Runkit7 has never supported sandboxes or runkit_lint due to changes to internals in php7 making it impractical.
+- Remove runkit7_object_id() - PHP 7.2 adds spl_object_id() to do the same thing.
+- Fix build failure in php 8.0-dev - this extension's support for php 8 is still incomplete and experimental.
+- Add parameter default constant names to reflection (php 8 only).
+   </notes>
+  </release>
   <release>
    <date>2019-12-27</date>
    <version>

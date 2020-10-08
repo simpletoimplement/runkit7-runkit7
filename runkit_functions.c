@@ -556,6 +556,9 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 		if (op_array->doc_comment) {
 			zend_string_addref(op_array->doc_comment);
 		}
+		if (op_array->filename) {
+			zend_string_addref(op_array->filename);
+		}
 		op_array->try_catch_array = (zend_try_catch_element *)estrndup((char *)op_array->try_catch_array, sizeof(zend_try_catch_element) * op_array->last_try_catch);
 	if (op_array->live_range) {
 			op_array->live_range = (zend_live_range *)estrndup((char *)op_array->live_range, sizeof(zend_live_range) * op_array->last_live_range);
