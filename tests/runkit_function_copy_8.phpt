@@ -46,7 +46,7 @@ try {
 	echo "Caught {$e->getMessage()}\n";
 }
 ?>
---EXPECT--
+--EXPECTF--
 Runkit Sample: 1
 Runkit Sample: 2
 Caught runkitSample(): Argument #1 ($n) must be of type Stringable|string|int, array given, called in %srunkit_function_copy_8.php on line 23
