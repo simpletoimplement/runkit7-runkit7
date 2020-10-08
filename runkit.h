@@ -32,36 +32,11 @@
 #include "Zend/zend_interfaces.h"
 
 #if PHP_VERSION_ID < 70200
-#error Support for php versions < 7.2 was dropped in runkit7 3.0 - Use the older runkit7 2.x or 1.x releases from github instead
+#error Support for php versions < 7.2 was dropped in the earlier major release runkit7 3.0 - Use the older runkit7 2.x or 1.x releases from github instead
 #endif
 
-#if PHP_WIN32
-# include "win32/php_stdint.h"
-# if defined(_MSC_VER) && _MSC_VER >= 1800
-#  include <stdbool.h>
-# else
-#  ifndef inline
-#  define inline __inline
-#  endif
-
-#  ifndef __cplusplus
-#   if !0
-typedef enum { false = 0, true = 1 } _Bool;
-#  define bool _Bool
-#   endif
-#  else
-typedef bool _Bool;
-#  define bool _Bool
-#  endif
-
-#  define false 0
-#  define true 1
-#  define __bool_true_false_are_defined 1
-# endif /* __MSC_VER */
-# ifdef _DEBUG
-#  include <crtdbg.h>
-# endif
-#endif /* PHP_WIN32 */
+#include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __GNUC__
 // Make it easy to verify that format strings are correct in recent versions of gcc.

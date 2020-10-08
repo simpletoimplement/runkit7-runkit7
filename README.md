@@ -240,18 +240,18 @@ sudo make install
 
 Read https://wiki.php.net/internals/windows/stepbystepbuild first. This is just a special case of these instructions.
 
-For PHP7, you need to install "Visual Studio 2015 Community Edition" (or other 2015 edition).
+For PHP7, you need to install "Visual Studio 2017 Community Edition" (or other 2017 edition).
 Make sure that C++ is installed with Visual Studio.
-The command prompt to use is "VS2015 x86 Native Tools Command Prompt" on 32-bit, "VS2015 x64 Native Tools Command Prompt" on 64-bit.
+The command prompt to use is "VS2017 x86 Native Tools Command Prompt" on 32-bit, "VS2017 x64 Native Tools Command Prompt" on 64-bit.
 
 - Note that different visual studio versions are needed for different PHP versions.
-  For PHP 7.2+, use Visual Studio 2017 and vc15 instead.
+  For PHP 8.0+, use Visual Studio 2019 and vs16 instead.
 
 For 64-bit installations of php7, use "x64" instead of "x86" for the below commands/folders.
 
 After completing setup steps mentioned, including for `C:\php-sdk\phpdev\vc14`
 
-extract download of php-7.2.33-src (or any version of php 7) to C:\php-sdk\phpdev\vc15\x86\php-7.2.33-src
+extract download of php-7.4.11-src (or any version of php 7) to C:\php-sdk\phpdev\vc15\x86\php-7.4.11-src
 
 #### Installing runkit7 on windows
 
@@ -266,7 +266,7 @@ Then, execute the following (Add `--enable-runkit7` to the configure flags you w
 ```Batchfile
 cd C:\php-sdk
 C:\php-sdk\bin\phpsdk_setvars.bat
-cd phpdev\vc15\x86\php-7.2.33\src
+cd phpdev\vc15\x86\php-7.4.11\src
 buildconf
 configure --enable-runkit7
 nmake
