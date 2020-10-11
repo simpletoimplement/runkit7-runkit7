@@ -25,12 +25,8 @@ if [[ "x${TRAVIS:-0}" != "x" ]]; then
 fi
 # Otherwise, put a minimal installation inside of the cache.
 PHP_TAR_FILE="$PHP_FOLDER.tar.bz2"
-if [[ "$PHP_NTS_NORMAL_VERSION" == "7.4.0" || "$PHP_NTS_NORMAL_VERSION" == "8.0.0" ]] ; then
-    if [[ "$PHP_NTS_NORMAL_VERSION" == "7.4.0" ]] ; then
-        GIT_BRANCH=PHP-7.4
-    else
-        GIT_BRANCH=master
-    fi
+if [[ "$PHP_NTS_NORMAL_VERSION" == "8.0.0" ]] ; then
+    GIT_BRANCH=PHP-8.0
     curl --location --verbose https://github.com/php/php-src/archive/$GIT_BRANCH.zip -o php-src-$GIT_BRANCH.zip
     unzip -q php-src-$GIT_BRANCH.zip
     PHP_FOLDER=php-src-$GIT_BRANCH
