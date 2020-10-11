@@ -107,7 +107,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 			}
 			return FAILURE;
 		} else if (error) {
-			/* Capitalize the first latter of the error message */
+			/* Capitalize the first letter of the error message */
 			if (error[0] >= 'a' && error[0] <= 'z') {
 				error[0] += ('A' - 'a');
 			}
@@ -118,6 +118,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 	}
 
 	func = fbc_inner;
+	// fprintf(stderr, "func=%p func->type=%d\n", func, func->type);
 
 #if PHP_VERSION_ID < 70400
     fci.object = (func->common.fn_flags & ZEND_ACC_STATIC) ?
@@ -161,6 +162,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 				ZSTR_VAL(func->common.function_name));
 		}
 	}
+	// fprintf(stderr, "func=%p func->type=%d\n", func, func->type);
 
 	for (i = 0; i < fci.param_count; i++) {
 		zval *param;
@@ -194,12 +196,31 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 		param = ZEND_CALL_ARG(call, i + 1);
 		ZVAL_COPY(param, arg);
 	}
+	//fprintf(stderr, "func=%p func->type=%d\n", func, func->type);
 
 	if (UNEXPECTED(func->op_array.fn_flags & ZEND_ACC_CLOSURE)) {
+#if PHP_VERSION_ID >= 80000
+
+#define ZEND_CLOSURE_OBJECT(op_array) \
+	((zend_object*)((char*)(op_array) - sizeof(zend_object)))
+		/*
+		uint32_t call_info;
+
+		// This GC_ADDREF ends up modifying func->op_array.prototype for some reason
+		// GC_ADDREF((zend_object *)func->op_array.prototype);
+		call_info = ZEND_CALL_CLOSURE;
+		if (func->common.fn_flags & ZEND_ACC_FAKE_CLOSURE) {
+			call_info |= ZEND_CALL_FAKE_CLOSURE;
+		}
+		ZEND_ADD_CALL_FLAG(call, call_info);
+		*/
+#else
 		ZEND_ASSERT(GC_TYPE((zend_object *)func->op_array.prototype) == IS_OBJECT);
 		GC_ADDREF((zend_object *)func->op_array.prototype);
 		ZEND_ADD_CALL_FLAG(call, ZEND_CALL_CLOSURE);
+#endif
 	}
+	// fprintf(stderr, "after closure handling func=%p func->type=%d\n", func, func->type);
 
 	if (func->type == ZEND_USER_FUNCTION) {
 		int call_via_handler = (func->common.fn_flags & ZEND_ACC_CALL_VIA_TRAMPOLINE) != 0;
@@ -265,6 +286,7 @@ int runkit_forward_call_user_function(zend_function *fbc, zend_function *fbc_inn
 			ZVAL_UNDEF(fci.retval);
 		}
 #else
+		// fprintf(stderr, "func->type=%d\n", (int)func->type);
 		// php 7.4 got rid of ZEND_OVERLOADED_FUNCTION
 		ZEND_ASSERT(func->type == ZEND_INTERNAL_FUNCTION);
 #endif

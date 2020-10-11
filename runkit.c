@@ -16,6 +16,7 @@
 */
 
 #include "runkit.h"
+#include "Zend/zend_extensions.h"
 #include "SAPI.h"
 
 /* PHP 8.0+ allows extensions to see the representation of default values. Older versions don't. */
@@ -209,6 +210,16 @@ static void php_runkit7_globals_ctor(void *pDest)
 	runkit_global->removed_method_str = "__method_removed_by_runkit__";
 	runkit_global->removed_function_str = "__function_removed_by_runkit__";
 	runkit_global->removed_parameter_str = "__parameter_removed_by_runkit__";
+#if defined(PHP_RUNKIT_MANIPULATION)
+#if PHP_VERSION_ID >= 80000
+	runkit_global->original_func_resource_handle = zend_get_resource_handle("runkit7");
+#else
+	{
+		zend_extension placeholder = {0};
+		runkit_global->original_func_resource_handle = zend_get_resource_handle(&placeholder);
+	}
+#endif
+#endif
 
 	_php_runkit_init_stub_function("__function_removed_by_runkit__", ZEND_FN(_php_runkit_removed_function), &runkit_global->removed_function);
 	_php_runkit_init_stub_function("__method_removed_by_runkit__", ZEND_FN(_php_runkit_removed_method), &runkit_global->removed_method);

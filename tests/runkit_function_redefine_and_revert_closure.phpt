@@ -12,7 +12,9 @@ runkit.internal_override=On
 for ($i = 0; $i < 3; $i++) {
     echo sprintf("%s\n",'bar');
     runkit7_function_copy('sprintf','sprintf_old');
-    runkit7_function_redefine('sprintf','$a,$b', 'return "new function\n" . sprintf_old($a,$b);');
+    runkit7_function_redefine('sprintf', function (string $a, string $b): string {
+        return "new function\n" . sprintf_old($a,$b);
+    });
     echo sprintf("%s\n",'bar');
     echo "Done call\n";
     runkit7_function_remove('sprintf');
@@ -53,3 +55,5 @@ calling original sprintf
 Done call to copy
 before removing sprintf_old:foo
 foo
+--XFAIL--
+Expected to fail because this bug was just discovered with runkit.internal_override and functions from closures.

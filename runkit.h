@@ -62,7 +62,7 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #define debug_printf(...) do { } while(0)
 #endif
 
-#define PHP_RUNKIT7_VERSION					"4.0.0a2"
+#define PHP_RUNKIT7_VERSION					"4.0.0dev"
 
 #define PHP_RUNKIT_OVERRIDE_OBJECTS           0x8000
 
@@ -143,6 +143,7 @@ ZEND_BEGIN_MODULE_GLOBALS(runkit7)
 	const char *name_str, *removed_method_str, *removed_function_str, *removed_parameter_str;
 	zend_function *removed_function, *removed_method;
 	zend_bool module_moved_to_front;
+	int original_func_resource_handle;
 #endif
 ZEND_END_MODULE_GLOBALS(runkit7)
 #endif

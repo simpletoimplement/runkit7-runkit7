@@ -29,9 +29,16 @@
        ((op_array)->run_time_cache)
 #endif
 
+/* {{{ php_runkit7_obtain_internal_function_rid() */
+static int php_runkit7_obtain_internal_function_rid() {
+	// Obtain a reserved slot index that isn't used by any other internal extensions such as performance monitors.
+	int rid = RUNKIT_G(original_func_resource_handle);
+	ZEND_ASSERT(rid >= 0);
+	return rid;
+} /* }}} */
 
 // Get lvalue of the aliased user function for a fake internal function.
-#define RUNKIT_ALIASED_USER_FUNCTION(fe) ((fe)->internal_function.reserved[0])
+#define RUNKIT_ALIASED_USER_FUNCTION(fe) ((fe)->internal_function.reserved[php_runkit7_obtain_internal_function_rid()])
 #define RUNKIT_IS_ALIAS_FOR_USER_FUNCTION(fe) ((fe)->type == ZEND_INTERNAL_FUNCTION && (fe)->internal_function.handler == php_runkit_function_alias_handler)
 
 extern ZEND_API void zend_vm_set_opcode_handler(zend_op *op);
@@ -234,6 +241,7 @@ static ZEND_NAMED_FUNCTION(php_runkit_function_alias_handler)
 	ZEND_ASSERT(fbc->type == ZEND_INTERNAL_FUNCTION);
 #endif
 	fbc_inner = (zend_function *)RUNKIT_ALIASED_USER_FUNCTION(fbc);
+	// fprintf(stderr, "Fetched handler %llx   from fbc=%llx aliased=%p reserved=%p\n", (long long)(uintptr_t)fbc_inner, (long long)(uintptr_t)fbc, RUNKIT_ALIASED_USER_FUNCTION(fbc), fbc->internal_function.reserved);
 #if ZEND_DEBUG
 	ZEND_ASSERT(fbc_inner->type == ZEND_USER_FUNCTION);
 #endif
@@ -271,6 +279,7 @@ static void php_runkit_function_create_alias_internal_function(zend_function *fe
 	debug_printf("Copying handler to %llx\n", (long long)(uintptr_t)php_runkit_function_alias_handler);
 	fe->internal_function.handler = php_runkit_function_alias_handler;
 	RUNKIT_ALIASED_USER_FUNCTION(fe) = fe_inner;
+	// fprintf(stderr, "Copying handler to %llx for fbc=%llx aliased=%p reserved=%p\n", (long long)(uintptr_t)php_runkit_function_alias_handler, (long long)(uintptr_t)fe, RUNKIT_ALIASED_USER_FUNCTION(fe), fe->internal_function.reserved);
 }
 /* }}} */
 
@@ -593,6 +602,37 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 			}
 			op_array->arg_info = &tmpArginfo[offset];
 		}
+	} else {
+#if PHP_VERSION_ID >= 80000
+		if ((op_array->fn_flags & (ZEND_ACC_HAS_RETURN_TYPE|ZEND_ACC_HAS_TYPE_HINTS)) &&
+				op_array->arg_info) {
+			zend_arg_info *tmpArginfo;
+			zend_arg_info *originalArginfo;
+			// num_args calculation taken from zend_opcode.c destroy_op_array
+			// TODO: Add tests that functions with return types are properly created and destroyed.
+			// TODO: Specify what runkit should do about return types, what is an error, what is valid.
+			uint32_t num_args = op_array->num_args + 1;
+			int32_t offset = 1;
+
+			if (op_array->fn_flags & ZEND_ACC_VARIADIC) {
+				num_args++;
+			}
+
+			tmpArginfo = pemalloc(sizeof(zend_arg_info) * num_args, 1);
+			originalArginfo = &((op_array->arg_info)[-offset]);
+
+			for (i = 0; i < num_args; i++) {
+				tmpArginfo[i] = originalArginfo[i];
+				/*
+				if (tmpArginfo[i].name) {
+					zend_string_addref((tmpArginfo[i].name));
+				}
+				*/
+				php_runkit_arginfo_type_addref(&tmpArginfo[i]);
+			}
+			op_array->arg_info = &tmpArginfo[offset];
+		}
+#endif
 	}
 
 	// I'm not sure why this was originally added in upstream -- Removing this isn't causing test failures in php 7.
@@ -1061,6 +1101,7 @@ int php_runkit_generate_lambda_function(const zend_string *arguments, const zend
 
 	return SUCCESS;
 }
+/* }}} */
 
 /* {{{ php_runkit_generate_lambda_method
 	Heavily borrowed from ZEND_FUNCTION(create_function).
@@ -1578,16 +1619,14 @@ PHP_FUNCTION(runkit7_function_copy)
 
 	sfunc_lower = zend_string_tolower(sfunc);
 
+	// fprintf(stderr, "runkit_copy_function function=%s type=%d\n", ZSTR_VAL(sfunc), (int)sfe->type);
 	if (sfe->type == ZEND_USER_FUNCTION) {
 		// Copy a user function to a user function
 		fe = php_runkit_function_clone(sfe, dfunc, ZEND_USER_FUNCTION);
 	} else {
-		record_misplaced_internal_function(dfunc_lower);
 		// FIXME copying an internal function to a user function.
-
-		// TODO: Should I copy the new name for backtraces?
-		fe = pemalloc(sizeof(zend_internal_function), 1);
-		memcpy(fe, sfe, sizeof(zend_internal_function));
+		record_misplaced_internal_function(dfunc_lower);
+		fe = php_runkit_function_clone(sfe, dfunc, ZEND_INTERNAL_FUNCTION);
 		// FIXME reference management of function names (need to decrement as well)
 		// fe->common.function_name = dfunc;
 		zend_string_addref(fe->common.function_name);

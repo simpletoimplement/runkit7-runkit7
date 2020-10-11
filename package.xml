@@ -17,8 +17,8 @@ Define customized superglobal variables for general purpose use.
  </lead>
  <date>2020-10-08</date>
  <version>
-  <release>4.0.0a2</release>
-  <api>4.0.1</api>
+  <release>4.0.0dev</release>
+  <api>4.0.2dev</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -26,8 +26,8 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Fix build failure in PECL releases due to missing files in the 4.0.0a1 archive.
-- Properly reference count references to file names in php 8.0 when copying functions
+- Fix edge case copying internal functions in runkit7_function_redefine
+- Avoid conflicts with other extensions that use reserved memory slots for internal function definitions.
  </notes>
  <contents>
   <dir name="/">
@@ -106,6 +106,7 @@ Define customized superglobal variables for general purpose use.
     <file name="runkit_function_redefine_and_doc_comment.phpt" role="test" />
     <file name="runkit_function_redefine_and_reflection.phpt" role="test" />
     <file name="runkit_function_redefine_and_revert.phpt" role="test" />
+    <file name="runkit_function_redefine_and_revert_closure.phpt" role="test" />
     <file name="runkit_function_redefine_closure_and_doc_comment.phpt" role="test" />
     <file name="runkit_function_redefine_closure_and_doc_comment_from_closure.phpt" role="test" />
     <file name="runkit_function_redefine_closure_static.phpt" role="test" />
@@ -228,6 +229,22 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit7</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2020-10-08</date>
+   <version>
+    <release>4.0.0a2</release>
+    <api>4.0.1</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Fix build failure in PECL releases due to missing files in the 4.0.0a1 archive.
+- Properly reference count references to file names in php 8.0 when copying functions
+   </notes>
+  </release>
   <release>
    <date>2020-10-08</date>
    <version>
