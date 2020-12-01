@@ -238,9 +238,10 @@ sudo make install
 
 #### Setting up php build environment
 
-Read https://wiki.php.net/internals/windows/stepbystepbuild first. This is just a special case of these instructions.
+Read https://wiki.php.net/internals/windows/stepbystepbuild_sdk_2 and https://wiki.php.net/internals/windows/stepbystepbuild_sdk_2#building_pecl_extensions first. This is just a special case of these instructions.
 
-For PHP7, you need to install "Visual Studio 2017 Community Edition" (or other 2017 edition).
+For PHP7.2+, you need to install "Visual Studio 2017 Community Edition" (or other 2017 edition).
+For PHP8.0+, you need to install "Visual Studio 2019 Community Edition" (or other 2019 edition).
 Make sure that C++ is installed with Visual Studio.
 The command prompt to use is "VS2017 x86 Native Tools Command Prompt" on 32-bit, "VS2017 x64 Native Tools Command Prompt" on 64-bit.
 
