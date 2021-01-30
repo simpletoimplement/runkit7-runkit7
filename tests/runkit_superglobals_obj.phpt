@@ -64,44 +64,44 @@ object(FooClass)#1 (1) {
 }
 array(10) refcount(1){
   [0]=>
-  string(7) "GLOBALS" refcount(%d)
+  string(7) "GLOBALS" %s
   [1]=>
-  string(4) "_GET" refcount(%d)
+  string(4) "_GET" %s
   [2]=>
-  string(5) "_POST" refcount(%d)
+  string(5) "_POST" %s
   [3]=>
-  string(7) "_COOKIE" refcount(%d)
+  string(7) "_COOKIE" %s
   [4]=>
-  string(7) "_SERVER" refcount(%d)
+  string(7) "_SERVER" %s
   [5]=>
-  string(4) "_ENV" refcount(%d)
+  string(4) "_ENV" %s
   [6]=>
-  string(8) "_REQUEST" refcount(%d)
+  string(8) "_REQUEST" %s
   [7]=>
-  string(6) "_FILES" refcount(%d)
+  string(6) "_FILES" %s
   [8]=>
-  string(8) "_SESSION" refcount(%d)
+  string(8) "_SESSION" %s
   [9]=>
-  string(3) "foo" refcount(%d)
+  string(3) "foo" %s
 }
 array(9) refcount(%d){
   [0]=>
-  string(4) "_GET" refcount(%d)
+  string(4) "_GET" %s
   [1]=>
-  string(5) "_POST" refcount(%d)
+  string(5) "_POST" %s
   [2]=>
-  string(7) "_COOKIE" refcount(%d)
+  string(7) "_COOKIE" %s
   [3]=>
-  string(6) "_FILES" refcount(%d)
+  string(6) "_FILES" %s
   [4]=>
-  string(4) "argv" refcount(%d)
+  string(4) "argv" %s
   [5]=>
-  string(4) "argc" refcount(%d)
+  string(4) "argc" %s
   [6]=>
-  string(7) "_SERVER" refcount(%d)
+  string(7) "_SERVER" %s
   [7]=>
-  string(7) "GLOBALS" refcount(%d)
+  string(7) "GLOBALS" %s
   [8]=>
-  string(3) "foo" refcount(%d)
+  string(3) "foo" %s
 }
 result === result2: bool(true)
