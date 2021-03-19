@@ -65,7 +65,7 @@ Examples
 The following mocking libraries work with runkit7.
 
 - [![Build Status](https://travis-ci.org/runkit7/Timecop-PHP.svg?branch=master)](https://travis-ci.org/runkit7/Timecop-PHP) [timecop-PHP (Fork)](https://github.com/runkit7/Timecop-PHP), a time testing library inspired by the ruby timecop gem (requires `runkit.internal_override=1`, suggested only for unit tests)
-- [![Build Status](https://travis-ci.org/tototoshi/staticmock.svg?branch=master)](https://travis-ci.org/tototoshi/staticmock) [staticmock](https://github.com/tototoshi/staticmock), a mockery-like DSL to replace static methods in tests.
+- [![CI](https://github.com/tototoshi/staticmock/actions/workflows/ci.yml/badge.svg)](https://github.com/tototoshi/staticmock/actions/workflows/ci.yml) [staticmock](https://github.com/tototoshi/staticmock), a mockery-like DSL to replace static methods in tests.
 - [![Build Status](https://travis-ci.org/runkit7/SimpleStaticMock.svg?branch=master)](https://travis-ci.org/runkit7/SimpleStaticMock) [SimpleStaticMock (Fork)](https://github.com/runkit7/SimpleStaticMock), a very simple class to mock static methods in unit tests. Unrelated to tototoshi/staticmock.
 - [![Build Status](https://travis-ci.org/runkit7/TraceOn.svg?branch=master)](https://travis-ci.org/runkit7/TraceOn) [TraceOn (Fork)](https://github.com/runkit7/TraceOn), a simple PHP utility to trace(investigate) invocations of instance/static/global methods.
 
