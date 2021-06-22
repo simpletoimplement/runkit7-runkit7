@@ -1,5 +1,8 @@
 --TEST--
 removing magic serialize method
+--INI--
+; Suppress Serializable deprecation
+error_reporting=E_ALL&~E_DEPRECATED
 --SKIPIF--
 <?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>

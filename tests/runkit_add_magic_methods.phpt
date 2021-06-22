@@ -1,5 +1,8 @@
 --TEST--
 adding and removing magic methods
+--INI--
+; Serializable interface is deprecated
+error_reporting=E_ALL & ~E_DEPRECATED
 --SKIPIF--
 <?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip";
 ?>
