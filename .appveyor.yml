@@ -33,7 +33,7 @@ cache:
 
 matrix:
         allow_failures:
-                - PHP_VER: 8.0.0rc1
+                - PHP_VER: 8.0.7
 
 environment:
         BIN_SDK_VER: 2.2.0
@@ -41,12 +41,12 @@ environment:
                 - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
                   ARCH: x86
                   VC: vs16
-                  PHP_VER: 8.0.0rc1
+                  PHP_VER: 8.0.7
                   TS: 1
                 - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
                   ARCH: x64
                   VC: vs16
-                  PHP_VER: 8.0.0rc1
+                  PHP_VER: 8.0.7
                   TS: 0
                 - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
                   ARCH: x64
@@ -61,22 +61,22 @@ environment:
                 - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
                   ARCH: x86
                   VC: vc15
-                  PHP_VER: 7.3.23
+                  PHP_VER: 7.3.28
                   TS: 0
                 - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
                   ARCH: x64
                   VC: vc15
-                  PHP_VER: 7.3.23
+                  PHP_VER: 7.3.28
                   TS: 1
                 - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
                   ARCH: x86
                   VC: vc15
-                  PHP_VER: 7.4.11
+                  PHP_VER: 7.4.20
                   TS: 1
                 - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
                   ARCH: x64
                   VC: vc15
-                  PHP_VER: 7.4.11
+                  PHP_VER: 7.4.20
                   TS: 0
 
 build_script:
