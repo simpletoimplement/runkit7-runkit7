@@ -19,11 +19,8 @@
 
 #ifdef PHP_RUNKIT_MANIPULATION
 
-// TODO: clean up after https://github.com/php/php-src/pull/3282
-#if PHP_VERSION_ID >= 70300
-#define RUNKIT_IS_ARRAY_IMMUTABLE(z) 1
-#else
-#define RUNKIT_IS_ARRAY_IMMUTABLE(z) Z_IMMUTABLE_P(z)
+#if PHP_VERSION_ID < 80100
+#define ZEND_CLASS_CONST_FLAGS(c) Z_ACCESS_FLAGS((c)->value)
 #endif
 
 // validate_constant_array copied from Zend/zend_builtin_functions.c. This accepts IS_ARRAY
@@ -35,7 +32,7 @@ static int validate_constant_array(zval *const z) /* {{{ */
 	ZEND_ASSERT(Z_TYPE_P(z) == IS_ARRAY);
 	ht = Z_ARRVAL_P(z);
 
-	if (RUNKIT_IS_ARRAY_IMMUTABLE(z)) {
+	if (Z_IMMUTABLE_P(z)) {
 		return 1;
 	}
 #ifdef Z_PROTECT_RECURSION_P
@@ -57,7 +54,7 @@ static int validate_constant_array(zval *const z) /* {{{ */
 		ZVAL_DEREF(val);
 		if (Z_REFCOUNTED_P(val)) {
 			if (Z_TYPE_P(val) == IS_ARRAY) {
-				if (!RUNKIT_IS_ARRAY_IMMUTABLE(val)) {
+				if (!Z_IMMUTABLE_P(val)) {
 					if (!validate_constant_array(val)) {
 						ret = 0;
 						break;
@@ -98,7 +95,7 @@ static void copy_constant_array(zval *dst, zval *src) /* {{{ */
 			new_val = zend_hash_index_add_new(Z_ARRVAL_P(dst), idx, val);
 		}
 		if (Z_TYPE_P(val) == IS_ARRAY) {
-			if (!RUNKIT_IS_ARRAY_IMMUTABLE(val)) {
+			if (!Z_IMMUTABLE_P(val)) {
 				copy_constant_array(new_val, val);
 			}
 		} else if (Z_REFCOUNTED_P(val)) {
@@ -129,7 +126,7 @@ static zend_bool runkit_copy_constant_zval(zval *dst, zval *src) /* {{{ */
 		Z_TYPE_INFO_P(dst) &= ~(IS_TYPE_REFCOUNTED << Z_TYPE_FLAGS_SHIFT);
 		return 1;
 	case IS_ARRAY:
-		if (!RUNKIT_IS_ARRAY_IMMUTABLE(src)) {
+		if (!Z_IMMUTABLE_P(src)) {
 			if (!validate_constant_array(src)) {
 				return 0;
 			} else {
@@ -234,7 +231,7 @@ static zend_class_constant *php_runkit_class_constant_ctor(zval *value, zend_cla
 	}
 
 	ZVAL_DUP(&c->value, value);
-	Z_ACCESS_FLAGS(c->value) = access_type;
+	ZEND_CLASS_CONST_FLAGS(c) = access_type;
 	c->doc_comment = NULL;
 	c->ce = ce;
 	return c;
@@ -304,7 +301,7 @@ static int php_runkit_class_constant_remove(zend_string *classname, zend_string 
 		return FAILURE;
 	}
 	if (old_access_type != NULL) {
-		*old_access_type = Z_ACCESS_FLAGS(c->value);
+		*old_access_type = ZEND_CLASS_CONST_FLAGS(c);
 	}
 	if (!php_runkit_remove_from_constants_table(ce, constname)) {
 		php_error_docref(NULL, E_WARNING, "Unable to remove constant %s::%s", ZSTR_VAL(classname), ZSTR_VAL(constname));

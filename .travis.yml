@@ -19,24 +19,24 @@ env:
 
 # Defined at https://github.com/php-build/php-build/tree/master/share/php-build/definitions
 php:
-  - nightly
-  - 7.4
-  - 7.3
-  - 7.2
+  - '8.0'
+  - '7.4'
+  - '7.3'
+  - '7.2'
 
 matrix:
   allow_failures:
     - php: nightly
   exclude:
-    - php: 7.2
+    - php: '7.2'
       env: CC=gcc CXX=g++
-    # Until https://bugs.php.net/bug.php?id=75951 is fixed for PHP 7.3 and nightly, exclude testing on clang since it won't build.
+    # Until https://bugs.php.net/bug.php?id=75951 is fixed for PHP '7.3' and nightly, exclude testing on clang since it won't build.
     # This affects both the newer clang-5.0 and the default Travis version.
-    - php: 7.3
+    - php: '7.3'
       env: CC=clang
-    - php: 7.4
+    - php: '7.4'
       env: CC=gcc CXX=g++ VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'
-    - php: 7.4
+    - php: '7.4'
       env: CC=clang
     - php: nightly
       env: CC=gcc CXX=g++ VALGRIND=1 PHP_NTS_USE=1 PHP_CONFIGURE_ARGS='--disable-all --disable-zts --enable-debug --enable-session'
