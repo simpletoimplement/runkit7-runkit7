@@ -12,13 +12,13 @@ Define customized superglobal variables for general purpose use.
  <lead>
   <name>Tyson Andre</name>
   <user>tandre</user>
-  <email>tysonandre775@hotmail.com</email>
+  <email>tandre@php.net</email>
   <active>yes</active>
  </lead>
- <date>2020-10-08</date>
+ <date>2021-07-17</date>
  <version>
-  <release>4.0.0dev</release>
-  <api>4.0.2dev</api>
+  <release>4.0.0a3</release>
+  <api>4.0.2</api>
  </version>
  <stability>
   <release>alpha</release>
