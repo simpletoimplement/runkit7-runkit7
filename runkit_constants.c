@@ -21,6 +21,7 @@
 
 #if PHP_VERSION_ID < 80100
 #define ZEND_CLASS_CONST_FLAGS(c) Z_ACCESS_FLAGS((c)->value)
+#define ZEND_CLASS_CONST_IS_CASE (0)
 #endif
 
 // validate_constant_array copied from Zend/zend_builtin_functions.c. This accepts IS_ARRAY
@@ -60,6 +61,10 @@ static int validate_constant_array(zval *const z) /* {{{ */
 						break;
 					}
 				}
+#if PHP_VERSION_ID >= 80100
+			} else if (Z_TYPE_P(val) == IS_OBJECT) {
+				/* Allow objects in php 8.1 */
+#endif
 			} else if (Z_TYPE_P(val) != IS_STRING && Z_TYPE_P(val) != IS_RESOURCE) {
 				php_error_docref(NULL, E_WARNING, "Constants may only evaluate to scalar values or arrays");
 				ret = 0;
@@ -118,6 +123,10 @@ static zend_bool runkit_copy_constant_zval(zval *dst, zval *src) /* {{{ */
 	case IS_FALSE:
 	case IS_TRUE:
 	case IS_NULL:
+#if PHP_VERSION_ID >= 80100
+	/* https://wiki.php.net/rfc/new_in_initializers */
+	case IS_OBJECT:
+#endif
 		ZVAL_DUP(dst, src);
 		return 1;
 	case IS_RESOURCE:
@@ -156,6 +165,7 @@ static zend_bool php_runkit_remove_from_constants_table(zend_class_entry *ce, ze
 		ZVAL_NULL(&(c->value));  // Reset the type to NULL so that the entry won't be corrupted when added again.
 		break;
 	case IS_ARRAY:
+	case IS_OBJECT:
 		// TODO: are there any additional steps for arrays?
 		zval_ptr_dtor(&(c->value));
 		ZVAL_NULL(&(c->value));
@@ -231,7 +241,8 @@ static zend_class_constant *php_runkit_class_constant_ctor(zval *value, zend_cla
 	}
 
 	ZVAL_DUP(&c->value, value);
-	ZEND_CLASS_CONST_FLAGS(c) = access_type;
+	ZEND_CLASS_CONST_FLAGS(c) = access_type & ~ZEND_CLASS_CONST_IS_CASE;
+;
 	c->doc_comment = NULL;
 	c->ce = ce;
 	return c;
@@ -300,6 +311,11 @@ static int php_runkit_class_constant_remove(zend_string *classname, zend_string 
 		php_error_docref(NULL, E_WARNING, "Constant %s::%s does not exist", ZSTR_VAL(classname), ZSTR_VAL(constname));
 		return FAILURE;
 	}
+	if (ZEND_CLASS_CONST_FLAGS(c) & ZEND_CLASS_CONST_IS_CASE) {
+		/* The enum case table would also need to be updated for this to work */
+		php_error_docref(NULL, E_WARNING, "Refusing to remove enum case %s::%s", ZSTR_VAL(classname), ZSTR_VAL(constname));
+		return FAILURE;
+	}
 	if (old_access_type != NULL) {
 		*old_access_type = ZEND_CLASS_CONST_FLAGS(c);
 	}
@@ -362,9 +378,12 @@ static zend_bool php_runkit_check_has_constant_type(const zval *value)
 		case IS_FALSE:
 		case IS_RESOURCE:
 		case IS_NULL:
+#if PHP_VERSION_ID >= 80100
+		case IS_OBJECT:
+#endif
 			return 1;
 		case IS_ARRAY:
-		return validate_constant_array((zval *)value);
+			return validate_constant_array((zval *)value);
 		default:
 			php_error_docref(NULL, E_WARNING, "Constants may only evaluate to scalar values or arrays");
 			return 0;
@@ -495,12 +514,17 @@ PHP_FUNCTION(runkit7_constant_redefine)
 		flags = ZEND_ACC_PUBLIC;
 	}
 	if (runkit_check_if_const_flags_are_invalid(classname != NULL, flags)) {
-		RETURN_FALSE;
+		result = false;
+		goto cleanup;
 	}
 
-	// TODO: if the constant doesn't exist, constant_redefine should fail?
-	php_runkit_constant_remove(classname, constname, flags_is_null ? &flags : NULL);
+	// If the constant doesn't exist, constant_redefine should fail
+	if (php_runkit_constant_remove(classname, constname, flags_is_null ? &flags : NULL)) {
+		result = false;
+		goto cleanup;
+	}
 	result = php_runkit_constant_add(classname, constname, value, flags) == SUCCESS;
+cleanup:
 	PHP_RUNKIT_SPLIT_PN_CLEANUP(classname, constname);
 	RETURN_BOOL(result);
 }
