@@ -20,6 +20,9 @@
 #include "php_runkit_zend_execute_API.h"
 
 #include "Zend/zend.h"
+#if PHP_VERSION_ID >= 80000
+#include "Zend/zend_attributes.h"
+#endif
 
 #ifdef ZEND_MAP_PTR_GET
 #define RUNKIT_RUN_TIME_CACHE(op_array) \
@@ -561,7 +564,6 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 		op_array->refcount = (uint32_t *)emalloc(sizeof(uint32_t));
 		*op_array->refcount = 1;
 
-		// TODO: Check if this is an interned string...
 		if (op_array->doc_comment) {
 			zend_string_addref(op_array->doc_comment);
 		}
@@ -573,10 +575,13 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 			op_array->live_range = (zend_live_range *)estrndup((char *)op_array->live_range, sizeof(zend_live_range) * op_array->last_live_range);
 		}
 
+		/* TODO: Is the copying of arg info correct when copying internal arginfo to/from user-defined arg info? The offset for internal functions is always -1. */
 		if (op_array->arg_info) {
 			zend_arg_info *tmpArginfo;
 			zend_arg_info *originalArginfo;
+			// NOTE: This is the offset calculation for a user-defined function.
 			// num_args calculation taken from zend_opcode.c destroy_op_array
+			//
 			// TODO: Add tests that functions with return types are properly created and destroyed.
 			// TODO: Specify what runkit should do about return types, what is an error, what is valid.
 			uint32_t num_args = op_array->num_args;
@@ -603,16 +608,17 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 			op_array->arg_info = &tmpArginfo[offset];
 		}
 	} else {
+		/* This is an internal class */
 #if PHP_VERSION_ID >= 80000
 		if ((op_array->fn_flags & (ZEND_ACC_HAS_RETURN_TYPE|ZEND_ACC_HAS_TYPE_HINTS)) &&
 				op_array->arg_info) {
 			zend_arg_info *tmpArginfo;
 			zend_arg_info *originalArginfo;
-			// num_args calculation taken from zend_opcode.c destroy_op_array
+			// num_args calculation taken from zend_opcode.c free_internal_arg_info
 			// TODO: Add tests that functions with return types are properly created and destroyed.
 			// TODO: Specify what runkit should do about return types, what is an error, what is valid.
 			uint32_t num_args = op_array->num_args + 1;
-			int32_t offset = 1;
+			const int32_t offset = 1;
 
 			if (op_array->fn_flags & ZEND_ACC_VARIADIC) {
 				num_args++;
@@ -631,6 +637,8 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 				php_runkit_arginfo_type_addref(&tmpArginfo[i]);
 			}
 			op_array->arg_info = &tmpArginfo[offset];
+		} else {
+			op_array->arg_info = NULL;
 		}
 #endif
 	}
@@ -987,18 +995,30 @@ static void php_runkit_delete_reflection_function_ptr(reflection_object *intern)
 	if (intern->ptr) {
 		switch (intern->ref_type) {
 			case REF_TYPE_PARAMETER:
-			reference = (parameter_reference *)intern->ptr;
+				reference = (parameter_reference *)intern->ptr;
 				php_runkit_free_reflection_function(reference->fptr);
 				efree(intern->ptr);
 				break;
 			case REF_TYPE_FUNCTION:
 				php_runkit_free_reflection_function(intern->ptr);
 				break;
-			case REF_TYPE_PROPERTY:
+			case REF_TYPE_PROPERTY: {
+#if PHP_VERSION_ID >= 70300
+				property_reference *prop_reference = (property_reference*)intern->ptr;
+				zend_string_release_ex(prop_reference->unmangled_name, 0);
+#if PHP_VERSION_ID >= 70400 && PHP_VERSION_ID < 80000
+				/* PHP 7.4 typed properties */
+				if (ZEND_TYPE_IS_NAME(prop_reference->prop.type)) {
+					zend_string_release(ZEND_TYPE_NAME(prop_reference->prop.type));
+				}
+#endif
+#endif
 				efree(intern->ptr);
 				break;
+			}
+				/* TODO: Look into whether ReflectionAttribute and ReflectionType should be handled */
 			default:
-			php_error_docref(NULL, E_ERROR, "Attempted to free ReflectionObject of unexpected REF_TYPE %d\n", (int)(intern->ref_type));
+				php_error_docref(NULL, E_ERROR, "Attempted to free ReflectionObject of unexpected REF_TYPE %d\n", (int)(intern->ref_type));
 				return;
 		}
 	}
@@ -1015,6 +1035,7 @@ void php_runkit_remove_function_from_reflection_objects(zend_function *fe)
 	extern PHPAPI zend_class_entry *reflection_method_ptr;
 	extern PHPAPI zend_class_entry *reflection_parameter_ptr;
 
+	/* TODO: Look into whether ReflectionAttribute and ReflectionType should be handled */
 	PHP_RUNKIT_ITERATE_THROUGH_OBJECTS_STORE_BEGIN(i)
 		if (object->ce == reflection_function_ptr) {
 			reflection_object *refl_obj = reflection_object_from_obj(object);
@@ -1432,6 +1453,17 @@ PHP_FUNCTION(runkit7_function_remove)
 
 	php_runkit_remove_function_from_reflection_objects(fe);
 	php_runkit_destroy_misplaced_internal_function(fe, fname_lower);
+#if PHP_VERSION_ID >= 80100
+	/* This array points to the implementations of closures implemented within this function/method/closure at runtime. */
+	if (fe->op_array.num_dynamic_func_defs) {
+		const size_t size = sizeof(zend_op_array *) * fe->op_array.num_dynamic_func_defs;
+		zend_op_array **new_dynamic_func_defs = emalloc(size);
+		memcpy(new_dynamic_func_defs, fe->op_array.dynamic_func_defs, size);
+		fe->op_array.dynamic_func_defs = new_dynamic_func_defs;
+	}
+#endif
+	/* XXX figure out how to properly reference count this. The memory leak is better than a segfault. */
+	fe->op_array.arg_info = NULL;
 
 	result = (zend_hash_del(EG(function_table), fname_lower) == SUCCESS);
 	zend_string_release(fname_lower);
