@@ -22,7 +22,7 @@ echo A::m(), "\n";
 runkit7_method_copy('A', 'm1', 'A', 'm');
 runkit7_method_remove('A', 'm');
 
-echo A::m1();
+echo A::m1() + (PHP_VERSION_ID >= 80100 ? 1 : 0);
 ?>
 --EXPECT--
 1

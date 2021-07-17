@@ -1,8 +1,11 @@
 --TEST--
-runkit.superglobal setting creates superglobals that can be referenced multiple ways. (new function name)
+runkit.superglobal setting creates superglobals that can be referenced multiple ways. (new function name) (<8.1)
 --SKIPIF--
-<?php if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip"; ?>
-<?php if(!extension_loaded("session")) print "skip - This test assumes \$_SESSION will exist, but the session extension isn't enabled/installed"; ?>
+<?php
+if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip\n";
+if(!extension_loaded("session")) print "skip - This test assumes \$_SESSION will exist, but the session extension isn't enabled/installed\n";
+if(PHP_VERSION_ID >= 80100) print "skip test php prior to 8.1 due to change to GLOBALS\n";
+?>
 --INI--
 display_errors=on
 runkit.superglobal=foo
