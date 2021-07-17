@@ -538,8 +538,15 @@ void php_runkit_update_reflection_object_name(zend_object *object, int handle, c
 
 	/* Struct for properties */
 	typedef struct _property_reference {
+#if PHP_VERSION_ID < 70400
 		zend_class_entry *ce;
+#endif
+#if PHP_VERSION_ID >= 80000
+		zend_property_info *prop;
+#else
 		zend_property_info prop;
+#endif
+		zend_string *unmangled_name;
 	} property_reference;
 
 	/* Struct for parameters */
@@ -550,14 +557,41 @@ void php_runkit_update_reflection_object_name(zend_object *object, int handle, c
 		zend_function *fptr;
 	} parameter_reference;
 
+#if PHP_VERSION_ID >= 80000
+	struct _zend_attribute;
+	typedef struct {
+		HashTable *attributes;
+		struct _zend_attribute *data;
+		zend_class_entry *scope;
+		zend_string *filename;
+		uint32_t target;
+	} attribute_reference;
+#endif
+
+	typedef struct _type_reference {
+		zend_type type;
+		/* Whether to use backwards compatible null representation */
+		bool legacy_behavior;
+	} type_reference;
+
 	typedef enum {
 		REF_TYPE_OTHER,      /* Must be 0 */
 		REF_TYPE_FUNCTION,
 		REF_TYPE_GENERATOR,
+#if PHP_VERSION_ID >= 80100
+		REF_TYPE_FIBER,
+#endif
 		REF_TYPE_PARAMETER,
 		REF_TYPE_TYPE,
 		REF_TYPE_PROPERTY,
-		REF_TYPE_DYNAMIC_PROPERTY
+#if PHP_VERSION_ID < 70300
+		REF_TYPE_DYNAMIC_PROPERTY,
+#endif
+		REF_TYPE_CLASS_CONSTANT,
+#if PHP_VERSION_ID >= 80000
+		REF_TYPE_ATTRIBUTE,
+#endif
+		REF_TYPE_COUNT,
 	} reflection_type_t;
 
 	/* Struct for reflection objects */

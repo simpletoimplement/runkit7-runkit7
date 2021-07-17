@@ -1,9 +1,9 @@
 --TEST--
-Static Variables in runkit modified functions (php<8.1)
+Static Variables in runkit modified functions (php 8.1+)
 --SKIPIF--
 <?php
 if(!extension_loaded("runkit7") || !RUNKIT7_FEATURE_MANIPULATION) print "skip\n";
-if(PHP_VERSION_ID >= 80100) print "skip static variables in methods changed in php 8.1\n";
+if(PHP_VERSION_ID < 80100) print "skip static variables in methods changed in php 8.1\n";
 ?>
 --FILE--
 <?php
@@ -37,9 +37,9 @@ $c->copy();
 
 --EXPECT--
 int(1)
-int(2)
-int(3)
-====
 int(1)
 int(2)
-int(3)
+====
+int(1)
+int(1)
+int(2)
