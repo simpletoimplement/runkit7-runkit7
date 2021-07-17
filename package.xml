@@ -29,6 +29,9 @@ Define customized superglobal variables for general purpose use.
 - Fix edge case copying internal functions in runkit7_function_redefine
 - Avoid conflicts with other extensions that use reserved memory slots for internal function definitions.
 - Fix compilation and test errors in php 8.1
+- Allow using objects in global constants and class constants in php 8.1+ (https://wiki.php.net/rfc/new_in_initializers)
+- Make runkit_constant_redefine fail if the constant does not already exist
+- Make runkit_constant_remove/redefine fail on enum cases (support for modifying enum cases is not implemented)
  </notes>
  <contents>
   <dir name="/">
@@ -62,6 +65,7 @@ Define customized superglobal variables for general purpose use.
     <file name="runkit_constant_add_array.phpt" role="test" />
     <file name="runkit_constant_add_array_alias.phpt" role="test" />
     <file name="runkit_constant_add_array_to_class.phpt" role="test" />
+    <file name="runkit_constant_add_object_php81.phpt" role="test" />
     <file name="runkit_constant_add_protected.phpt" role="test" />
     <file name="runkit_constant_add_protected_alias.phpt" role="test" />
     <file name="runkit_constant_add_to_class.phpt" role="test" />
