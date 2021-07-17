@@ -28,7 +28,7 @@ Define customized superglobal variables for general purpose use.
  <notes>
 - Fix edge case copying internal functions in runkit7_function_redefine
 - Avoid conflicts with other extensions that use reserved memory slots for internal function definitions.
-- Fix compilation error in php 8.1
+- Fix compilation and test errors in php 8.1
  </notes>
  <contents>
   <dir name="/">
