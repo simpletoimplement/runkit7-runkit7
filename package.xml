@@ -17,21 +17,16 @@ Define customized superglobal variables for general purpose use.
  </lead>
  <date>2021-07-17</date>
  <version>
-  <release>4.0.0a3</release>
+  <release>4.0.0dev</release>
   <api>4.0.2</api>
  </version>
  <stability>
-  <release>alpha</release>
+  <release>devel</release>
   <api>alpha</api>
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Fix edge case copying internal functions in runkit7_function_redefine
-- Avoid conflicts with other extensions that use reserved memory slots for internal function definitions.
-- Fix compilation and test errors in php 8.1
-- Allow using objects in global constants and class constants in php 8.1+ (https://wiki.php.net/rfc/new_in_initializers)
-- Make runkit_constant_redefine fail if the constant does not already exist
-- Make runkit_constant_remove/redefine fail on enum cases (support for modifying enum cases is not implemented)
+- TBD
  </notes>
  <contents>
   <dir name="/">
@@ -253,6 +248,26 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit7</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2021-07-17</date>
+   <version>
+    <release>4.0.0a3</release>
+    <api>4.0.2</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Fix edge case copying internal functions in runkit7_function_redefine
+- Avoid conflicts with other extensions that use reserved memory slots for internal function definitions.
+- Fix compilation and test errors in php 8.1
+- Allow using objects in global constants and class constants in php 8.1+ (https://wiki.php.net/rfc/new_in_initializers)
+- Make runkit_constant_redefine fail if the constant does not already exist
+- Make runkit_constant_remove/redefine fail on enum cases (support for modifying enum cases is not implemented)
+   </notes>
+  </release>
   <release>
    <date>2020-10-08</date>
    <version>
