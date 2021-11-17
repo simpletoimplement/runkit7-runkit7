@@ -429,7 +429,13 @@ static void php_runkit_function_copy_ctor_same_type(zend_function *fe, zend_stri
 			// 	? Z_ISREF_P(ret) : !Z_ISREF_P(ret));
 			op_array->static_variables = zend_array_dup(op_array->static_variables);
 #if PHP_VERSION_ID >= 70400
+#if PHP_VERSION_ID >= 80200
+			/* zend_shutdown_executor_values frees static_variables, destroy_op_array frees static_variables_ptr */
+			HashTable *ht_dup = zend_array_dup(op_array->static_variables);
+			ZEND_MAP_PTR_INIT(op_array->static_variables_ptr, ht_dup);
+#else
 			ZEND_MAP_PTR_INIT(op_array->static_variables_ptr, &(op_array->static_variables));
+#endif
 #endif
 		}
 

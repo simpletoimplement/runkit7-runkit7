@@ -26,7 +26,7 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- TBD
+- Fix build errors and crash freeing static variables of created functions/methods in php 8.2.0-alpha1-dev
  </notes>
  <contents>
   <dir name="/">

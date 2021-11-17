@@ -20,6 +20,10 @@
 #define RUNKIT_CLEAR_FCI_CACHE(fci_cache) do {(fci_cache)->initialized = 0; } while (0)
 #endif
 
+#if PHP_VERSION_ID >= 80200
+#define IS_CALLABLE_CHECK_SILENT 0
+#endif
+
 /**
  * Copies of internal methods from Zend/zend_execute_API.c
  * These are used to call internal methods (not in the function table) from the external method.
