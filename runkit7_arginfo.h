@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 4ed3bde43667f15f3395fc2c4f6cce57626fb6d2 */
+ * Stub hash: d558b5097292642014497e39f8ca66353b61f0cc */
 
 #if defined(PHP_RUNKIT_MANIPULATION)
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_runkit7_constant_add, 0, 2, _IS_BOOL, 0)
@@ -72,9 +72,9 @@ ZEND_END_ARG_INFO()
 #if defined(PHP_RUNKIT_MANIPULATION)
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_runkit7_method_copy, 0, 3, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, destination_class, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, destination_method, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, destination_method_name, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, source_class, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, source_method, IS_STRING, 1, "null")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, source_method_name, IS_STRING, 1, "null")
 ZEND_END_ARG_INFO()
 #endif
 
@@ -93,7 +93,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_runkit7_method_rename, 0, 3, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, class_name, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, source_method_name, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, source_target_name, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, target_method_name, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 #endif
 

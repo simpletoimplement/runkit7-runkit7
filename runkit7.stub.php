@@ -29,7 +29,7 @@ function runkit7_function_rename(string $source_name, string $target_name): bool
  * @param int|string|null $flags_or_doc_comment
  */
 function runkit7_method_add(string $class_name, string $method_name, $argument_list_or_closure, $code_or_flags = null, $flags_or_doc_comment = null, ?string $doc_comment = null, ?string $return_type = null, ?bool $is_strict = null): bool {}
-function runkit7_method_copy(string $destination_class, string $destination_method, string $source_class, ?string $source_method = null): bool {}
+function runkit7_method_copy(string $destination_class, string $destination_method_name, string $source_class, ?string $source_method_name = null): bool {}
 /**
  * @param Closure|string $argument_list_or_closure
  * @param int|string|null $code_or_flags
@@ -37,7 +37,7 @@ function runkit7_method_copy(string $destination_class, string $destination_meth
  */
 function runkit7_method_redefine(string $class_name, string $method_name, $argument_list_or_closure, $code_or_flags = null, $flags_or_doc_comment = null, ?string $doc_comment = null, ?string $return_type = null, ?bool $is_strict = null): bool {}
 function runkit7_method_remove(string $class_name, string $method_name): bool {}
-function runkit7_method_rename(string $class_name, string $source_method_name, string $source_target_name): bool {}
+function runkit7_method_rename(string $class_name, string $source_method_name, string $target_method_name): bool {}
 /**
  * @param mixed $value
  */
@@ -100,7 +100,7 @@ function runkit_method_add(string $class_name, string $method_name, $argument_li
  * @alias runkit7_method_copy
  * @deprecated
  */
-function runkit_method_copy(string $destination_class, string $destination_method, string $source_class, ?string $source_method = null): bool {}
+function runkit_method_copy(string $destination_class, string $destination_method_name, string $source_class, ?string $source_method_name = null): bool {}
 /**
  * @param Closure|string $argument_list_or_closure
  * @param int|string|null $code_or_flags
@@ -118,7 +118,7 @@ function runkit_method_remove(string $class_name, string $method_name): bool {}
  * @alias runkit7_method_rename
  * @deprecated
  */
-function runkit_method_rename(string $class_name, string $source_method_name, string $source_target_name): bool {}
+function runkit_method_rename(string $class_name, string $source_method_name, string $target_method_name): bool {}
 /**
  * @param mixed $value
  * @alias runkit7_zval_inspect
