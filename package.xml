@@ -27,6 +27,8 @@ Define customized superglobal variables for general purpose use.
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
 - Fix build errors and crash freeing static variables of created functions/methods in php 8.2.0-alpha1-dev
+- Fix handling of removed global functions in php 8.2.0beta1.
+  NOTE: This will cause undefined function Errors thrown by php to use the case of the function call in php 8.2+ instead of being lowercase.
  </notes>
  <contents>
   <dir name="/">

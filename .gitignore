@@ -5,8 +5,10 @@ tests/*.log
 tests/*.out
 tests/*.php
 tests/*.sh
+tags
 
 # built files
+*.dep
 *.lo
 *.dll
 *.tgz

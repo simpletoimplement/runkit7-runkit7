@@ -32,7 +32,7 @@ Runkit Sample: 2
 runkitSample
 runkitNewName
 
-Fatal error: Uncaught Error: Call to undefined function runkitsample() in %srunkit_function_rename_alias.php:17
+Fatal error: Uncaught Error: Call to undefined function runkit%sample() in %srunkit_function_rename_alias.php:17
 Stack trace:
 #0 {main}
   thrown in %srunkit_function_rename_alias.php on line 17

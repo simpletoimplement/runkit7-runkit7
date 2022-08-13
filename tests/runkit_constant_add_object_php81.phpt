@@ -38,7 +38,7 @@ var_dump(FOO);
 ?>
 --EXPECTF--
 enum(Suit::Hearts)
-object(stdClass)#1 (1) {
+object(stdClass)#%d (1) {
   ["key"]=>
   string(5) "value"
 }
@@ -55,7 +55,7 @@ Suit::Spades: public=true
 
 Warning: runkit7_constant_remove(): Refusing to remove enum case Suit::Spades in %s on line 21
 bool(false)
-object(ReflectionClassConstant)#5 (2) {
+object(ReflectionClassConstant)#%d (2) {
   ["name"]=>
   string(6) "Spades"
   ["class"]=>
@@ -64,7 +64,7 @@ object(ReflectionClassConstant)#5 (2) {
 Suit::SpadesAlias: case=false
 Suit::SpadesAlias: public=true
 bool(true)
-object(ReflectionClassConstant)#6 (2) {
+object(ReflectionClassConstant)#%d (2) {
   ["name"]=>
   string(11) "SpadesAlias"
   ["class"]=>

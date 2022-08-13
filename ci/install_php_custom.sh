@@ -2,7 +2,7 @@
 
 # Required env variables:
 #  PHP_CONFIGURE_ARGS
-#  PHP_CUSTOM_VERSION (E.g. 7.1.26)
+#  PHP_CUSTOM_VERSION (E.g. 7.4.20)
 #  PHP_INSTALL_DIR (path to installation directory)
 
 # optional env vars:
@@ -31,12 +31,12 @@ if [ "x${TRAVIS:-0}" != "x" ]; then
 fi
 
 # Otherwise, put a minimal installation inside of the cache.
-if [ "$PHP_CUSTOM_NORMAL_VERSION" == "8.1.0" ] ; then
-	PHP_CUSTOM_VERSION=8.1.0RC6
+if [ "$PHP_CUSTOM_NORMAL_VERSION" == "8.2.0" ] ; then
+	PHP_CUSTOM_VERSION=8.2.0beta2
 	PHP_FOLDER="php-$PHP_CUSTOM_VERSION"
 
 	PHP_TAR_FILE="$PHP_FOLDER.tar.bz2"
-	PHP_TAR_URL=https://downloads.php.net/~ramsey/$PHP_TAR_FILE
+	PHP_TAR_URL=https://downloads.php.net/~sergey/$PHP_TAR_FILE
 else
 	PHP_FOLDER="php-$PHP_CUSTOM_VERSION"
 
