@@ -26,7 +26,7 @@ Deprecated: Function runkit_function_remove() is deprecated in %srunkit_function
 Function Removed
 runkitSample
 
-Fatal error: Uncaught Error: Call to undefined function runkitsample() in %srunkit_function_remove_alias.php:13
+Fatal error: Uncaught Error: Call to undefined function runkit%sample() in %srunkit_function_remove_alias.php:13
 Stack trace:
 #0 {main}
   thrown in %srunkit_function_remove_alias.php on line 13

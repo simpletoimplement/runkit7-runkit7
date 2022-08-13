@@ -185,16 +185,21 @@ ZEND_FUNCTION(_php_runkit_removed_method)
 
 static inline void _php_runkit_init_stub_function(const char *name, ZEND_NAMED_FUNCTION(handler), zend_function **result)
 {
-	*result = pemalloc(sizeof(zend_function), 1);
-	(*result)->common.function_name = zend_string_init(name, strlen(name), 1);  // TODO: Can this be persistent?
-	(*result)->common.scope = NULL;
-	(*result)->common.arg_info = NULL;
-	(*result)->common.num_args = 0;
-	(*result)->common.type = ZEND_INTERNAL_FUNCTION;
-	(*result)->common.fn_flags = ZEND_ACC_PUBLIC | ZEND_ACC_STATIC;
-	(*result)->common.arg_info = NULL;
-	(*result)->internal_function.handler = handler;
-	(*result)->internal_function.module = &runkit7_module_entry;
+	zend_function *fn = pemalloc(sizeof(zend_function), 1);
+	*result = fn;
+	/* Ensure memory is initialized for fields that aren't listed here in stub functions. */
+	memset(fn, 0, sizeof(zend_function));
+	fn->common.function_name = zend_string_init(name, strlen(name), 1);  // TODO: Can this be persistent?
+	fn->common.scope = NULL;
+	fn->common.arg_info = NULL;
+	fn->common.num_args = 0;
+	fn->common.type = ZEND_INTERNAL_FUNCTION;
+	fn->common.fn_flags = ZEND_ACC_PUBLIC | ZEND_ACC_STATIC;
+	fn->common.arg_info = NULL;
+	/* fn->common.T was added in 8.2.0beta2 */
+	/* fn->common.T = 0; */
+	fn->internal_function.handler = handler;
+	fn->internal_function.module = &runkit7_module_entry;
 }
 #endif
 
@@ -374,6 +379,10 @@ PHP_RINIT_FUNCTION(runkit7)
 	RUNKIT_G(replaced_internal_functions) = NULL;
 	RUNKIT_G(misplaced_internal_functions) = NULL;
 	RUNKIT_G(module_moved_to_front) = 0;
+#if PHP_VERSION_ID >= 80200
+	/* ZEND_INIT_FCALL now asserts that the function exists in the symbol table at runtime. */
+	CG(compiler_options) |= ZEND_COMPILE_IGNORE_USER_FUNCTIONS | ZEND_COMPILE_IGNORE_INTERNAL_FUNCTIONS;
+#endif
 	// RUNKIT_G(removed_default_class_members) = NULL;
 #endif
 
