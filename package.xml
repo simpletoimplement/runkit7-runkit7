@@ -17,7 +17,7 @@ Define customized superglobal variables for general purpose use.
  </lead>
  <date>2022-08-13</date>
  <version>
-  <release>4.0.0a4</release>
+  <release>4.0.0a5</release>
   <api>4.0.2</api>
  </version>
  <stability>
@@ -26,9 +26,7 @@ Define customized superglobal variables for general purpose use.
  </stability>
  <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
  <notes>
-- Fix build errors and crash freeing static variables of created functions/methods in php 8.2.0-alpha1-dev
-- Fix handling of removed global functions in php 8.2.0beta1.
-  NOTE: This will cause undefined function Errors thrown by php to use the case of the function call in php 8.2+ instead of being lowercase.
+- Make version of runkit7 in reflection match PECL version.
  </notes>
  <contents>
   <dir name="/">
@@ -250,6 +248,23 @@ Define customized superglobal variables for general purpose use.
  <providesextension>runkit7</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2021-07-17</date>
+   <version>
+    <release>4.0.0a4</release>
+    <api>4.0.2</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD License (3 Clause)</license>
+   <notes>
+- Fix build errors and crash freeing static variables of created functions/methods in php 8.2.0-alpha1-dev
+- Fix handling of removed global functions in php 8.2.0beta1.
+  NOTE: This will cause undefined function Errors thrown by php to use the case of the function call in php 8.2+ instead of being lowercase.
+   </notes>
+  </release>
   <release>
    <date>2021-07-17</date>
    <version>
