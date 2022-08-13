@@ -7,7 +7,7 @@ __Supports PHP7.2-8.1!__ (function/method manipulation is recommended only for u
 - Function/method manipulation crashes in PHP 7.4+ when opcache is enabled (e.g. `opcache.enable_cli`) ([Issue #217](https://github.com/runkit7/runkit7/issues/217))
 
   Disabling opcache is the recommended workaround.
-- This has been tested with php 8.1.0RC6
+- This has been tested with php 8.2.0beta1
 
 [![Build Status](https://secure.travis-ci.org/runkit7/runkit7.png?branch=master)](http://travis-ci.org/runkit7/runkit7)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/3jwsf76ge0yo8v74/branch/master?svg=true)](https://ci.appveyor.com/project/TysonAndre/runkit7/branch/master)
