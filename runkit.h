@@ -62,7 +62,7 @@ static inline void *_debug_emalloc(void *data, int bytes, char *file, int line)
 #define debug_printf(...) do { } while(0)
 #endif
 
-#define PHP_RUNKIT7_VERSION					"4.0.0a5"
+#define PHP_RUNKIT7_VERSION					"4.0.0a6"
 
 #define PHP_RUNKIT_OVERRIDE_OBJECTS           0x8000
 
@@ -601,7 +601,10 @@ void php_runkit_update_reflection_object_name(zend_object *object, int handle, c
 		void *ptr;
 		zend_class_entry *ce;
 		reflection_type_t ref_type;
+#if PHP_VERSION_ID < 80100
+		/* Removed in php 8.1 with setAccessible becoming a no-op https://wiki.php.net/rfc/make-reflection-setaccessible-no-op */
 		unsigned int ignore_visibility : 1;
+#endif
 		zend_object zo;
 	} reflection_object;
 #endif /* PHP_RUNKIT_MANIPULATION */
